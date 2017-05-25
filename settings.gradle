@@ -1,0 +1,6 @@
+rootProject.name = 'deposit-account-management'
+
+includeBuild 'api'
+includeBuild 'service'
+includeBuild 'component-test'
+
