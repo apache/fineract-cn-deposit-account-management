@@ -18,10 +18,16 @@ package io.mifos.deposit.service.rest;
 import io.mifos.anubis.annotation.AcceptedTokenType;
 import io.mifos.anubis.annotation.Permittable;
 import io.mifos.core.command.gateway.CommandGateway;
+import io.mifos.core.lang.ServiceException;
 import io.mifos.deposit.api.v1.PermittableGroupIds;
 import io.mifos.deposit.api.v1.definition.domain.ProductDefinition;
 import io.mifos.deposit.api.v1.definition.domain.ProductDefinitionCommand;
+import io.mifos.deposit.api.v1.instance.domain.ProductInstance;
 import io.mifos.deposit.service.ServiceConstants;
+import io.mifos.deposit.service.internal.command.CreateProductDefinitionCommand;
+import io.mifos.deposit.service.internal.repository.ProductInstanceRepository;
+import io.mifos.deposit.service.internal.service.ProductDefinitionService;
+import io.mifos.deposit.service.internal.service.ProductInstanceService;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -35,8 +41,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
-import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/definitions")
@@ -44,13 +50,19 @@ public class ProductDefinitionRestController {
 
   private final Logger logger;
   private final CommandGateway commandGateway;
+  private final ProductDefinitionService productDefinitionService;
+  private final ProductInstanceService productInstanceService;
 
   @Autowired
   public ProductDefinitionRestController(@Qualifier(ServiceConstants.LOGGER_NAME) final Logger logger,
-                                         final CommandGateway commandGateway) {
+                                         final CommandGateway commandGateway,
+                                         final ProductDefinitionService productDefinitionService,
+                                         final ProductInstanceService productInstanceService) {
     super();
     this.logger = logger;
     this.commandGateway = commandGateway;
+    this.productDefinitionService = productDefinitionService;
+    this.productInstanceService = productInstanceService;
   }
 
   @Permittable(value = AcceptedTokenType.TENANT, groupId = PermittableGroupIds.DEFINITION_MANAGEMENT)
@@ -62,6 +74,7 @@ public class ProductDefinitionRestController {
   )
   @ResponseBody
   public ResponseEntity<Void> create(@RequestBody @Valid final ProductDefinition productDefinition) {
+    this.commandGateway.process(new CreateProductDefinitionCommand(productDefinition));
     return ResponseEntity.accepted().build();
   }
 
@@ -74,7 +87,7 @@ public class ProductDefinitionRestController {
   )
   @ResponseBody
   ResponseEntity<List<ProductDefinition>> fetchProductDefinitions() {
-    return ResponseEntity.ok(Collections.emptyList());
+    return ResponseEntity.ok(this.productDefinitionService.fetchProductDefinitions());
   }
 
   @Permittable(value = AcceptedTokenType.TENANT, groupId = PermittableGroupIds.DEFINITION_MANAGEMENT)
@@ -85,8 +98,28 @@ public class ProductDefinitionRestController {
       produces = MediaType.APPLICATION_JSON_VALUE
   )
   @ResponseBody
-  ResponseEntity<ProductDefinition> findProductDefinition(@PathVariable("identifier") final String Identifier) {
-    return ResponseEntity.ok(null);
+  ResponseEntity<ProductDefinition> findProductDefinition(@PathVariable("identifier") final String identifier) {
+    return ResponseEntity.ok(
+        this.productDefinitionService.findProductDefinition(identifier)
+            .orElseThrow(() -> ServiceException.notFound("Product definition {0} not found.", identifier))
+    );
+  }
+
+  @RequestMapping(
+      value = "/definitions/{identifier}/instances",
+      method = RequestMethod.GET,
+      consumes = MediaType.ALL_VALUE,
+      produces = MediaType.APPLICATION_JSON_VALUE
+  )
+  @Permittable(value = AcceptedTokenType.TENANT, groupId = PermittableGroupIds.INSTANCE_MANAGEMENT)
+  public ResponseEntity<List<ProductInstance>> findProductInstances(@PathVariable("identifier") final String identifier) {
+
+    final Optional<ProductDefinition> optionalProductDefinition = this.productDefinitionService.findProductDefinition(identifier);
+    if (!this.productDefinitionService.findProductDefinition(identifier).isPresent()) {
+      throw ServiceException.notFound("Product definition {0} not found.", identifier);
+    } else {
+      return ResponseEntity.ok(this.productInstanceService.findByProductDefinition(identifier));
+    }
   }
 
   @Permittable(value = AcceptedTokenType.TENANT, groupId = PermittableGroupIds.DEFINITION_MANAGEMENT)

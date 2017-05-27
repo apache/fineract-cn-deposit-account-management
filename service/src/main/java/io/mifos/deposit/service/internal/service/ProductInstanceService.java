@@ -1,0 +1,71 @@
+/*
+ * Copyright 2017 The Mifos Initiative.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package io.mifos.deposit.service.internal.service;
+
+import io.mifos.deposit.api.v1.definition.domain.ProductDefinition;
+import io.mifos.deposit.api.v1.instance.domain.ProductInstance;
+import io.mifos.deposit.service.ServiceConstants;
+import io.mifos.deposit.service.internal.mapper.ProductDefinitionMapper;
+import io.mifos.deposit.service.internal.mapper.ProductInstanceMapper;
+import io.mifos.deposit.service.internal.repository.ActionRepository;
+import io.mifos.deposit.service.internal.repository.ProductDefinitionEntity;
+import io.mifos.deposit.service.internal.repository.ProductDefinitionRepository;
+import io.mifos.deposit.service.internal.repository.ProductInstanceRepository;
+import org.slf4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+@Service
+public class ProductInstanceService {
+
+  private final Logger logger;
+  private final ProductInstanceRepository productInstanceRepository;
+  private final ProductDefinitionRepository productDefinitionRepository;
+
+  @Autowired
+  public ProductInstanceService(@Qualifier(ServiceConstants.LOGGER_NAME) final Logger logger,
+                                final ProductInstanceRepository productInstanceRepository,
+                                final ProductDefinitionRepository productDefinitionRepository) {
+    super();
+    this.logger = logger;
+    this.productInstanceRepository = productInstanceRepository;
+    this.productDefinitionRepository = productDefinitionRepository;
+  }
+
+  public List<ProductInstance> findByCustomer(final String customerIdentifier) {
+    return this.productInstanceRepository.findByCustomerIdentifier(customerIdentifier)
+        .stream()
+        .map(ProductInstanceMapper::map).
+        collect(Collectors.toList());
+  }
+
+  public List<ProductInstance> findByProductDefinition(final String identifier) {
+    final Optional<ProductDefinitionEntity> optionalProductDefinition = this.productDefinitionRepository.findByIdentifier(identifier);
+
+    return optionalProductDefinition
+        .map(productDefinitionEntity -> this.productInstanceRepository.findByProductDefinition(productDefinitionEntity)
+          .stream()
+          .map(ProductInstanceMapper::map)
+          .collect(Collectors.toList())).orElseGet(Collections::emptyList);
+
+  }
+}

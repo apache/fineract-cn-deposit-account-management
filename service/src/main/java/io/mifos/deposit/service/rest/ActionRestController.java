@@ -18,67 +18,69 @@ package io.mifos.deposit.service.rest;
 import io.mifos.anubis.annotation.AcceptedTokenType;
 import io.mifos.anubis.annotation.Permittable;
 import io.mifos.core.command.gateway.CommandGateway;
+import io.mifos.core.lang.ServiceException;
 import io.mifos.deposit.api.v1.PermittableGroupIds;
-import io.mifos.deposit.api.v1.instance.domain.ProductInstance;
-import io.mifos.deposit.api.v1.instance.domain.StateChange;
+import io.mifos.deposit.api.v1.definition.domain.Action;
 import io.mifos.deposit.service.ServiceConstants;
-import io.mifos.deposit.service.internal.service.ProductInstanceService;
+import io.mifos.deposit.service.internal.command.CreateActionCommand;
+import io.mifos.deposit.service.internal.service.ActionService;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
-import java.util.Collections;
 import java.util.List;
 
 @RestController
-@RequestMapping("/instances")
-public class ProductInstanceRestController {
+@RequestMapping("/actions")
+public class ActionRestController {
 
   private final Logger logger;
   private final CommandGateway commandGateway;
-  private final ProductInstanceService productInstanceService;
+  private final ActionService actionService;
 
   @Autowired
-  public ProductInstanceRestController(@Qualifier(ServiceConstants.LOGGER_NAME) final Logger logger,
-                                       final CommandGateway commandGateway,
-                                       final ProductInstanceService productInstanceService) {
+  public ActionRestController(@Qualifier(ServiceConstants.LOGGER_NAME) final Logger logger,
+                              final CommandGateway commandGateway,
+                              final ActionService actionService) {
     super();
     this.logger = logger;
     this.commandGateway = commandGateway;
-    this.productInstanceService = productInstanceService;
+    this.actionService = actionService;
   }
 
-  @Permittable(value = AcceptedTokenType.TENANT, groupId = PermittableGroupIds.INSTANCE_MANAGEMENT)
   @RequestMapping(
-      value = "/",
+      value = "/actions",
       method = RequestMethod.POST,
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE
   )
-  @ResponseBody
-  public ResponseEntity<Void> create(@RequestBody @Valid final ProductInstance productInstance) {
+  @Permittable(value = AcceptedTokenType.TENANT, groupId = PermittableGroupIds.DEFINITION_MANAGEMENT)
+  public ResponseEntity<Void> create(@RequestBody @Valid final Action action) {
+    this.actionService.findByIdentifier(action.getIdentifier()).ifPresent(actionEntity -> {
+      throw ServiceException.conflict("Action {0} already exists.", action.getIdentifier());
+    });
+
+    this.commandGateway.process(new CreateActionCommand(action));
     return ResponseEntity.accepted().build();
   }
 
-  @Permittable(value = AcceptedTokenType.TENANT, groupId = PermittableGroupIds.INSTANCE_MANAGEMENT)
   @RequestMapping(
-      value = "/",
+      value = "/actions",
       method = RequestMethod.GET,
       consumes = MediaType.ALL_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE
   )
-  @ResponseBody
-  public ResponseEntity<List<ProductInstance>> fetchProductInstances(@RequestParam(value = "customer", required = true) final String customerIdentifier) {
-    return ResponseEntity.ok(this.productInstanceService.findByCustomer(customerIdentifier));
+  @Permittable(value = AcceptedTokenType.TENANT, groupId = PermittableGroupIds.DEFINITION_MANAGEMENT)
+  public ResponseEntity<List<Action>> fetchActions() {
+    return ResponseEntity.ok(this.actionService.fetchActions());
   }
+
+
 }

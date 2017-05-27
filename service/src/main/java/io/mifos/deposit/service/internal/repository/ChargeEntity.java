@@ -13,28 +13,55 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.mifos.deposit.api.v1.definition.domain;
+package io.mifos.deposit.service.internal.repository;
 
-import io.mifos.core.lang.validation.constraints.ValidIdentifier;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 
-import javax.validation.constraints.NotNull;
+@Entity
+@Table(name = "shed_charges")
+public class ChargeEntity {
 
-public class Charge {
-
-  @ValidIdentifier
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "id", nullable = false, unique = true)
+  private Long id;
+  @Column(name = "identifier", nullable = false, unique = true, length = 32)
   private String identifier;
-  @ValidIdentifier
-  private String actionIdentifier;
-  @ValidIdentifier
+  @ManyToOne(fetch = FetchType.EAGER)
+  @JoinColumn(name = "action_id", nullable = false)
+  private ActionEntity action;
+  @Column(name = "income_account_identifier", nullable = false, length = 32)
   private String incomeAccountIdentifier;
-  @NotNull
+  @ManyToOne
+  @JoinColumn(name = "product_definition_id", nullable = false)
+  private ProductDefinitionEntity productDefinition;
+  @Column(name = "name", nullable = false)
   private String name;
+  @Column(name = "description", nullable = true)
   private String description;
+  @Column(name = "proportional", nullable = false)
   private Boolean proportional;
+  @Column(name = "amount", nullable = false)
   private Double amount;
 
-  public Charge() {
+  public ChargeEntity() {
     super();
+  }
+
+  public Long getId() {
+    return this.id;
+  }
+
+  public void setId(final Long id) {
+    this.id = id;
   }
 
   public String getIdentifier() {
@@ -45,12 +72,12 @@ public class Charge {
     this.identifier = identifier;
   }
 
-  public String getActionIdentifier() {
-    return this.actionIdentifier;
+  public ActionEntity getAction() {
+    return this.action;
   }
 
-  public void setActionIdentifier(final String actionIdentifier) {
-    this.actionIdentifier = actionIdentifier;
+  public void setAction(final ActionEntity action) {
+    this.action = action;
   }
 
   public String getIncomeAccountIdentifier() {
@@ -59,6 +86,14 @@ public class Charge {
 
   public void setIncomeAccountIdentifier(final String incomeAccountIdentifier) {
     this.incomeAccountIdentifier = incomeAccountIdentifier;
+  }
+
+  public ProductDefinitionEntity getProductDefinition() {
+    return this.productDefinition;
+  }
+
+  public void setProductDefinition(final ProductDefinitionEntity productDefinition) {
+    this.productDefinition = productDefinition;
   }
 
   public String getName() {

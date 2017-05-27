@@ -13,24 +13,42 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.mifos.deposit.api.v1.definition.domain;
+package io.mifos.deposit.service.internal.repository;
 
-import io.mifos.core.lang.validation.constraints.ValidIdentifier;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
 
-import javax.validation.constraints.NotNull;
+@Entity
+@Table(name = "shed_actions")
+public class ActionEntity {
 
-public class Action {
-
-  @ValidIdentifier
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "id", nullable = false)
+  private Long id;
+  @Column(name = "identifier", nullable = false, unique = true, length = 32)
   private String identifier;
-  @NotNull
+  @Column(name = "name", nullable = false)
   private String name;
+  @Column(name = "description", nullable = true)
   private String description;
-  @ValidIdentifier
+  @Column(name = "transaction_type", nullable = false)
   private String transactionType;
 
-  public Action() {
+  public ActionEntity() {
     super();
+  }
+
+  public Long getId() {
+    return this.id;
+  }
+
+  public void setId(final Long id) {
+    this.id = id;
   }
 
   public String getIdentifier() {

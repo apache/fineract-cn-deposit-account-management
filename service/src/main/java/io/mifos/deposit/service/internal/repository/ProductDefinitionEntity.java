@@ -13,51 +13,73 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.mifos.deposit.api.v1.definition.domain;
+package io.mifos.deposit.service.internal.repository;
 
-import io.mifos.core.lang.validation.constraints.ValidIdentifier;
-import io.mifos.deposit.api.v1.domain.Type;
-
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
+import javax.persistence.Table;
 import java.util.List;
 
-public class ProductDefinition {
+@Entity
+@Table(name = "shed_product_definitions")
+public class ProductDefinitionEntity {
 
-  @Valid
-  private Type type;
-  @ValidIdentifier
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "id", nullable = false)
+  private Long id;
+  @Column(name = "a_type", nullable = false)
+  private String type;
+  @Column(name = "identifier", nullable = false, unique = true, length = 32)
   private String identifier;
-  @NotNull
+  @Column(name = "a_name", nullable = false, length = 256)
   private String name;
+  @Column(name = "description", nullable = true, length = 4096)
   private String description;
-  @Valid
-  @NotNull
-  private Currency currency;
-  @NotNull
+  @OneToOne(mappedBy = "productDefinition", cascade = CascadeType.ALL, optional = false, fetch = FetchType.EAGER)
+  private CurrencyEntity currency;
+  @Column(name = "minimum_balance", nullable = true)
   private Double minimumBalance;
+  @Column(name = "equity_ledger_identifier", nullable = false)
   private String equityLedgerIdentifier;
-  @ValidIdentifier
+  @Column(name = "expense_account_identifier", nullable = false)
   private String expenseAccountIdentifier;
+  @Column(name = "interest", nullable = true)
   private Double interest;
-  @Valid
-  @NotNull
-  private Term term;
-  @Valid
-  private List<Charge> charges;
+  @OneToOne(mappedBy = "productDefinition", cascade = CascadeType.ALL, optional = false, fetch = FetchType.EAGER)
+  private TermEntity term;
+  @OneToMany(mappedBy = "productDefinition", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+  private List<ChargeEntity> charges;
+  @Column(name = "is_flexible", nullable = false)
   private Boolean flexible;
+  @Column(name = "is_active", nullable = false)
   private Boolean active;
 
-  public ProductDefinition() {
+  public ProductDefinitionEntity() {
     super();
   }
 
+  public Long getId() {
+    return this.id;
+  }
+
+  public void setId(final Long id) {
+    this.id = id;
+  }
+
   public String getType() {
-    return this.type.name();
+    return this.type;
   }
 
   public void setType(final String type) {
-    this.type = Type.valueOf(type);
+    this.type = type;
   }
 
   public String getIdentifier() {
@@ -84,12 +106,13 @@ public class ProductDefinition {
     this.description = description;
   }
 
-  public Currency getCurrency() {
+  public CurrencyEntity getCurrency() {
     return this.currency;
   }
 
-  public void setCurrency(final Currency currency) {
+  public void setCurrency(final CurrencyEntity currency) {
     this.currency = currency;
+    this.currency.setProductDefinition(this);
   }
 
   public Double getMinimumBalance() {
@@ -124,20 +147,22 @@ public class ProductDefinition {
     this.interest = interest;
   }
 
-  public Term getTerm() {
+  public TermEntity getTerm() {
     return this.term;
   }
 
-  public void setTerm(final Term term) {
+  public void setTerm(final TermEntity term) {
     this.term = term;
+    this.term.setProductDefinition(this);
   }
 
-  public List<Charge> getCharges() {
+  public List<ChargeEntity> getCharges() {
     return this.charges;
   }
 
-  public void setCharges(final List<Charge> charges) {
+  public void setCharges(final List<ChargeEntity> charges) {
     this.charges = charges;
+    charges.forEach(chargeEntity -> chargeEntity.setProductDefinition(this));
   }
 
   public Boolean getFlexible() {

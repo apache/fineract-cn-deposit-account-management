@@ -23,7 +23,8 @@ public class ProductInstance {
   private String customerIdentifier;
   @ValidIdentifier
   private String productIdentifier;
-  private State state;
+  private String accountIdentifier;
+  private String state;
 
   public ProductInstance() {
     super();
@@ -45,11 +46,19 @@ public class ProductInstance {
     this.productIdentifier = productIdentifier;
   }
 
-  public State getState() {
+  public String getAccountIdentifier() {
+    return this.accountIdentifier;
+  }
+
+  public void setAccountIdentifier(final String accountIdentifier) {
+    this.accountIdentifier = accountIdentifier;
+  }
+
+  public String getState() {
     return this.state;
   }
 
-  public void setState(final State state) {
+  public void setState(final String state) {
     this.state = state;
   }
 }

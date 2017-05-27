@@ -16,6 +16,7 @@
 package io.mifos.deposit.api.v1.client;
 
 import io.mifos.core.api.util.CustomFeignClientsConfiguration;
+import io.mifos.deposit.api.v1.definition.domain.Action;
 import io.mifos.deposit.api.v1.definition.domain.ProductDefinition;
 import io.mifos.deposit.api.v1.definition.domain.ProductDefinitionCommand;
 import io.mifos.deposit.api.v1.instance.domain.ProductInstance;
@@ -34,6 +35,22 @@ import java.util.List;
 @SuppressWarnings("unused")
 @FeignClient(value = "deposit-v1", path = "/deposit/v1", configuration = CustomFeignClientsConfiguration.class)
 public interface DepositAccountManager {
+
+  @RequestMapping(
+      value = "/actions",
+      method = RequestMethod.POST,
+      consumes = MediaType.APPLICATION_JSON_VALUE,
+      produces = MediaType.APPLICATION_JSON_VALUE
+  )
+  void create(@RequestBody @Valid final Action action);
+
+  @RequestMapping(
+      value = "/actions",
+      method = RequestMethod.GET,
+      consumes = MediaType.APPLICATION_JSON_VALUE,
+      produces = MediaType.ALL_VALUE
+  )
+  List<Action> fetchActions();
 
   @RequestMapping(
       value = "/definitions",
@@ -60,6 +77,14 @@ public interface DepositAccountManager {
   ProductDefinition findProductDefinition(@PathVariable("identifier") final String Identifier);
 
   @RequestMapping(
+      value = "/definitions/{identifier}/instances",
+      method = RequestMethod.GET,
+      consumes = MediaType.APPLICATION_JSON_VALUE,
+      produces = MediaType.ALL_VALUE
+  )
+  List<ProductInstance> findProductInstances(@PathVariable("identifier") final String Identifier);
+
+  @RequestMapping(
       value = "/definitions/{identifier}/commands",
       method = RequestMethod.POST,
       consumes = MediaType.APPLICATION_JSON_VALUE,
@@ -82,23 +107,5 @@ public interface DepositAccountManager {
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.ALL_VALUE
   )
-  List<ProductInstance> fetchProductInstances(@RequestParam(value = "customer", required = true) final String customer,
-                                              @RequestParam(value = "product", required = false) final String product);
-
-  @RequestMapping(
-      value = "/instances/{identifier}",
-      method = RequestMethod.GET,
-      consumes = MediaType.APPLICATION_JSON_VALUE,
-      produces = MediaType.ALL_VALUE
-  )
-  ProductInstance findProductInstance(@PathVariable("identifier") final String identifier);
-
-  @RequestMapping(
-      value = "/instances/{identifier}/states",
-      method = RequestMethod.POST,
-      consumes = MediaType.APPLICATION_JSON_VALUE,
-      produces = MediaType.APPLICATION_JSON_VALUE
-  )
-  void change(@PathVariable("identifier") final String identifier,
-              @RequestBody @Valid final StateChange stateChange);
+  List<ProductInstance> fetchProductInstances(@RequestParam(value = "customer", required = true) final String customer);
 }

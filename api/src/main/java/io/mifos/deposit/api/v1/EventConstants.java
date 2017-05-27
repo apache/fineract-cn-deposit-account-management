@@ -24,6 +24,9 @@ public interface EventConstants {
   String INITIALIZE = "initialize";
   String SELECTOR_INITIALIZE = SELECTOR_NAME + " = '" + INITIALIZE + "'";
 
+  String POST_PRODUCT_ACTION = "post-product-action";
+  String SELECTOR_POST_PRODUCT_ACTION = SELECTOR_NAME + " = " + POST_PRODUCT_ACTION;
+
   String POST_PRODUCT_DEFINITION = "post-product-definition";
   String SELECTOR_POST_PRODUCT_DEFINITION = SELECTOR_NAME + " = '" + POST_PRODUCT_DEFINITION + "'";
   String POST_PRODUCT_DEFINITION_COMMAND = "post-product-definition-command";
