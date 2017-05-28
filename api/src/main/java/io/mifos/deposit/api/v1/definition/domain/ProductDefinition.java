@@ -36,6 +36,7 @@ public class ProductDefinition {
   private Currency currency;
   @NotNull
   private Double minimumBalance;
+  @ValidIdentifier
   private String equityLedgerIdentifier;
   @ValidIdentifier
   private String expenseAccountIdentifier;
