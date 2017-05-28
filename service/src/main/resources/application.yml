@@ -28,7 +28,7 @@ eureka:
 
 server:
   port: 8081
-  contextPath: /deposit/v1/*
+  contextPath: /deposit/v1
 
 cassandra:
   clusterName: staging_cluster

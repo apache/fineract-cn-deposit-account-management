@@ -41,7 +41,7 @@ public class ProductDefinitionMapper {
     productDefinitionEntity.setTerm(TermMapper.map(productDefinition.getTerm()));
     productDefinitionEntity.setCharges(productDefinition.getCharges()
         .stream()
-        .map(charge -> ChargesMapper.map(charge, actionRepository))
+        .map(charge -> ChargeMapper.map(charge, actionRepository))
         .collect(Collectors.toList())
     );
     productDefinitionEntity.setFlexible(productDefinition.getFlexible());
@@ -63,10 +63,11 @@ public class ProductDefinitionMapper {
     productDefinition.setTerm(TermMapper.map(productDefinitionEntity.getTerm()));
     productDefinition.setCharges(productDefinitionEntity.getCharges()
         .stream()
-        .map(ChargesMapper::map)
+        .map(ChargeMapper::map)
         .collect(Collectors.toList())
     );
     productDefinition.setFlexible(productDefinitionEntity.getFlexible());
+    productDefinition.setActive(productDefinitionEntity.getActive());
 
     return productDefinition;
   }

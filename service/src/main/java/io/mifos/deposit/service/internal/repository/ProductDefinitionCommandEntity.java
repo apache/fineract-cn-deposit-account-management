@@ -15,8 +15,11 @@
  */
 package io.mifos.deposit.service.internal.repository;
 
+import io.mifos.core.mariadb.util.LocalDateTimeConverter;
+
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -44,6 +47,7 @@ public class ProductDefinitionCommandEntity {
   private String note;
   @Column(name = "created_by", nullable = false, length = 32)
   private String createdBy;
+  @Convert(converter = LocalDateTimeConverter.class)
   @Column(name = "created_on", nullable = false)
   private LocalDateTime createdOn;
 

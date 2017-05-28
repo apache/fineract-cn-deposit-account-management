@@ -61,7 +61,8 @@ CREATE TABLE shed_actions (
   a_name           VARCHAR(256)  NOT NULL,
   description      VARCHAR(2048) NULL,
   transaction_type VARCHAR(32)   NOT NULL,
-  CONSTRAINT shed_actions PRIMARY KEY (id)
+  CONSTRAINT shed_actions PRIMARY KEY (id),
+  CONSTRAINT shed_actions_identifier_uq UNIQUE (identifier)
 );
 
 INSERT INTO shed_actions
@@ -91,10 +92,9 @@ VALUES
 
 CREATE TABLE shed_charges (
   id                        BIGINT        NOT NULL AUTO_INCREMENT,
-  identifier                VARCHAR(32)   NOT NULL,
   action_id                 BIGINT        NOT NULL,
   product_definition_id     BIGINT        NOT NULL,
-  income_account_identifier BIGINT        NOT NULL,
+  income_account_identifier VARCHAR(32)   NOT NULL,
   a_name                    VARCHAR(256)  NOT NULL,
   description               VARCHAR(2048) NULL,
   proportional              BOOLEAN   NOT NULL,
@@ -107,7 +107,7 @@ CREATE TABLE shed_charges (
 CREATE TABLE shed_commands (
   id                    BIGINT        NOT NULL AUTO_INCREMENT,
   product_definition_id BIGINT        NOT NULL,
-  action                VARCHAR(256)  NOT NULL,
+  a_action              VARCHAR(256)  NOT NULL,
   note                  VARCHAR(2048) NOT NULL,
   created_on            TIMESTAMP(3)  NOT NULL,
   created_by            VARCHAR(32)   NOT NULL,
@@ -118,7 +118,7 @@ CREATE TABLE shed_commands (
 CREATE TABLE shed_product_instances (
   id                    BIGINT       NOT NULL AUTO_INCREMENT,
   customer_identifier   VARCHAR(32)  NOT NULL,
-  product_definition_id VARCHAR(32)  NOT NULL,
+  product_definition_id BIGINT       NOT NULL,
   account_identifier    VARCHAR(32)  NOT NULL,
   a_state               VARCHAR(32)  NOT NULL,
   created_on            TIMESTAMP(3) NOT NULL,
@@ -126,5 +126,6 @@ CREATE TABLE shed_product_instances (
   last_modified_on      TIMESTAMP(3) NULL,
   last_modified_by      VARCHAR(32)  NULL,
   CONSTRAINT shed_product_instances_pk PRIMARY KEY (id),
+  CONSTRAINT shed_prod_inst_identifier_uq UNIQUE (account_identifier),
   CONSTRAINT shed_prod_inst_prod_def_fk FOREIGN KEY (product_definition_id) REFERENCES shed_product_definitions (id)
 );

@@ -68,7 +68,7 @@ public class ProductDefinitionRestController {
 
   @Permittable(value = AcceptedTokenType.TENANT, groupId = PermittableGroupIds.DEFINITION_MANAGEMENT)
   @RequestMapping(
-      value = "/",
+      value = "",
       method = RequestMethod.POST,
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE
@@ -81,7 +81,7 @@ public class ProductDefinitionRestController {
 
   @Permittable(value = AcceptedTokenType.TENANT, groupId = PermittableGroupIds.DEFINITION_MANAGEMENT)
   @RequestMapping(
-      value = "/",
+      value = "",
       method = RequestMethod.GET,
       consumes = MediaType.ALL_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE
@@ -107,7 +107,7 @@ public class ProductDefinitionRestController {
   }
 
   @RequestMapping(
-      value = "/definitions/{identifier}/instances",
+      value = "/{identifier}/instances",
       method = RequestMethod.GET,
       consumes = MediaType.ALL_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE

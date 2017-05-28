@@ -23,9 +23,9 @@ import io.mifos.deposit.service.internal.repository.ChargeEntity;
 
 import java.util.Optional;
 
-public class ChargesMapper {
+public class ChargeMapper {
 
-  private ChargesMapper() {
+  private ChargeMapper() {
     super();
   }
 
@@ -33,7 +33,6 @@ public class ChargesMapper {
     final Optional<ActionEntity> optionalActionEntity = actionRepository.findByIdentifier(charge.getActionIdentifier());
     if (optionalActionEntity.isPresent()) {
       final ChargeEntity chargeEntity = new ChargeEntity();
-      chargeEntity.setIdentifier(charge.getIdentifier());
       chargeEntity.setAction(optionalActionEntity.get());
       chargeEntity.setIncomeAccountIdentifier(charge.getIncomeAccountIdentifier());
       chargeEntity.setName(charge.getName());
@@ -43,14 +42,13 @@ public class ChargesMapper {
 
       return chargeEntity;
     } else {
-      throw ServiceException.notFound("Can not create charge {0}, action {1} not found.",
-          charge.getIdentifier(), charge.getActionIdentifier());
+      throw ServiceException.notFound("Can not create charge, action {1} not found.",
+          charge.getActionIdentifier());
     }
   }
 
   public static Charge map(final ChargeEntity chargeEntity) {
     final Charge charge = new Charge();
-    charge.setIdentifier(chargeEntity.getIdentifier());
     charge.setActionIdentifier(chargeEntity.getAction().getIdentifier());
     charge.setIncomeAccountIdentifier(chargeEntity.getIncomeAccountIdentifier());
     charge.setName(chargeEntity.getName());

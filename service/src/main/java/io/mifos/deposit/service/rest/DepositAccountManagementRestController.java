@@ -19,6 +19,7 @@ import io.mifos.anubis.annotation.AcceptedTokenType;
 import io.mifos.anubis.annotation.Permittable;
 import io.mifos.core.command.gateway.CommandGateway;
 import io.mifos.deposit.service.ServiceConstants;
+import io.mifos.deposit.service.internal.command.MigrationCommand;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -54,6 +55,7 @@ public class DepositAccountManagementRestController {
   public
   @ResponseBody
   ResponseEntity<Void> initialize() {
+    this.commandGateway.process(new MigrationCommand());
     return ResponseEntity.accepted().build();
   }
 }

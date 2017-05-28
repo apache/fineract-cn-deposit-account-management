@@ -15,6 +15,7 @@
  */
 package io.mifos.deposit.service.internal.command.handler;
 
+import io.mifos.core.api.util.UserContextHolder;
 import io.mifos.core.command.annotation.Aggregate;
 import io.mifos.core.command.annotation.CommandHandler;
 import io.mifos.core.command.annotation.EventEmitter;
@@ -29,6 +30,10 @@ import io.mifos.deposit.service.internal.repository.ProductInstanceRepository;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.Clock;
+import java.time.LocalDateTime;
 
 @Aggregate
 public class ProductInstanceAggregate {
@@ -48,11 +53,16 @@ public class ProductInstanceAggregate {
 
   @CommandHandler
   @EventEmitter(selectorName = EventConstants.SELECTOR_NAME, selectorValue = EventConstants.POST_PRODUCT_INSTANCE)
+  @Transactional
   public String createProductInstance(final CreateProductInstanceCommand createProductInstanceCommand) {
     final ProductInstance productInstance = createProductInstanceCommand.productInstance();
 
     final ProductInstanceEntity productInstanceEntity =
         ProductInstanceMapper.map(productInstance, this.productDefinitionRepository);
+
+    productInstanceEntity.setCreatedBy(UserContextHolder.checkedGetUser());
+    productInstanceEntity.setCreatedOn(LocalDateTime.now(Clock.systemUTC()));
+    productInstanceEntity.setState("PENDING");
 
     this.productInstanceRepository.save(productInstanceEntity);
     return productInstance.getCustomerIdentifier();

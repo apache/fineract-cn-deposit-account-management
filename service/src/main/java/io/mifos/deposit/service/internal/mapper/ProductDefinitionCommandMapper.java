@@ -15,6 +15,7 @@
  */
 package io.mifos.deposit.service.internal.mapper;
 
+import io.mifos.core.lang.DateConverter;
 import io.mifos.deposit.api.v1.definition.domain.ProductDefinitionCommand;
 import io.mifos.deposit.service.internal.repository.ProductDefinitionCommandEntity;
 
@@ -28,8 +29,10 @@ public class ProductDefinitionCommandMapper {
     final ProductDefinitionCommandEntity entity = new ProductDefinitionCommandEntity();
     entity.setAction(command.getAction());
     entity.setNote(command.getNote());
-    entity.setCreatedBy(command.getCreatedBy());
-    entity.setCreatedOn(command.getCreatedOn());
+    if (command.getCreatedBy() != null) {
+      entity.setCreatedBy(command.getCreatedBy());
+      entity.setCreatedOn(DateConverter.fromIsoString(command.getCreatedOn()));
+    }
 
     return entity;
   }
@@ -39,7 +42,7 @@ public class ProductDefinitionCommandMapper {
     command.setAction(entity.getAction());
     command.setNote(entity.getNote());
     command.setCreatedBy(entity.getCreatedBy());
-    command.setCreatedOn(entity.getCreatedOn());
+    command.setCreatedOn(DateConverter.toIsoString(entity.getCreatedOn()));
 
     return command;
   }

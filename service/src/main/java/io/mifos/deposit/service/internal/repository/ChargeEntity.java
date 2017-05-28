@@ -33,8 +33,6 @@ public class ChargeEntity {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "id", nullable = false, unique = true)
   private Long id;
-  @Column(name = "identifier", nullable = false, unique = true, length = 32)
-  private String identifier;
   @ManyToOne(fetch = FetchType.EAGER)
   @JoinColumn(name = "action_id", nullable = false)
   private ActionEntity action;
@@ -43,7 +41,7 @@ public class ChargeEntity {
   @ManyToOne
   @JoinColumn(name = "product_definition_id", nullable = false)
   private ProductDefinitionEntity productDefinition;
-  @Column(name = "name", nullable = false)
+  @Column(name = "a_name", nullable = false)
   private String name;
   @Column(name = "description", nullable = true)
   private String description;
@@ -62,14 +60,6 @@ public class ChargeEntity {
 
   public void setId(final Long id) {
     this.id = id;
-  }
-
-  public String getIdentifier() {
-    return this.identifier;
-  }
-
-  public void setIdentifier(final String identifier) {
-    this.identifier = identifier;
   }
 
   public ActionEntity getAction() {

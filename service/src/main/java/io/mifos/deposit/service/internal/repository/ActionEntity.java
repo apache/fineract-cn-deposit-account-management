@@ -32,7 +32,7 @@ public class ActionEntity {
   private Long id;
   @Column(name = "identifier", nullable = false, unique = true, length = 32)
   private String identifier;
-  @Column(name = "name", nullable = false)
+  @Column(name = "a_name", nullable = false)
   private String name;
   @Column(name = "description", nullable = true)
   private String description;

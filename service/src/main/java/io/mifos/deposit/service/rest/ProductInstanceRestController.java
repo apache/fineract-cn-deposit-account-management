@@ -21,6 +21,7 @@ import io.mifos.core.command.gateway.CommandGateway;
 import io.mifos.deposit.api.v1.PermittableGroupIds;
 import io.mifos.deposit.api.v1.instance.domain.ProductInstance;
 import io.mifos.deposit.service.ServiceConstants;
+import io.mifos.deposit.service.internal.command.CreateProductInstanceCommand;
 import io.mifos.deposit.service.internal.service.ProductInstanceService;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,19 +58,20 @@ public class ProductInstanceRestController {
 
   @Permittable(value = AcceptedTokenType.TENANT, groupId = PermittableGroupIds.INSTANCE_MANAGEMENT)
   @RequestMapping(
-      value = "/",
+      value = "",
       method = RequestMethod.POST,
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE
   )
   @ResponseBody
   public ResponseEntity<Void> create(@RequestBody @Valid final ProductInstance productInstance) {
+    this.commandGateway.process(new CreateProductInstanceCommand(productInstance));
     return ResponseEntity.accepted().build();
   }
 
   @Permittable(value = AcceptedTokenType.TENANT, groupId = PermittableGroupIds.INSTANCE_MANAGEMENT)
   @RequestMapping(
-      value = "/",
+      value = "",
       method = RequestMethod.GET,
       consumes = MediaType.ALL_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE

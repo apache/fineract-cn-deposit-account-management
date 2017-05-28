@@ -19,6 +19,7 @@ import io.mifos.core.api.util.UserContextHolder;
 import io.mifos.core.command.annotation.Aggregate;
 import io.mifos.core.command.annotation.CommandHandler;
 import io.mifos.core.command.annotation.EventEmitter;
+import io.mifos.core.lang.DateConverter;
 import io.mifos.deposit.api.v1.EventConstants;
 import io.mifos.deposit.api.v1.definition.domain.ProductDefinition;
 import io.mifos.deposit.api.v1.definition.domain.ProductDefinitionCommand;
@@ -29,12 +30,14 @@ import io.mifos.deposit.service.internal.command.DeactivateProductDefinitionComm
 import io.mifos.deposit.service.internal.mapper.ProductDefinitionCommandMapper;
 import io.mifos.deposit.service.internal.mapper.ProductDefinitionMapper;
 import io.mifos.deposit.service.internal.repository.ActionRepository;
+import io.mifos.deposit.service.internal.repository.ProductDefinitionCommandEntity;
 import io.mifos.deposit.service.internal.repository.ProductDefinitionCommandRepository;
 import io.mifos.deposit.service.internal.repository.ProductDefinitionEntity;
 import io.mifos.deposit.service.internal.repository.ProductDefinitionRepository;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
@@ -62,12 +65,14 @@ public class ProductDefinitionAggregate {
 
   @CommandHandler
   @EventEmitter(selectorName = EventConstants.SELECTOR_NAME, selectorValue = EventConstants.POST_PRODUCT_DEFINITION)
+  @Transactional
   public String createProductDefinition(final CreateProductDefinitionCommand createProductDefinitionCommand) {
 
     final ProductDefinition productDefinition = createProductDefinitionCommand.productDefinition();
 
     final ProductDefinitionEntity productDefinitionEntity =
         ProductDefinitionMapper.map(productDefinition, this.actionRepository);
+    productDefinitionEntity.setActive(Boolean.FALSE);
 
     productDefinitionEntity.setCreatedBy(UserContextHolder.checkedGetUser());
     productDefinitionEntity.setCreatedOn(LocalDateTime.now(Clock.systemUTC()));
@@ -79,19 +84,25 @@ public class ProductDefinitionAggregate {
 
   @CommandHandler
   @EventEmitter(selectorName = EventConstants.SELECTOR_NAME, selectorValue = EventConstants.POST_PRODUCT_DEFINITION_COMMAND)
+  @Transactional
   public String activateProductdefintion(final ActivateProductDefinitionCommand activateProductDefinitionCommand) {
     final Optional<ProductDefinitionEntity> optionalProductDefinition = productDefinitionRepository.findByIdentifier(activateProductDefinitionCommand.identifier());
 
     if (optionalProductDefinition.isPresent()) {
       final ProductDefinitionCommand command = activateProductDefinitionCommand.command();
+      command.setCreatedBy(UserContextHolder.checkedGetUser());
+      command.setCreatedOn(DateConverter.toIsoString(LocalDateTime.now(Clock.systemUTC())));
 
       final ProductDefinitionEntity productDefinitionEntity = optionalProductDefinition.get();
       productDefinitionEntity.setActive(Boolean.TRUE);
       productDefinitionEntity.setLastModifiedBy(command.getCreatedBy());
       productDefinitionEntity.setLastModifiedBy(command.getCreatedBy());
-      this.productDefinitionRepository.save(productDefinitionEntity);
+      final ProductDefinitionEntity savedProductDefinitionEntity = this.productDefinitionRepository.save(productDefinitionEntity);
 
-      this.productDefinitionCommandRepository.save(ProductDefinitionCommandMapper.map(command));
+      final ProductDefinitionCommandEntity productDefinitionCommandEntity = ProductDefinitionCommandMapper.map(command);
+      productDefinitionCommandEntity.setProductDefinition(savedProductDefinitionEntity);
+
+      this.productDefinitionCommandRepository.save(productDefinitionCommandEntity);
       return activateProductDefinitionCommand.identifier();
     } else {
       this.logger.warn("Could not activate production definition {}, not found.", activateProductDefinitionCommand.identifier());
@@ -101,18 +112,25 @@ public class ProductDefinitionAggregate {
 
   @CommandHandler
   @EventEmitter(selectorName = EventConstants.SELECTOR_NAME, selectorValue = EventConstants.POST_PRODUCT_DEFINITION_COMMAND)
+  @Transactional
   public String deactivateProductdefintion(final DeactivateProductDefinitionCommand activateProductDefinitionCommand) {
     final Optional<ProductDefinitionEntity> optionalProductDefinition = productDefinitionRepository.findByIdentifier(activateProductDefinitionCommand.identifier());
 
     if (optionalProductDefinition.isPresent()) {
       final ProductDefinitionCommand command = activateProductDefinitionCommand.command();
+      command.setCreatedBy(UserContextHolder.checkedGetUser());
+      command.setCreatedOn(DateConverter.toIsoString(LocalDateTime.now(Clock.systemUTC())));
 
-      final ProductDefinitionEntity productDefinitionEntity = optionalProductDefinition.get();productDefinitionEntity.setActive(Boolean.FALSE);
+      final ProductDefinitionEntity productDefinitionEntity = optionalProductDefinition.get();
+      productDefinitionEntity.setActive(Boolean.FALSE);
       productDefinitionEntity.setLastModifiedBy(command.getCreatedBy());
       productDefinitionEntity.setLastModifiedBy(command.getCreatedBy());
-      this.productDefinitionRepository.save(productDefinitionEntity);
+      final ProductDefinitionEntity savedProductDefinitionEntity = this.productDefinitionRepository.save(productDefinitionEntity);
 
-      this.productDefinitionCommandRepository.save(ProductDefinitionCommandMapper.map(command));
+      final ProductDefinitionCommandEntity productDefinitionCommandEntity = ProductDefinitionCommandMapper.map(command);
+      productDefinitionCommandEntity.setProductDefinition(savedProductDefinitionEntity);
+
+      this.productDefinitionCommandRepository.save(productDefinitionCommandEntity);
       return activateProductDefinitionCommand.identifier();
     } else {
       this.logger.warn("Could not activate production definition {}, not found.", activateProductDefinitionCommand.identifier());

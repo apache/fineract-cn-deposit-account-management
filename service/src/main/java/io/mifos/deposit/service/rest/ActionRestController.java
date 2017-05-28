@@ -56,7 +56,7 @@ public class ActionRestController {
   }
 
   @RequestMapping(
-      value = "/actions",
+      value = "",
       method = RequestMethod.POST,
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE
@@ -72,7 +72,7 @@ public class ActionRestController {
   }
 
   @RequestMapping(
-      value = "/actions",
+      value = "",
       method = RequestMethod.GET,
       consumes = MediaType.ALL_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE

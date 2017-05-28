@@ -22,8 +22,6 @@ import javax.validation.constraints.NotNull;
 public class Charge {
 
   @ValidIdentifier
-  private String identifier;
-  @ValidIdentifier
   private String actionIdentifier;
   @ValidIdentifier
   private String incomeAccountIdentifier;
@@ -37,15 +35,7 @@ public class Charge {
     super();
   }
 
-  public String getIdentifier() {
-    return this.identifier;
-  }
-
-  public void setIdentifier(final String identifier) {
-    this.identifier = identifier;
-  }
-
-  public String getActionIdentifier() {
+ public String getActionIdentifier() {
     return this.actionIdentifier;
   }
 

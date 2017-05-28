@@ -18,36 +18,46 @@ package io.mifos.deposit.service.internal.command.handler;
 import io.mifos.core.command.annotation.Aggregate;
 import io.mifos.core.command.annotation.CommandHandler;
 import io.mifos.core.command.annotation.EventEmitter;
+import io.mifos.core.lang.ApplicationName;
+import io.mifos.core.mariadb.domain.FlywayFactoryBean;
 import io.mifos.deposit.api.v1.EventConstants;
-import io.mifos.deposit.api.v1.definition.domain.Action;
 import io.mifos.deposit.service.ServiceConstants;
-import io.mifos.deposit.service.internal.command.CreateActionCommand;
-import io.mifos.deposit.service.internal.mapper.ActionMapper;
-import io.mifos.deposit.service.internal.repository.ActionRepository;
+import io.mifos.deposit.service.internal.command.MigrationCommand;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.sql.DataSource;
+
 @Aggregate
-public class ActionAggregate {
+public class MigrationAggregate {
 
   private final Logger logger;
-  private final ActionRepository actionRepository;
+  private final DataSource dataSource;
+  private final FlywayFactoryBean flywayFactoryBean;
+  private final ApplicationName applicationName;
 
   @Autowired
-  public ActionAggregate(@Qualifier(ServiceConstants.LOGGER_NAME) final Logger logger,
-                         final ActionRepository actionRepository) {
+  public MigrationAggregate(@Qualifier(ServiceConstants.LOGGER_NAME) final Logger logger,
+                            final DataSource dataSource,
+                            final FlywayFactoryBean flywayFactoryBean,
+                            final ApplicationName applicationName) {
+    super();
     this.logger = logger;
-    this.actionRepository = actionRepository;
+    this.dataSource = dataSource;
+    this.flywayFactoryBean = flywayFactoryBean;
+    this.applicationName = applicationName;
   }
 
   @CommandHandler
-  @EventEmitter(selectorName = EventConstants.SELECTOR_NAME, selectorValue = EventConstants.POST_PRODUCT_ACTION)
+  @EventEmitter(selectorName = EventConstants.SELECTOR_NAME, selectorValue = EventConstants.INITIALIZE)
   @Transactional
-  public String createAction(final CreateActionCommand createActionCommand) {
-    final Action action = createActionCommand.action();
-    this.actionRepository.save(ActionMapper.map(action));
-    return action.getIdentifier();
+  public String process(final MigrationCommand migrationCommand) {
+    this.logger.info("Starting migration for deposit account management version: {}.", applicationName.getVersionString());
+    this.flywayFactoryBean.create(this.dataSource).migrate();
+
+    this.logger.info("Migration finished.");
+    return this.applicationName.getVersionString();
   }
 }

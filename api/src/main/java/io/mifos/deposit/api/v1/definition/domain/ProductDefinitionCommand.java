@@ -16,7 +16,6 @@
 package io.mifos.deposit.api.v1.definition.domain;
 
 import javax.validation.constraints.NotNull;
-import java.time.LocalDateTime;
 
 public class ProductDefinitionCommand {
 
@@ -29,7 +28,7 @@ public class ProductDefinitionCommand {
   private Action action;
   private String note;
   private String createdBy;
-  private LocalDateTime createdOn;
+  private String createdOn;
 
   public ProductDefinitionCommand() {
     super();
@@ -59,11 +58,11 @@ public class ProductDefinitionCommand {
     this.createdBy = createdBy;
   }
 
-  public LocalDateTime getCreatedOn() {
+  public String getCreatedOn() {
     return this.createdOn;
   }
 
-  public void setCreatedOn(final LocalDateTime createdOn) {
+  public void setCreatedOn(final String createdOn) {
     this.createdOn = createdOn;
   }
 }
