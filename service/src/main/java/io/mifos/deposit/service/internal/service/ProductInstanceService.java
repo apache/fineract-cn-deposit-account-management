@@ -15,12 +15,9 @@
  */
 package io.mifos.deposit.service.internal.service;
 
-import io.mifos.deposit.api.v1.definition.domain.ProductDefinition;
 import io.mifos.deposit.api.v1.instance.domain.ProductInstance;
 import io.mifos.deposit.service.ServiceConstants;
-import io.mifos.deposit.service.internal.mapper.ProductDefinitionMapper;
 import io.mifos.deposit.service.internal.mapper.ProductInstanceMapper;
-import io.mifos.deposit.service.internal.repository.ActionRepository;
 import io.mifos.deposit.service.internal.repository.ProductDefinitionEntity;
 import io.mifos.deposit.service.internal.repository.ProductDefinitionRepository;
 import io.mifos.deposit.service.internal.repository.ProductInstanceRepository;

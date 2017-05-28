@@ -15,8 +15,11 @@
  */
 package io.mifos.deposit.service.internal.repository;
 
+import io.mifos.core.mariadb.util.LocalDateTimeConverter;
+
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -25,6 +28,7 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -61,6 +65,16 @@ public class ProductDefinitionEntity {
   private Boolean flexible;
   @Column(name = "is_active", nullable = false)
   private Boolean active;
+  @Column(name = "created_by", nullable = false, length = 32)
+  private String createdBy;
+  @Convert(converter = LocalDateTimeConverter.class)
+  @Column(name = "created_on", nullable = false)
+  private LocalDateTime createdOn;
+  @Column(name = "last_modified_by", nullable = false, length = 32)
+  private String lastModifiedBy;
+  @Convert(converter = LocalDateTimeConverter.class)
+  @Column(name = "last_modified_on", nullable = false)
+  private LocalDateTime lastModifiedOn;
 
   public ProductDefinitionEntity() {
     super();
@@ -179,5 +193,37 @@ public class ProductDefinitionEntity {
 
   public void setActive(final Boolean active) {
     this.active = active;
+  }
+
+  public String getCreatedBy() {
+    return this.createdBy;
+  }
+
+  public void setCreatedBy(final String createdBy) {
+    this.createdBy = createdBy;
+  }
+
+  public LocalDateTime getCreatedOn() {
+    return this.createdOn;
+  }
+
+  public void setCreatedOn(final LocalDateTime createdOn) {
+    this.createdOn = createdOn;
+  }
+
+  public String getLastModifiedBy() {
+    return this.lastModifiedBy;
+  }
+
+  public void setLastModifiedBy(final String lastModifiedBy) {
+    this.lastModifiedBy = lastModifiedBy;
+  }
+
+  public LocalDateTime getLastModifiedOn() {
+    return this.lastModifiedOn;
+  }
+
+  public void setLastModifiedOn(final LocalDateTime lastModifiedOn) {
+    this.lastModifiedOn = lastModifiedOn;
   }
 }

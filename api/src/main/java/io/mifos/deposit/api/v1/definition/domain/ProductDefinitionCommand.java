@@ -20,8 +20,13 @@ import java.time.LocalDateTime;
 
 public class ProductDefinitionCommand {
 
+  public enum Action {
+    ACTIVATE,
+    DEACTIVATE
+  }
+
   @NotNull
-  private String action;
+  private Action action;
   private String note;
   private String createdBy;
   private LocalDateTime createdOn;
@@ -31,11 +36,11 @@ public class ProductDefinitionCommand {
   }
 
   public String getAction() {
-    return this.action;
+    return this.action.name();
   }
 
   public void setAction(final String action) {
-    this.action = action;
+    this.action = Action.valueOf(action);
   }
 
   public String getNote() {

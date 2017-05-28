@@ -24,8 +24,9 @@ import io.mifos.deposit.api.v1.definition.domain.ProductDefinition;
 import io.mifos.deposit.api.v1.definition.domain.ProductDefinitionCommand;
 import io.mifos.deposit.api.v1.instance.domain.ProductInstance;
 import io.mifos.deposit.service.ServiceConstants;
+import io.mifos.deposit.service.internal.command.ActivateProductDefinitionCommand;
 import io.mifos.deposit.service.internal.command.CreateProductDefinitionCommand;
-import io.mifos.deposit.service.internal.repository.ProductInstanceRepository;
+import io.mifos.deposit.service.internal.command.DeactivateProductDefinitionCommand;
 import io.mifos.deposit.service.internal.service.ProductDefinitionService;
 import io.mifos.deposit.service.internal.service.ProductInstanceService;
 import org.slf4j.Logger;
@@ -132,6 +133,40 @@ public class ProductDefinitionRestController {
   @ResponseBody
   public ResponseEntity<Void> process(@PathVariable("identifier") final String identifier,
                                       @RequestBody @Valid final ProductDefinitionCommand command) {
-    return ResponseEntity.accepted().build();
+
+    final Optional<ProductDefinition> optionalProductDefinition = this.productDefinitionService.findProductDefinition(identifier);
+    if (!optionalProductDefinition.isPresent()) {
+      throw ServiceException.notFound("Product definition {0} not found.", identifier);
+    } else {
+      switch (ProductDefinitionCommand.Action.valueOf(command.getAction())) {
+        case ACTIVATE:
+          this.commandGateway.process(new ActivateProductDefinitionCommand(identifier, command));
+          break;
+        case DEACTIVATE:
+          this.commandGateway.process(new DeactivateProductDefinitionCommand(identifier, command));
+          break;
+        default:
+          throw ServiceException.badRequest("Unsupported product definition command {0}.", command.getAction());
+      }
+      return ResponseEntity.accepted().build();
+    }
+  }
+
+  @Permittable(value = AcceptedTokenType.TENANT, groupId = PermittableGroupIds.DEFINITION_MANAGEMENT)
+  @RequestMapping(
+      value = "/{identifier}/commands",
+      method = RequestMethod.GET,
+      consumes = MediaType.ALL_VALUE,
+      produces = MediaType.APPLICATION_JSON_VALUE
+  )
+  @ResponseBody
+  public ResponseEntity<List<ProductDefinitionCommand>> getProductDefinitionCommands(@PathVariable("identifier") final String identifier) {
+
+    final Optional<ProductDefinition> optionalProductDefinition = this.productDefinitionService.findProductDefinition(identifier);
+    if (!optionalProductDefinition.isPresent()) {
+      throw ServiceException.notFound("Product definition {0} not found.", identifier);
+    } else {
+      return ResponseEntity.ok(this.productDefinitionService.findCommands(identifier));
+    }
   }
 }

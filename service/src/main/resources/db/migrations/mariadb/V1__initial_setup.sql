@@ -14,3 +14,117 @@
 -- limitations under the License.
 --
 
+CREATE TABLE shed_product_definitions (
+  id                         BIGINT         NOT NULL AUTO_INCREMENT,
+  a_type                     VARCHAR(32)    NOT NULL,
+  identifier                 VARCHAR(32)    NOT NULL,
+  a_name                     VARCHAR(256)   NOT NULL,
+  description                VARCHAR(2048)  NULL,
+  minimum_balance            NUMERIC(15, 5) NULL,
+  equity_ledger_identifier   VARCHAR(32)    NOT NULL,
+  expense_account_identifier VARCHAR(32)    NOT NULL,
+  interest                   NUMERIC(5, 2)  NULL,
+  is_flexible                BOOLEAN        NOT NULL,
+  is_active                  BOOLEAN        NOT NULL,
+  created_on                 TIMESTAMP(3)   NOT NULL,
+  created_by                 VARCHAR(32)    NOT NULL,
+  last_modified_on           TIMESTAMP(3)   NULL,
+  last_modified_by           VARCHAR(32)    NULL,
+  CONSTRAINT shed_product_definitions_pk PRIMARY KEY (id),
+  CONSTRAINT shed_prod_def_identifier_uq UNIQUE (identifier)
+);
+
+CREATE TABLE shed_currencies (
+  id                    BIGINT       NOT NULL AUTO_INCREMENT,
+  product_definition_id BIGINT       NOT NULL,
+  a_code                VARCHAR(4)   NOT NULL,
+  a_name                VARCHAR(256) NOT NULL,
+  sign                  VARCHAR(4)   NOT NULL,
+  scale                 INTEGER(5)   NOT NULL,
+  CONSTRAINT shed_currencies PRIMARY KEY (id),
+  CONSTRAINT shed_currencies_prod_def_fk FOREIGN KEY (product_definition_id) REFERENCES shed_product_definitions (id)
+);
+
+CREATE TABLE shed_terms (
+  id                    BIGINT       NOT NULL AUTO_INCREMENT,
+  product_definition_id BIGINT       NOT NULL,
+  period                INTEGER(5)   NOT NULL,
+  time_unit             VARCHAR(32)  NOT NULL,
+  interest_payable      VARCHAR(32)  NOT NULL,
+  CONSTRAINT shed_terms PRIMARY KEY (id),
+  CONSTRAINT shed_terms_prod_def_fk FOREIGN KEY (product_definition_id) REFERENCES shed_product_definitions (id)
+);
+
+CREATE TABLE shed_actions (
+  id               BIGINT        NOT NULL AUTO_INCREMENT,
+  identifier       VARCHAR(32)   NOT NULL,
+  a_name           VARCHAR(256)  NOT NULL,
+  description      VARCHAR(2048) NULL,
+  transaction_type VARCHAR(32)   NOT NULL,
+  CONSTRAINT shed_actions PRIMARY KEY (id)
+);
+
+INSERT INTO shed_actions
+  (identifier, a_name, transaction_type)
+VALUES
+  ('Open', 'Account Opening', 'ACCO');
+
+INSERT INTO shed_actions
+  (identifier, a_name, transaction_type)
+VALUES
+  ('Transfer', 'Account Transfer', 'ACCT');
+
+INSERT INTO shed_actions
+  (identifier, a_name, transaction_type)
+VALUES
+  ('Close', 'Account Closing', 'ACCC');
+
+INSERT INTO shed_actions
+  (identifier, a_name, transaction_type)
+VALUES
+  ('Deposit', 'Cash Deposit', 'CDPT');
+
+INSERT INTO shed_actions
+  (identifier, a_name, transaction_type)
+VALUES
+  ('Withdraw', 'Cash Withdrawal', 'CWDL');
+
+CREATE TABLE shed_charges (
+  id                        BIGINT        NOT NULL AUTO_INCREMENT,
+  identifier                VARCHAR(32)   NOT NULL,
+  action_id                 BIGINT        NOT NULL,
+  product_definition_id     BIGINT        NOT NULL,
+  income_account_identifier BIGINT        NOT NULL,
+  a_name                    VARCHAR(256)  NOT NULL,
+  description               VARCHAR(2048) NULL,
+  proportional              BOOLEAN   NOT NULL,
+  amount                    NUMERIC(5, 2)  NULL,
+  CONSTRAINT shed_charges PRIMARY KEY (id),
+  CONSTRAINT shed_charges_actions_fk FOREIGN KEY (action_id) REFERENCES shed_actions (id),
+  CONSTRAINT shed_charges_prod_def_fk FOREIGN KEY (product_definition_id) REFERENCES shed_product_definitions (id)
+);
+
+CREATE TABLE shed_commands (
+  id                    BIGINT        NOT NULL AUTO_INCREMENT,
+  product_definition_id BIGINT        NOT NULL,
+  action                VARCHAR(256)  NOT NULL,
+  note                  VARCHAR(2048) NOT NULL,
+  created_on            TIMESTAMP(3)  NOT NULL,
+  created_by            VARCHAR(32)   NOT NULL,
+  CONSTRAINT shed_commands PRIMARY KEY (id),
+  CONSTRAINT shed_commands_prod_def_fk FOREIGN KEY (product_definition_id) REFERENCES shed_product_definitions (id)
+);
+
+CREATE TABLE shed_product_instances (
+  id                    BIGINT       NOT NULL AUTO_INCREMENT,
+  customer_identifier   VARCHAR(32)  NOT NULL,
+  product_definition_id VARCHAR(32)  NOT NULL,
+  account_identifier    VARCHAR(32)  NOT NULL,
+  a_state               VARCHAR(32)  NOT NULL,
+  created_on            TIMESTAMP(3) NOT NULL,
+  created_by            VARCHAR(32)  NOT NULL,
+  last_modified_on      TIMESTAMP(3) NULL,
+  last_modified_by      VARCHAR(32)  NULL,
+  CONSTRAINT shed_product_instances_pk PRIMARY KEY (id),
+  CONSTRAINT shed_prod_inst_prod_def_fk FOREIGN KEY (product_definition_id) REFERENCES shed_product_definitions (id)
+);

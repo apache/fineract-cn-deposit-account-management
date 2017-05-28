@@ -20,7 +20,6 @@ import io.mifos.deposit.api.v1.definition.domain.Action;
 import io.mifos.deposit.api.v1.definition.domain.ProductDefinition;
 import io.mifos.deposit.api.v1.definition.domain.ProductDefinitionCommand;
 import io.mifos.deposit.api.v1.instance.domain.ProductInstance;
-import io.mifos.deposit.api.v1.instance.domain.StateChange;
 import org.springframework.cloud.netflix.feign.FeignClient;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -92,6 +91,14 @@ public interface DepositAccountManager {
   )
   void process(@PathVariable("identifier") final String identifier,
                @RequestBody @Valid final ProductDefinitionCommand command);
+
+  @RequestMapping(
+      value = "/{identifier}/commands",
+      method = RequestMethod.GET,
+      consumes = MediaType.APPLICATION_JSON_VALUE,
+      produces = MediaType.ALL_VALUE
+  )
+  List<ProductDefinitionCommand> getProductDefinitionCommands(@PathVariable("identifier") final String identifier);
 
   @RequestMapping(
       value = "/instances",

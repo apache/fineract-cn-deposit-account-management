@@ -16,15 +16,18 @@
 package io.mifos.deposit.service.internal.service;
 
 import io.mifos.deposit.api.v1.definition.domain.ProductDefinition;
+import io.mifos.deposit.api.v1.definition.domain.ProductDefinitionCommand;
 import io.mifos.deposit.service.ServiceConstants;
+import io.mifos.deposit.service.internal.mapper.ProductDefinitionCommandMapper;
 import io.mifos.deposit.service.internal.mapper.ProductDefinitionMapper;
-import io.mifos.deposit.service.internal.repository.ActionRepository;
+import io.mifos.deposit.service.internal.repository.ProductDefinitionCommandRepository;
 import io.mifos.deposit.service.internal.repository.ProductDefinitionRepository;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -34,16 +37,16 @@ public class ProductDefinitionService {
 
   private final Logger logger;
   private final ProductDefinitionRepository productDefinitionRepository;
-  private final ActionRepository actionRepository;
+  private final ProductDefinitionCommandRepository productDefinitionCommandRepository;
 
   @Autowired
   public ProductDefinitionService(@Qualifier(ServiceConstants.LOGGER_NAME) final Logger logger,
                                   final ProductDefinitionRepository productDefinitionRepository,
-                                  final ActionRepository actionRepository) {
+                                  final ProductDefinitionCommandRepository productDefinitionCommandRepository) {
     super();
     this.logger = logger;
     this.productDefinitionRepository = productDefinitionRepository;
-    this.actionRepository = actionRepository;
+    this.productDefinitionCommandRepository = productDefinitionCommandRepository;
   }
 
   public List<ProductDefinition> fetchProductDefinitions() {
@@ -53,7 +56,16 @@ public class ProductDefinitionService {
         .collect(Collectors.toList());
   }
 
-  public Optional<ProductDefinition> findProductDefinition(final String identfier) {
-    return this.productDefinitionRepository.findByIdentifier(identfier).map(ProductDefinitionMapper::map);
+  public Optional<ProductDefinition> findProductDefinition(final String identifier) {
+    return this.productDefinitionRepository.findByIdentifier(identifier).map(ProductDefinitionMapper::map);
+  }
+
+  public List<ProductDefinitionCommand> findCommands(final String identifier) {
+    return this.productDefinitionRepository.findByIdentifier(identifier)
+        .map(productDefinitionEntity -> this.productDefinitionCommandRepository.findByProductDefinition(productDefinitionEntity)
+            .stream()
+            .map(ProductDefinitionCommandMapper::map)
+            .collect(Collectors.toList()))
+        .orElseGet(Collections::emptyList);
   }
 }
