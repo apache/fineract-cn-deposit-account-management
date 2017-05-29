@@ -16,6 +16,7 @@
 package io.mifos.deposit;
 
 import io.mifos.deposit.api.v1.EventConstants;
+import io.mifos.deposit.api.v1.definition.ProductDefinitionAlreadyExistsException;
 import io.mifos.deposit.api.v1.definition.domain.ProductDefinition;
 import io.mifos.deposit.api.v1.definition.domain.ProductDefinitionCommand;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -35,6 +36,18 @@ public class TestProductDefinition extends AbstractDepositAccountManagementTest 
     super.depositAccountManager.create(productDefinition);
 
     super.eventRecorder.wait(EventConstants.POST_PRODUCT_DEFINITION, productDefinition.getIdentifier());
+  }
+
+
+  @Test(expected = ProductDefinitionAlreadyExistsException.class)
+  public void shouldNotCreateProductDefinitionAlreadyExists() throws Exception {
+    final ProductDefinition productDefinition = Fixture.productDefinition();
+
+    super.depositAccountManager.create(productDefinition);
+
+    super.eventRecorder.wait(EventConstants.POST_PRODUCT_DEFINITION, productDefinition.getIdentifier());
+
+    super.depositAccountManager.create(productDefinition);
   }
 
   @Test
@@ -87,6 +100,26 @@ public class TestProductDefinition extends AbstractDepositAccountManagementTest 
     final ProductDefinitionCommand productDefinitionCommand = new ProductDefinitionCommand();
     productDefinitionCommand.setAction(ProductDefinitionCommand.Action.DEACTIVATE.name());
     productDefinitionCommand.setNote(RandomStringUtils.randomAlphanumeric(2048));
+
+    super.depositAccountManager.process(productDefinition.getIdentifier(), productDefinitionCommand);
+
+    super.eventRecorder.wait(EventConstants.POST_PRODUCT_DEFINITION_COMMAND, productDefinition.getIdentifier());
+
+    final ProductDefinition fetchProductDefinition = super.depositAccountManager.findProductDefinition(productDefinition.getIdentifier());
+
+    Assert.assertFalse(fetchProductDefinition.getActive());
+  }
+
+  @Test
+  public void shouldAllowCommandWithNullNote() throws Exception {
+    final ProductDefinition productDefinition = Fixture.productDefinition();
+
+    super.depositAccountManager.create(productDefinition);
+
+    super.eventRecorder.wait(EventConstants.POST_PRODUCT_DEFINITION, productDefinition.getIdentifier());
+
+    final ProductDefinitionCommand productDefinitionCommand = new ProductDefinitionCommand();
+    productDefinitionCommand.setAction(ProductDefinitionCommand.Action.DEACTIVATE.name());
 
     super.depositAccountManager.process(productDefinition.getIdentifier(), productDefinitionCommand);
 

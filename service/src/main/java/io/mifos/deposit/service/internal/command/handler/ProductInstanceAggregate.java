@@ -27,6 +27,7 @@ import io.mifos.deposit.service.internal.mapper.ProductInstanceMapper;
 import io.mifos.deposit.service.internal.repository.ProductDefinitionRepository;
 import io.mifos.deposit.service.internal.repository.ProductInstanceEntity;
 import io.mifos.deposit.service.internal.repository.ProductInstanceRepository;
+import org.apache.commons.lang.RandomStringUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -59,6 +60,10 @@ public class ProductInstanceAggregate {
 
     final ProductInstanceEntity productInstanceEntity =
         ProductInstanceMapper.map(productInstance, this.productDefinitionRepository);
+
+    if (productInstance.getAccountIdentifier() == null) {
+      productInstanceEntity.setAccountIdentifier(RandomStringUtils.randomNumeric(32));
+    }
 
     productInstanceEntity.setCreatedBy(UserContextHolder.checkedGetUser());
     productInstanceEntity.setCreatedOn(LocalDateTime.now(Clock.systemUTC()));

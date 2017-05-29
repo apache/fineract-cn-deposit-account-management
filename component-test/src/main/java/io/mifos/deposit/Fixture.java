@@ -15,6 +15,7 @@
  */
 package io.mifos.deposit;
 
+import io.mifos.deposit.api.v1.definition.domain.Action;
 import io.mifos.deposit.api.v1.definition.domain.Charge;
 import io.mifos.deposit.api.v1.definition.domain.Currency;
 import io.mifos.deposit.api.v1.definition.domain.ProductDefinition;
@@ -75,4 +76,13 @@ public class Fixture {
     return productDefinition;
   }
 
+  public static Action action() {
+    final Action action = new Action();
+    action.setIdentifier(RandomStringUtils.randomAlphanumeric(32));
+    action.setName(RandomStringUtils.randomAlphanumeric(256));
+    action.setDescription(RandomStringUtils.randomAlphanumeric(2048));
+    action.setTransactionType("ACCO");
+
+    return action;
+  }
 }

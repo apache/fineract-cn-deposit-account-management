@@ -48,6 +48,7 @@ public class ActionAggregate {
   public String createAction(final CreateActionCommand createActionCommand) {
     final Action action = createActionCommand.action();
     this.actionRepository.save(ActionMapper.map(action));
+    this.logger.debug("Action {} created.", action.getIdentifier());
     return action.getIdentifier();
   }
 }

@@ -41,7 +41,6 @@ public class TestProductInstance extends AbstractDepositAccountManagementTest {
     final ProductInstance productInstance = new ProductInstance();
     productInstance.setProductIdentifier(productDefinition.getIdentifier());
     productInstance.setCustomerIdentifier(customerIdentifier);
-    productInstance.setAccountIdentifier("60606");
 
     super.depositAccountManager.create(productInstance);
 

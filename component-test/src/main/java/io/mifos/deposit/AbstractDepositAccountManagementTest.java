@@ -50,7 +50,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 @RunWith(SpringRunner.class)
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT,
-    classes = {AbstractDepositAccountManagementTest.TestConfiguration.class})
+    classes = {AbstractDepositAccountManagementTest.TestConfiguration.class}
+)
 public abstract class AbstractDepositAccountManagementTest {
 
   private static final String APP_NAME = "deposit-v1";

@@ -15,12 +15,17 @@
  */
 package io.mifos.deposit.api.v1.client;
 
+import io.mifos.core.api.annotation.ThrowsException;
+import io.mifos.core.api.annotation.ThrowsExceptions;
 import io.mifos.core.api.util.CustomFeignClientsConfiguration;
+import io.mifos.deposit.api.v1.definition.ActionAlreadyExistsException;
+import io.mifos.deposit.api.v1.definition.ProductDefinitionAlreadyExistsException;
 import io.mifos.deposit.api.v1.definition.domain.Action;
 import io.mifos.deposit.api.v1.definition.domain.ProductDefinition;
 import io.mifos.deposit.api.v1.definition.domain.ProductDefinitionCommand;
 import io.mifos.deposit.api.v1.instance.domain.ProductInstance;
 import org.springframework.cloud.netflix.feign.FeignClient;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -41,6 +46,9 @@ public interface DepositAccountManager {
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE
   )
+  @ThrowsExceptions(
+      @ThrowsException(status = HttpStatus.CONFLICT, exception = ActionAlreadyExistsException.class)
+  )
   void create(@RequestBody @Valid final Action action);
 
   @RequestMapping(
@@ -56,6 +64,9 @@ public interface DepositAccountManager {
       method = RequestMethod.POST,
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE
+  )
+  @ThrowsExceptions(
+      @ThrowsException(status = HttpStatus.CONFLICT, exception = ProductDefinitionAlreadyExistsException.class)
   )
   void create(@RequestBody @Valid final ProductDefinition productDefinition);
 

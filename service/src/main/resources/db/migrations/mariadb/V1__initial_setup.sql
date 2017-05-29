@@ -108,7 +108,7 @@ CREATE TABLE shed_commands (
   id                    BIGINT        NOT NULL AUTO_INCREMENT,
   product_definition_id BIGINT        NOT NULL,
   a_action              VARCHAR(256)  NOT NULL,
-  note                  VARCHAR(2048) NOT NULL,
+  note                  VARCHAR(2048) NULL,
   created_on            TIMESTAMP(3)  NOT NULL,
   created_by            VARCHAR(32)   NOT NULL,
   CONSTRAINT shed_commands PRIMARY KEY (id),

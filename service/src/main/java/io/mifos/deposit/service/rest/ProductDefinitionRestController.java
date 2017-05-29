@@ -75,8 +75,12 @@ public class ProductDefinitionRestController {
   )
   @ResponseBody
   public ResponseEntity<Void> create(@RequestBody @Valid final ProductDefinition productDefinition) {
-    this.commandGateway.process(new CreateProductDefinitionCommand(productDefinition));
-    return ResponseEntity.accepted().build();
+    if (this.productDefinitionService.findProductDefinition(productDefinition.getIdentifier()).isPresent()) {
+      throw ServiceException.conflict("Product definition{0} already exists.", productDefinition.getIdentifier());
+    } else {
+      this.commandGateway.process(new CreateProductDefinitionCommand(productDefinition));
+      return ResponseEntity.accepted().build();
+    }
   }
 
   @Permittable(value = AcceptedTokenType.TENANT, groupId = PermittableGroupIds.DEFINITION_MANAGEMENT)
