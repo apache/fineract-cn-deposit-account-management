@@ -38,6 +38,7 @@ dependencies {
             [group: 'io.mifos.core', name: 'cassandra', version: versions.frameworkcassandra],
             [group: 'io.mifos.core', name: 'mariadb', version: versions.frameworkmariadb],
             [group: 'io.mifos.core', name: 'command', version: versions.frameworkcommand],
+            [group: 'io.mifos.accounting', name: 'api', version: versions.frameworkledger],
             [group: 'org.hibernate', name: 'hibernate-validator', version: versions.validator]
     )
 }

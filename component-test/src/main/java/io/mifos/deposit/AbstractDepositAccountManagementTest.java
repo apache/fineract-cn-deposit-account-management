@@ -27,6 +27,7 @@ import io.mifos.core.test.listener.EventRecorder;
 import io.mifos.deposit.api.v1.EventConstants;
 import io.mifos.deposit.api.v1.client.DepositAccountManager;
 import io.mifos.deposit.service.DepositAccountManagementConfiguration;
+import io.mifos.deposit.service.internal.service.helper.AccountingService;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -39,6 +40,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.cloud.netflix.feign.EnableFeignClients;
 import org.springframework.cloud.netflix.ribbon.RibbonClient;
 import org.springframework.context.annotation.Bean;
@@ -86,6 +88,9 @@ public abstract class AbstractDepositAccountManagementTest {
 
   @Autowired
   EventRecorder eventRecorder;
+
+  @MockBean
+  AccountingService accountingServiceSpy;
 
   private AutoUserContext autoUserContext;
 

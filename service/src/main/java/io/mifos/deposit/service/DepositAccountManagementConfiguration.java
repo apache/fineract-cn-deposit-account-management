@@ -15,6 +15,7 @@
  */
 package io.mifos.deposit.service;
 
+import io.mifos.accounting.api.v1.client.LedgerManager;
 import io.mifos.anubis.config.EnableAnubis;
 import io.mifos.core.async.config.EnableAsync;
 import io.mifos.core.cassandra.config.EnableCassandra;
@@ -26,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+import org.springframework.cloud.netflix.feign.EnableFeignClients;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -44,6 +46,9 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 @EnableCommandProcessing
 @EnableAnubis
 @EnableServiceException
+@EnableFeignClients(clients = {
+    LedgerManager.class
+})
 @ComponentScan({
     "io.mifos.deposit.service.rest",
     "io.mifos.deposit.service.internal.service",

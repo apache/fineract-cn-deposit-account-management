@@ -49,5 +49,9 @@ public class TestProductInstance extends AbstractDepositAccountManagementTest {
     final List<ProductInstance> productInstances = super.depositAccountManager.findProductInstances(productDefinition.getIdentifier());
     Assert.assertNotNull(productInstances);
     Assert.assertEquals(1, productInstances.size());
+    final ProductInstance foundProductInstance = productInstances.get(0);
+
+    Assert.assertEquals(productDefinition.getEquityLedgerIdentifier() + "." + customerIdentifier + ".00001",
+        foundProductInstance.getAccountIdentifier());
   }
 }
