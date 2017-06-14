@@ -54,4 +54,64 @@ public class TestProductInstance extends AbstractDepositAccountManagementTest {
     Assert.assertEquals(productDefinition.getEquityLedgerIdentifier() + "." + customerIdentifier + ".00001",
         foundProductInstance.getAccountIdentifier());
   }
+
+  @Test
+  public void shouldActivateProductInstance() throws Exception {
+    final String customerIdentifier = "08154712";
+    final ProductDefinition productDefinition = Fixture.productDefinition();
+
+    super.depositAccountManager.create(productDefinition);
+
+    super.eventRecorder.wait(EventConstants.POST_PRODUCT_DEFINITION, productDefinition.getIdentifier());
+
+    final ProductInstance productInstance = new ProductInstance();
+    productInstance.setProductIdentifier(productDefinition.getIdentifier());
+    productInstance.setCustomerIdentifier(customerIdentifier);
+
+    super.depositAccountManager.create(productInstance);
+
+    super.eventRecorder.wait(EventConstants.POST_PRODUCT_INSTANCE, customerIdentifier);
+
+    final List<ProductInstance> productInstances = super.depositAccountManager.findProductInstances(productDefinition.getIdentifier());
+    Assert.assertNotNull(productInstances);
+    Assert.assertEquals(1, productInstances.size());
+    final ProductInstance foundProductInstance = productInstances.get(0);
+
+    super.depositAccountManager.postProductInstanceCommand(
+        foundProductInstance.getAccountIdentifier(), EventConstants.ACTIVATE_PRODUCT_INSTANCE_COMMAND);
+
+    Assert.assertTrue(
+        super.eventRecorder.wait(EventConstants.ACTIVATE_PRODUCT_INSTANCE,
+            foundProductInstance.getAccountIdentifier()));
+  }
+
+  @Test
+  public void shouldCloseProductInstance() throws Exception {
+    final String customerIdentifier = "08154713";
+    final ProductDefinition productDefinition = Fixture.productDefinition();
+
+    super.depositAccountManager.create(productDefinition);
+
+    super.eventRecorder.wait(EventConstants.POST_PRODUCT_DEFINITION, productDefinition.getIdentifier());
+
+    final ProductInstance productInstance = new ProductInstance();
+    productInstance.setProductIdentifier(productDefinition.getIdentifier());
+    productInstance.setCustomerIdentifier(customerIdentifier);
+
+    super.depositAccountManager.create(productInstance);
+
+    super.eventRecorder.wait(EventConstants.POST_PRODUCT_INSTANCE, customerIdentifier);
+
+    final List<ProductInstance> productInstances = super.depositAccountManager.findProductInstances(productDefinition.getIdentifier());
+    Assert.assertNotNull(productInstances);
+    Assert.assertEquals(1, productInstances.size());
+    final ProductInstance foundProductInstance = productInstances.get(0);
+
+    super.depositAccountManager.postProductInstanceCommand(
+        foundProductInstance.getAccountIdentifier(), EventConstants.CLOSE_PRODUCT_INSTANCE_COMMAND);
+
+    Assert.assertTrue(
+        super.eventRecorder.wait(EventConstants.CLOSE_PRODUCT_INSTANCE,
+            foundProductInstance.getAccountIdentifier()));
+  }
 }

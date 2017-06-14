@@ -22,6 +22,8 @@ import io.mifos.core.command.annotation.EventEmitter;
 import io.mifos.deposit.api.v1.EventConstants;
 import io.mifos.deposit.api.v1.instance.domain.ProductInstance;
 import io.mifos.deposit.service.ServiceConstants;
+import io.mifos.deposit.service.internal.command.ActivateProductInstanceCommand;
+import io.mifos.deposit.service.internal.command.CloseProductInstanceCommand;
 import io.mifos.deposit.service.internal.command.CreateProductInstanceCommand;
 import io.mifos.deposit.service.internal.mapper.ProductInstanceMapper;
 import io.mifos.deposit.service.internal.repository.ProductDefinitionEntity;
@@ -29,7 +31,6 @@ import io.mifos.deposit.service.internal.repository.ProductDefinitionRepository;
 import io.mifos.deposit.service.internal.repository.ProductInstanceEntity;
 import io.mifos.deposit.service.internal.repository.ProductInstanceRepository;
 import io.mifos.deposit.service.internal.service.helper.AccountingService;
-import org.apache.commons.lang.RandomStringUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -82,9 +83,9 @@ public class ProductInstanceAggregate {
 
         final StringBuilder stringBuilder = new StringBuilder();
         final String accountNumber = stringBuilder
-            .append(productDefinitionEntity.getEquityLedgerIdentifier())
-            .append(".")
             .append(productInstance.getCustomerIdentifier())
+            .append(".")
+            .append(productDefinitionEntity.getEquityLedgerIdentifier())
             .append(".")
             .append(String.format("%05d", accountSuffix))
             .toString();
@@ -102,5 +103,51 @@ public class ProductInstanceAggregate {
 
     this.productInstanceRepository.save(productInstanceEntity);
     return productInstance.getCustomerIdentifier();
+  }
+
+  @Transactional
+  @CommandHandler
+  @EventEmitter(selectorName = EventConstants.SELECTOR_NAME, selectorValue = EventConstants.ACTIVATE_PRODUCT_INSTANCE)
+  public String process(final ActivateProductInstanceCommand activateProductInstanceCommand) {
+    final String accountIdentifier = activateProductInstanceCommand.identifier();
+    final Optional<ProductInstanceEntity> optionalProductInstance =
+        this.productInstanceRepository.findByAccountIdentifier(accountIdentifier);
+
+    if (optionalProductInstance.isPresent()) {
+      final ProductInstanceEntity productInstanceEntity = optionalProductInstance.get();
+      productInstanceEntity.setState("ACTIVE");
+      productInstanceEntity.setLastModifiedBy(UserContextHolder.checkedGetUser());
+      productInstanceEntity.setLastModifiedOn(LocalDateTime.now(Clock.systemUTC()));
+      this.productInstanceRepository.save(productInstanceEntity);
+
+      return accountIdentifier;
+    } else {
+      this.logger.warn("Product instance for account {} not found.", accountIdentifier);
+    }
+
+    return null;
+  }
+
+  @Transactional
+  @CommandHandler
+  @EventEmitter(selectorName = EventConstants.SELECTOR_NAME, selectorValue = EventConstants.CLOSE_PRODUCT_INSTANCE)
+  public String process(final CloseProductInstanceCommand closeProductInstanceCommand) {
+    final String accountIdentifier = closeProductInstanceCommand.identifier();
+    final Optional<ProductInstanceEntity> optionalProductInstance =
+        this.productInstanceRepository.findByAccountIdentifier(accountIdentifier);
+
+    if (optionalProductInstance.isPresent()) {
+      final ProductInstanceEntity productInstanceEntity = optionalProductInstance.get();
+      productInstanceEntity.setState("CLOSED");
+      productInstanceEntity.setLastModifiedBy(UserContextHolder.checkedGetUser());
+      productInstanceEntity.setLastModifiedOn(LocalDateTime.now(Clock.systemUTC()));
+      this.productInstanceRepository.save(productInstanceEntity);
+
+      return accountIdentifier;
+    } else {
+      this.logger.warn("Product instance for account {} not found.", accountIdentifier);
+    }
+
+    return null;
   }
 }

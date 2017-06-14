@@ -50,4 +50,26 @@ public class ProductInstanceEventListener {
     this.logger.debug("Product instance created.");
     this.eventRecorder.event(tenant, EventConstants.POST_PRODUCT_INSTANCE, payload, String.class);
   }
+
+  @JmsListener(
+      destination = EventConstants.DESTINATION,
+      selector = EventConstants.SELECTOR_ACTIVATE_PRODUCT_INSTANCE,
+      subscription = EventConstants.DESTINATION
+  )
+  public void onActivateInstance(@Header(TenantHeaderFilter.TENANT_HEADER) final String tenant,
+                               final String payload) {
+    this.logger.debug("Product instance created.");
+    this.eventRecorder.event(tenant, EventConstants.ACTIVATE_PRODUCT_INSTANCE, payload, String.class);
+  }
+
+  @JmsListener(
+      destination = EventConstants.DESTINATION,
+      selector = EventConstants.SELECTOR_CLOSE_PRODUCT_INSTANCE,
+      subscription = EventConstants.DESTINATION
+  )
+  public void onCloseInstance(@Header(TenantHeaderFilter.TENANT_HEADER) final String tenant,
+                               final String payload) {
+    this.logger.debug("Product instance created.");
+    this.eventRecorder.event(tenant, EventConstants.CLOSE_PRODUCT_INSTANCE, payload, String.class);
+  }
 }

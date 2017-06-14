@@ -65,4 +65,8 @@ public class ProductInstanceService {
           .collect(Collectors.toList())).orElseGet(Collections::emptyList);
 
   }
+
+  public Optional<ProductInstance> findByAccountIdentifier(final String identifier) {
+    return this.productInstanceRepository.findByAccountIdentifier(identifier).map(ProductInstanceMapper::map);
+  }
 }

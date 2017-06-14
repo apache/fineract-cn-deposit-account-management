@@ -104,7 +104,7 @@ public interface DepositAccountManager {
                @RequestBody @Valid final ProductDefinitionCommand command);
 
   @RequestMapping(
-      value = "/{identifier}/commands",
+      value = "/definitions/{identifier}/commands",
       method = RequestMethod.GET,
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.ALL_VALUE
@@ -126,4 +126,13 @@ public interface DepositAccountManager {
       produces = MediaType.ALL_VALUE
   )
   List<ProductInstance> fetchProductInstances(@RequestParam(value = "customer", required = true) final String customer);
+
+  @RequestMapping(
+      value = "/instances/{identifier}",
+      method = RequestMethod.POST,
+      consumes = MediaType.APPLICATION_JSON_VALUE,
+      produces = MediaType.APPLICATION_JSON_VALUE
+  )
+  void postProductInstanceCommand(@PathVariable("identifier") final String identifier,
+                                  @RequestParam(value = "command", required = true) final String command);
 }

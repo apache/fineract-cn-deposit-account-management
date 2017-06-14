@@ -18,6 +18,7 @@ package io.mifos.deposit.service.internal.repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ProductInstanceRepository extends JpaRepository<ProductInstanceEntity, Long> {
 
@@ -27,4 +28,6 @@ public interface ProductInstanceRepository extends JpaRepository<ProductInstance
 
   List<ProductInstanceEntity> findByProductDefinitionAndCustomerIdentifier(
       final ProductDefinitionEntity productDefinitionEntity, final String customerIdentifier);
+
+  Optional<ProductInstanceEntity> findByAccountIdentifier(final String identifier);
 }
