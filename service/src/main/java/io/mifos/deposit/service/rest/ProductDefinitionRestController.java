@@ -27,6 +27,8 @@ import io.mifos.deposit.service.ServiceConstants;
 import io.mifos.deposit.service.internal.command.ActivateProductDefinitionCommand;
 import io.mifos.deposit.service.internal.command.CreateProductDefinitionCommand;
 import io.mifos.deposit.service.internal.command.DeactivateProductDefinitionCommand;
+import io.mifos.deposit.service.internal.command.DeleteProductDefinitionCommand;
+import io.mifos.deposit.service.internal.command.UpdateProductDefinitionCommand;
 import io.mifos.deposit.service.internal.service.ProductDefinitionService;
 import io.mifos.deposit.service.internal.service.ProductInstanceService;
 import org.slf4j.Logger;
@@ -172,5 +174,57 @@ public class ProductDefinitionRestController {
     } else {
       return ResponseEntity.ok(this.productDefinitionService.findCommands(identifier));
     }
+  }
+
+  @Permittable(value = AcceptedTokenType.TENANT, groupId = PermittableGroupIds.DEFINITION_MANAGEMENT)
+  @RequestMapping(
+      value = "/{identifier}",
+      method = RequestMethod.PUT,
+      consumes = MediaType.APPLICATION_JSON_VALUE,
+      produces = MediaType.APPLICATION_JSON_VALUE
+  )
+  @ResponseBody
+  ResponseEntity<Void> changeProductDefinition(@PathVariable("identifier") final String identifier,
+                                               @RequestBody @Valid ProductDefinition productDefinition) {
+    if (!identifier.equals(productDefinition.getIdentifier())) {
+      throw ServiceException.badRequest("Given product definition must match path {0}.", identifier);
+    }
+
+    final Optional<ProductDefinition> optionalProductDefinition = this.productDefinitionService.findProductDefinition(identifier);
+    if (!optionalProductDefinition.isPresent()) {
+      throw ServiceException.notFound("Product Definition {0} not found", identifier);
+    } else {
+      final ProductDefinition currentProductDefinition = optionalProductDefinition.get();
+      if (!currentProductDefinition.getFlexible()
+          && !currentProductDefinition.getInterest().equals(productDefinition.getInterest())) {
+        throw ServiceException.badRequest("Interest of product {0} rate is not flexible.", productDefinition.getIdentifier());
+      }
+    }
+
+    this.commandGateway.process(new UpdateProductDefinitionCommand(productDefinition));
+
+    return ResponseEntity.accepted().build();
+  }
+
+  @Permittable(value = AcceptedTokenType.TENANT, groupId = PermittableGroupIds.DEFINITION_MANAGEMENT)
+  @RequestMapping(
+      value = "/{identifier}",
+      method = RequestMethod.DELETE,
+      consumes = MediaType.ALL_VALUE,
+      produces = MediaType.APPLICATION_JSON_VALUE
+  )
+  @ResponseBody
+  ResponseEntity<Void> deleteProductDefinition(@PathVariable("identifier") final String identifier) {
+    if (!this.productDefinitionService.findProductDefinition(identifier).isPresent()) {
+      throw ServiceException.notFound("Product Definition {0} not found", identifier);
+    }
+
+    if (!this.productInstanceService.findByProductDefinition(identifier).isEmpty()) {
+      throw ServiceException.conflict("Product Definition {0} has assigned instances.", identifier);
+    }
+
+    this.commandGateway.process(new DeleteProductDefinitionCommand(identifier));
+
+    return ResponseEntity.accepted().build();
   }
 }

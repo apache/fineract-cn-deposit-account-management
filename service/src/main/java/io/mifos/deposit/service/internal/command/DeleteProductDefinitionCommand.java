@@ -13,11 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.mifos.deposit.api.v1.domain;
+package io.mifos.deposit.service.internal.command;
 
-public enum InterestPayable {
-  MATURITY,
-  ANNUALLY,
-  MONTHLY,
-  QUARTERLY
+public class DeleteProductDefinitionCommand {
+  private final String identifier;
+
+  public DeleteProductDefinitionCommand(final String identifier) {
+    super();
+    this.identifier = identifier;
+  }
+
+  public String identifier() {
+    return this.identifier;
+  }
 }

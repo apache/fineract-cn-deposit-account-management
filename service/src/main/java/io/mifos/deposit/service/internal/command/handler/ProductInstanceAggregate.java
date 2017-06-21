@@ -15,16 +15,19 @@
  */
 package io.mifos.deposit.service.internal.command.handler;
 
+import io.mifos.accounting.api.v1.domain.Account;
 import io.mifos.core.api.util.UserContextHolder;
 import io.mifos.core.command.annotation.Aggregate;
 import io.mifos.core.command.annotation.CommandHandler;
 import io.mifos.core.command.annotation.EventEmitter;
+import io.mifos.core.lang.ServiceException;
 import io.mifos.deposit.api.v1.EventConstants;
 import io.mifos.deposit.api.v1.instance.domain.ProductInstance;
 import io.mifos.deposit.service.ServiceConstants;
 import io.mifos.deposit.service.internal.command.ActivateProductInstanceCommand;
 import io.mifos.deposit.service.internal.command.CloseProductInstanceCommand;
 import io.mifos.deposit.service.internal.command.CreateProductInstanceCommand;
+import io.mifos.deposit.service.internal.command.UpdateProductInstanceCommand;
 import io.mifos.deposit.service.internal.mapper.ProductInstanceMapper;
 import io.mifos.deposit.service.internal.repository.ProductDefinitionEntity;
 import io.mifos.deposit.service.internal.repository.ProductDefinitionRepository;
@@ -35,11 +38,15 @@ import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Aggregate
 public class ProductInstanceAggregate {
@@ -92,8 +99,7 @@ public class ProductInstanceAggregate {
 
         productInstanceEntity.setAccountIdentifier(accountNumber);
 
-        this.accountingService.createAccount(productDefinitionEntity.getEquityLedgerIdentifier(), accountNumber,
-            productDefinitionEntity.getName());
+        this.accountingService.createAccount(productDefinitionEntity, productInstanceEntity);
       });
     }
 
@@ -149,5 +155,55 @@ public class ProductInstanceAggregate {
     }
 
     return null;
+  }
+
+  @Transactional
+  @CommandHandler
+  @EventEmitter(selectorName = EventConstants.SELECTOR_NAME, selectorValue = EventConstants.PUT_PRODUCT_INSTANCE)
+  public String process(final UpdateProductInstanceCommand updateProductInstanceCommand) {
+    final ProductInstance productInstance = updateProductInstanceCommand.productInstance();
+    final Optional<ProductInstanceEntity> optionalProductInstance =
+        this.productInstanceRepository.findByAccountIdentifier(productInstance.getAccountIdentifier());
+
+    if (optionalProductInstance.isPresent()) {
+      final ProductInstanceEntity productInstanceEntity = optionalProductInstance.get();
+
+      if (this.hasChanged(productInstance, productInstanceEntity)) {
+        final Account account = this.accountingService.findAccount(productInstanceEntity.getAccountIdentifier());
+        account.setSignatureAuthorities(productInstance.getBeneficiaries());
+        this.accountingService.updateAccount(account);
+
+        productInstanceEntity.setBeneficiaries(
+            productInstance.getBeneficiaries().stream().collect(Collectors.joining(",")));
+        productInstanceEntity.setLastModifiedBy(UserContextHolder.checkedGetUser());
+        productInstanceEntity.setLastModifiedOn(LocalDateTime.now(Clock.systemUTC()));
+        this.productInstanceRepository.save(productInstanceEntity);
+        return productInstance.getAccountIdentifier();
+      } else {
+        this.logger.info("Skipped update for product instance {}, no data changed.", productInstance.getAccountIdentifier());
+        return null;
+      }
+    } else {
+      throw ServiceException.notFound("Product instance {0} not found.", productInstance.getAccountIdentifier());
+    }
+  }
+
+  private boolean hasChanged(final ProductInstance productInstance, final ProductInstanceEntity productInstanceEntity) {
+    if (productInstance.getBeneficiaries() != null) {
+      if (productInstanceEntity.getBeneficiaries() == null) {
+        return true;
+      }
+
+      final HashSet<String> knownBeneficiaries = new HashSet<>(
+          Arrays.asList(StringUtils.split(productInstanceEntity.getBeneficiaries(), ","))
+      );
+
+      if (knownBeneficiaries.size() != productInstance.getBeneficiaries().size()
+          || !knownBeneficiaries.containsAll(productInstance.getBeneficiaries())) {
+        return true;
+      }
+    }
+
+    return productInstanceEntity.getBeneficiaries() == null;
   }
 }

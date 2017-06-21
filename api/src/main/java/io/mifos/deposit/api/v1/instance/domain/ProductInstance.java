@@ -17,13 +17,17 @@ package io.mifos.deposit.api.v1.instance.domain;
 
 import io.mifos.core.lang.validation.constraints.ValidIdentifier;
 
+import java.util.Set;
+
 public class ProductInstance {
 
   @ValidIdentifier
   private String customerIdentifier;
   @ValidIdentifier
   private String productIdentifier;
+  @ValidIdentifier(maxLength = 34, optional = true)
   private String accountIdentifier;
+  private Set<String> beneficiaries;
   private String state;
 
   public ProductInstance() {
@@ -52,6 +56,14 @@ public class ProductInstance {
 
   public void setAccountIdentifier(final String accountIdentifier) {
     this.accountIdentifier = accountIdentifier;
+  }
+
+  public Set<String> getBeneficiaries() {
+    return this.beneficiaries;
+  }
+
+  public void setBeneficiaries(final Set<String> beneficiaries) {
+    this.beneficiaries = beneficiaries;
   }
 
   public String getState() {

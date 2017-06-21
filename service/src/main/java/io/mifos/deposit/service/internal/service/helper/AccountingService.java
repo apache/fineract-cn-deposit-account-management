@@ -15,16 +15,23 @@
  */
 package io.mifos.deposit.service.internal.service.helper;
 
+import io.mifos.accounting.api.v1.client.AccountNotFoundException;
 import io.mifos.accounting.api.v1.client.LedgerManager;
 import io.mifos.accounting.api.v1.client.LedgerNotFoundException;
 import io.mifos.accounting.api.v1.domain.Account;
 import io.mifos.accounting.api.v1.domain.Ledger;
 import io.mifos.core.lang.ServiceException;
 import io.mifos.deposit.service.ServiceConstants;
+import io.mifos.deposit.service.internal.repository.ProductDefinitionEntity;
+import io.mifos.deposit.service.internal.repository.ProductInstanceEntity;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
+
+import java.util.Arrays;
+import java.util.HashSet;
 
 @Service
 public class AccountingService {
@@ -40,18 +47,43 @@ public class AccountingService {
     this.ledgerManager = ledgerManager;
   }
 
-  public void createAccount(final String ledgerIdentifier, final String accountIdentifier, final String productName) {
+  public void createAccount(final ProductDefinitionEntity productDefinitionEntity,
+                            final ProductInstanceEntity productInstanceEntity) {
+    final String ledgerIdentifier = productDefinitionEntity.getEquityLedgerIdentifier();
     try {
       final Ledger ledger = this.ledgerManager.findLedger(ledgerIdentifier);
       final Account account = new Account();
-      account.setIdentifier(accountIdentifier);
+      account.setIdentifier(productInstanceEntity.getAccountIdentifier());
       account.setType(ledger.getType());
       account.setLedger(ledgerIdentifier);
-      account.setName(productName);
+      account.setName(productDefinitionEntity.getName());
+
+      account.setHolders(new HashSet<>(
+          Arrays.asList(productInstanceEntity.getCustomerIdentifier()))
+      );
+
+      if (productInstanceEntity.getBeneficiaries() != null) {
+        account.setSignatureAuthorities(new HashSet<>(
+            Arrays.asList(StringUtils.split(productInstanceEntity.getBeneficiaries(), ","))
+        ));
+      }
+
       account.setBalance(0.00D);
       this.ledgerManager.createAccount(account);
     } catch (final LedgerNotFoundException lnfex) {
       throw ServiceException.notFound("Ledger {0} not found.", ledgerIdentifier);
     }
+  }
+
+  public Account findAccount(final String identifier) {
+    try {
+      return this.ledgerManager.findAccount(identifier);
+    } catch (final AccountNotFoundException anfex) {
+      throw ServiceException.notFound("Account {0} not found.", identifier);
+    }
+  }
+
+  public void updateAccount(final Account account) {
+    this.ledgerManager.modifyAccount(account.getIdentifier(), account);
   }
 }

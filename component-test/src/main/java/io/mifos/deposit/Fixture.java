@@ -23,9 +23,11 @@ import io.mifos.deposit.api.v1.definition.domain.Term;
 import io.mifos.deposit.api.v1.domain.InterestPayable;
 import io.mifos.deposit.api.v1.domain.TimeUnit;
 import io.mifos.deposit.api.v1.domain.Type;
+import io.mifos.deposit.api.v1.instance.domain.ProductInstance;
 import org.apache.commons.lang3.RandomStringUtils;
 
 import java.util.Arrays;
+import java.util.HashSet;
 
 public class Fixture {
 
@@ -61,7 +63,7 @@ public class Fixture {
 
     final ProductDefinition productDefinition = new ProductDefinition();
     productDefinition.setType(Type.SHARE.name());
-    productDefinition.setIdentifier(RandomStringUtils.randomAlphanumeric(32));
+    productDefinition.setIdentifier(RandomStringUtils.randomAlphanumeric(8));
     productDefinition.setName(RandomStringUtils.randomAlphanumeric(256));
     productDefinition.setDescription(RandomStringUtils.randomAlphanumeric(2048));
     productDefinition.setCharges(Arrays.asList(openingCharge, closingCharge));
@@ -84,5 +86,16 @@ public class Fixture {
     action.setTransactionType("ACCO");
 
     return action;
+  }
+
+  public static ProductInstance productInstance(final String productIdentifier) {
+    final ProductInstance productInstance = new ProductInstance();
+    productInstance.setProductIdentifier(productIdentifier);
+    productInstance.setCustomerIdentifier(RandomStringUtils.randomAlphanumeric(8));
+    productInstance.setBeneficiaries(new HashSet<>(Arrays.asList(
+        RandomStringUtils.randomAlphanumeric(8),
+        RandomStringUtils.randomAlphanumeric(8)
+    )));
+    return productInstance;
   }
 }

@@ -26,6 +26,8 @@ import io.mifos.deposit.service.ServiceConstants;
 import io.mifos.deposit.service.internal.command.ActivateProductInstanceCommand;
 import io.mifos.deposit.service.internal.command.CloseProductInstanceCommand;
 import io.mifos.deposit.service.internal.command.CreateProductInstanceCommand;
+import io.mifos.deposit.service.internal.command.UpdateProductInstanceCommand;
+import io.mifos.deposit.service.internal.mapper.ProductInstanceMapper;
 import io.mifos.deposit.service.internal.service.ProductInstanceService;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -112,5 +114,42 @@ public class ProductInstanceRestController {
     }
 
     return ResponseEntity.accepted().build();
+  }
+
+  @Permittable(value = AcceptedTokenType.TENANT, groupId = PermittableGroupIds.INSTANCE_MANAGEMENT)
+  @RequestMapping(
+      value = "/{identifier}",
+      method = RequestMethod.PUT,
+      consumes = MediaType.APPLICATION_JSON_VALUE,
+      produces = MediaType.APPLICATION_JSON_VALUE
+  )
+  @ResponseBody
+  ResponseEntity<Void> change(@PathVariable("identifier") final String identifier,
+                              @RequestBody @Valid final ProductInstance productInstance) {
+    if (!identifier.equals(productInstance.getAccountIdentifier())) {
+      throw ServiceException.badRequest("Given product instance must match path {0}", identifier);
+    }
+
+    if (!this.productInstanceService.findByAccountIdentifier(identifier).isPresent()) {
+      throw ServiceException.notFound("Product instance {0} not found.", identifier);
+    }
+
+    this.commandGateway.process(new UpdateProductInstanceCommand(productInstance));
+
+    return ResponseEntity.accepted().build();
+  }
+
+  @Permittable(value = AcceptedTokenType.TENANT, groupId = PermittableGroupIds.INSTANCE_MANAGEMENT)
+  @RequestMapping(
+      value = "/{identifier}",
+      method = RequestMethod.GET,
+      consumes = MediaType.ALL_VALUE,
+      produces = MediaType.APPLICATION_JSON_VALUE
+  )
+  @ResponseBody
+  ResponseEntity<ProductInstance> find(@PathVariable("identifier") final String identifier) {
+    return ResponseEntity.ok(this.productInstanceService.findByAccountIdentifier(identifier)
+        .orElseThrow(() -> ServiceException.notFound("Product instance {0} not found.", identifier))
+    );
   }
 }

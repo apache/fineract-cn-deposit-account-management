@@ -17,8 +17,10 @@ package io.mifos.deposit;
 
 import io.mifos.deposit.api.v1.EventConstants;
 import io.mifos.deposit.api.v1.definition.ProductDefinitionAlreadyExistsException;
+import io.mifos.deposit.api.v1.definition.ProductDefinitionValidationException;
 import io.mifos.deposit.api.v1.definition.domain.ProductDefinition;
 import io.mifos.deposit.api.v1.definition.domain.ProductDefinitionCommand;
+import io.mifos.deposit.api.v1.instance.domain.ProductInstance;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.Assert;
 import org.junit.Test;
@@ -128,5 +130,77 @@ public class TestProductDefinition extends AbstractDepositAccountManagementTest 
     final ProductDefinition fetchProductDefinition = super.depositAccountManager.findProductDefinition(productDefinition.getIdentifier());
 
     Assert.assertFalse(fetchProductDefinition.getActive());
+  }
+
+  @Test
+  public void shouldDeleteProductDefinition() throws Exception {
+    final ProductDefinition productDefinition = Fixture.productDefinition();
+
+    super.depositAccountManager.create(productDefinition);
+
+    super.eventRecorder.wait(EventConstants.POST_PRODUCT_DEFINITION, productDefinition.getIdentifier());
+
+    super.depositAccountManager.deleteProductDefinition(productDefinition.getIdentifier());
+
+    Assert.assertTrue(super.eventRecorder.wait(EventConstants.DELETE_PRODUCT_DEFINITION, productDefinition.getIdentifier()));
+  }
+
+  @Test(expected = ProductDefinitionValidationException.class)
+  public void shouldNotDeleteProductDefinitionInstanceExists() throws Exception {
+    final ProductDefinition productDefinition = Fixture.productDefinition();
+
+    super.depositAccountManager.create(productDefinition);
+
+    super.eventRecorder.wait(EventConstants.POST_PRODUCT_DEFINITION, productDefinition.getIdentifier());
+
+    final ProductInstance productInstance = Fixture.productInstance(productDefinition.getIdentifier());
+
+    this.depositAccountManager.create(productInstance);
+
+    super.eventRecorder.wait(EventConstants.POST_PRODUCT_INSTANCE, productInstance.getCustomerIdentifier());
+
+    super.depositAccountManager.deleteProductDefinition(productDefinition.getIdentifier());
+  }
+
+  @Test
+  public void shouldUpdateProductDefinition() throws Exception {
+    final ProductDefinition productDefinition = Fixture.productDefinition();
+
+    super.depositAccountManager.create(productDefinition);
+
+    super.eventRecorder.wait(EventConstants.POST_PRODUCT_DEFINITION, productDefinition.getIdentifier());
+
+    final ProductDefinition newProductDefinition = Fixture.productDefinition();
+
+    newProductDefinition.setIdentifier(productDefinition.getIdentifier());
+
+    super.depositAccountManager.changeProductDefinition(newProductDefinition.getIdentifier(), newProductDefinition);
+
+    Assert.assertTrue(super.eventRecorder.wait(EventConstants.PUT_PRODUCT_DEFINITION, newProductDefinition.getIdentifier()));
+  }
+
+  @Test(expected = ProductDefinitionValidationException.class)
+  public void shouldNotUpdateProductDefinitionIdentifierMismatch() throws Exception {
+    final ProductDefinition productDefinition = Fixture.productDefinition();
+
+    super.depositAccountManager.create(productDefinition);
+
+    super.eventRecorder.wait(EventConstants.POST_PRODUCT_DEFINITION, productDefinition.getIdentifier());
+
+    super.depositAccountManager.changeProductDefinition(productDefinition.getIdentifier(), Fixture.productDefinition());
+  }
+
+  @Test(expected = ProductDefinitionValidationException.class)
+  public void shouldNotUpdateProductDefinitionInterestNotFlexible() throws Exception {
+    final ProductDefinition productDefinition = Fixture.productDefinition();
+    productDefinition.setFlexible(Boolean.FALSE);
+    productDefinition.setInterest(5.00D);
+
+    super.depositAccountManager.create(productDefinition);
+
+    super.eventRecorder.wait(EventConstants.POST_PRODUCT_DEFINITION, productDefinition.getIdentifier());
+    productDefinition.setInterest(10.0D);
+
+    super.depositAccountManager.changeProductDefinition(productDefinition.getIdentifier(), Fixture.productDefinition());
   }
 }

@@ -13,11 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.mifos.deposit.api.v1.domain;
+package io.mifos.deposit.api.v1.instance;
 
-public enum InterestPayable {
-  MATURITY,
-  ANNUALLY,
-  MONTHLY,
-  QUARTERLY
+public class ProductInstanceNotFoundException extends RuntimeException {
 }

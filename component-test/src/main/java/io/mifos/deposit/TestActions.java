@@ -42,7 +42,7 @@ public class TestActions extends AbstractDepositAccountManagementTest {
 
     super.depositAccountManager.create(action);
 
-    super.eventRecorder.wait(EventConstants.POST_PRODUCT_ACTION, action.getIdentifier());
+    Assert.assertTrue(super.eventRecorder.wait(EventConstants.POST_PRODUCT_ACTION, action.getIdentifier()));
   }
 
   @Test(expected = ActionAlreadyExistsException.class)

@@ -20,9 +20,13 @@ import io.mifos.core.api.annotation.ThrowsExceptions;
 import io.mifos.core.api.util.CustomFeignClientsConfiguration;
 import io.mifos.deposit.api.v1.definition.ActionAlreadyExistsException;
 import io.mifos.deposit.api.v1.definition.ProductDefinitionAlreadyExistsException;
+import io.mifos.deposit.api.v1.definition.ProductDefinitionNotFoundException;
+import io.mifos.deposit.api.v1.definition.ProductDefinitionValidationException;
 import io.mifos.deposit.api.v1.definition.domain.Action;
 import io.mifos.deposit.api.v1.definition.domain.ProductDefinition;
 import io.mifos.deposit.api.v1.definition.domain.ProductDefinitionCommand;
+import io.mifos.deposit.api.v1.instance.ProductInstanceNotFoundException;
+import io.mifos.deposit.api.v1.instance.ProductInstanceValidationException;
 import io.mifos.deposit.api.v1.instance.domain.ProductInstance;
 import org.springframework.cloud.netflix.feign.FeignClient;
 import org.springframework.http.HttpStatus;
@@ -135,4 +139,53 @@ public interface DepositAccountManager {
   )
   void postProductInstanceCommand(@PathVariable("identifier") final String identifier,
                                   @RequestParam(value = "command", required = true) final String command);
+
+  @RequestMapping(
+      value = "/definitions/{identifier}",
+      method = RequestMethod.PUT,
+      consumes = MediaType.APPLICATION_JSON_VALUE,
+      produces = MediaType.APPLICATION_JSON_VALUE
+  )
+  @ThrowsExceptions({
+      @ThrowsException(status = HttpStatus.NOT_FOUND, exception = ProductDefinitionNotFoundException.class),
+      @ThrowsException(status = HttpStatus.BAD_REQUEST, exception = ProductDefinitionValidationException.class)
+  })
+  void changeProductDefinition(@PathVariable("identifier") final String Identifier,
+                               @RequestBody @Valid ProductDefinition productDefinition);
+
+  @RequestMapping(
+      value = "/definitions/{identifier}",
+      method = RequestMethod.DELETE,
+      consumes = MediaType.APPLICATION_JSON_VALUE,
+      produces = MediaType.ALL_VALUE
+  )
+  @ThrowsExceptions({
+      @ThrowsException(status = HttpStatus.NOT_FOUND, exception = ProductDefinitionNotFoundException.class),
+      @ThrowsException(status = HttpStatus.CONFLICT, exception = ProductDefinitionValidationException.class)
+  })
+  void deleteProductDefinition(@PathVariable("identifier") final String Identifier);
+
+  @RequestMapping(
+      value = "/instances/{identifier}",
+      method = RequestMethod.PUT,
+      consumes = MediaType.APPLICATION_JSON_VALUE,
+      produces = MediaType.APPLICATION_JSON_VALUE
+  )
+  @ThrowsExceptions({
+      @ThrowsException(status = HttpStatus.NOT_FOUND, exception = ProductInstanceNotFoundException.class),
+      @ThrowsException(status = HttpStatus.BAD_REQUEST, exception = ProductInstanceValidationException.class)
+  })
+  void changeProductInstance(@PathVariable("identifier") final String identifier,
+                             @RequestBody @Valid final ProductInstance productInstance);
+
+  @RequestMapping(
+      value = "/instances/{identifier}",
+      method = RequestMethod.GET,
+      consumes = MediaType.APPLICATION_JSON_VALUE,
+      produces = MediaType.ALL_VALUE
+  )
+  @ThrowsExceptions({
+      @ThrowsException(status = HttpStatus.NOT_FOUND, exception = ProductInstanceNotFoundException.class)
+  })
+  ProductInstance findProductInstance(@PathVariable("identifier") final String identifier);
 }

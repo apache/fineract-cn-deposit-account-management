@@ -13,11 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.mifos.deposit.api.v1.domain;
+package io.mifos.deposit.service.internal.command;
 
-public enum InterestPayable {
-  MATURITY,
-  ANNUALLY,
-  MONTHLY,
-  QUARTERLY
+import io.mifos.deposit.api.v1.instance.domain.ProductInstance;
+
+public class UpdateProductInstanceCommand {
+  private final ProductInstance productInstance;
+
+  public UpdateProductInstanceCommand(final ProductInstance productInstance) {
+    super();
+    this.productInstance = productInstance;
+  }
+
+  public ProductInstance productInstance() {
+    return this.productInstance;
+  }
 }

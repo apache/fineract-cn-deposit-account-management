@@ -20,8 +20,12 @@ import io.mifos.deposit.api.v1.instance.domain.ProductInstance;
 import io.mifos.deposit.service.internal.repository.ProductDefinitionEntity;
 import io.mifos.deposit.service.internal.repository.ProductDefinitionRepository;
 import io.mifos.deposit.service.internal.repository.ProductInstanceEntity;
+import org.springframework.util.StringUtils;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class ProductInstanceMapper {
 
@@ -39,6 +43,11 @@ public class ProductInstanceMapper {
       productInstanceEntity.setState(productInstance.getState());
       productInstanceEntity.setProductDefinition(optionalProductDefinitionEntity.get());
 
+      if (productInstance.getBeneficiaries() != null) {
+        productInstanceEntity.setBeneficiaries(
+            productInstance.getBeneficiaries().stream().collect(Collectors.joining(",")));
+      }
+
       return productInstanceEntity;
     } else {
       throw ServiceException.notFound("Unable to assign product {0} to customer {1}, product not found.",
@@ -52,6 +61,12 @@ public class ProductInstanceMapper {
     productInstance.setAccountIdentifier(productInstanceEntity.getAccountIdentifier());
     productInstance.setProductIdentifier(productInstanceEntity.getProductDefinition().getIdentifier());
     productInstance.setState(productInstanceEntity.getState());
+
+    if (productInstanceEntity.getBeneficiaries() != null) {
+      productInstance.setBeneficiaries(new HashSet<>(
+          Arrays.asList(StringUtils.split(productInstanceEntity.getBeneficiaries(), ","))
+      ));
+    }
 
     return productInstance;
   }

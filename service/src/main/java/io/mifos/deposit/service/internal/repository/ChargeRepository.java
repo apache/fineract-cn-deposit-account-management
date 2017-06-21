@@ -13,11 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.mifos.deposit.api.v1.domain;
+package io.mifos.deposit.service.internal.repository;
 
-public enum InterestPayable {
-  MATURITY,
-  ANNUALLY,
-  MONTHLY,
-  QUARTERLY
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface ChargeRepository extends JpaRepository<ChargeEntity, Long> {
 }

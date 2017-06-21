@@ -45,6 +45,8 @@ public class ProductInstanceEntity {
   private ProductDefinitionEntity productDefinition;
   @Column(name = "account_identifier", nullable = false)
   private String accountIdentifier;
+  @Column(name = "beneficiaries", nullable = true, length = 256)
+  private String beneficiaries;
   @Column(name = "a_state", nullable = false)
   private String state;
   @Column(name = "created_by", nullable = false, length = 32)
@@ -92,6 +94,14 @@ public class ProductInstanceEntity {
 
   public void setAccountIdentifier(final String accountIdentifier) {
     this.accountIdentifier = accountIdentifier;
+  }
+
+  public String getBeneficiaries() {
+    return this.beneficiaries;
+  }
+
+  public void setBeneficiaries(final String beneficiaries) {
+    this.beneficiaries = beneficiaries;
   }
 
   public String getState() {

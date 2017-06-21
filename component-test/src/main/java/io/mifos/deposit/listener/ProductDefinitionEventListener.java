@@ -61,4 +61,26 @@ public class ProductDefinitionEventListener {
     this.logger.debug("Product definition activated.");
     this.eventRecorder.event(tenant, EventConstants.POST_PRODUCT_DEFINITION_COMMAND, payload, String.class);
   }
+
+  @JmsListener(
+      destination = EventConstants.DESTINATION,
+      selector = EventConstants.SELECTOR_DELETE_PRODUCT_DEFINITION,
+      subscription = EventConstants.DESTINATION
+  )
+  public void onDeleteProductDefinition(@Header(TenantHeaderFilter.TENANT_HEADER) final String tenant,
+                                          final String payload) {
+    this.logger.debug("Product definition activated.");
+    this.eventRecorder.event(tenant, EventConstants.DELETE_PRODUCT_DEFINITION, payload, String.class);
+  }
+
+  @JmsListener(
+      destination = EventConstants.DESTINATION,
+      selector = EventConstants.SELECTOR_PUT_PRODUCT_DEFINITION,
+      subscription = EventConstants.DESTINATION
+  )
+  public void onChangeProductDefinition(@Header(TenantHeaderFilter.TENANT_HEADER) final String tenant,
+                                        final String payload) {
+    this.logger.debug("Product definition activated.");
+    this.eventRecorder.event(tenant, EventConstants.PUT_PRODUCT_DEFINITION, payload, String.class);
+  }
 }
