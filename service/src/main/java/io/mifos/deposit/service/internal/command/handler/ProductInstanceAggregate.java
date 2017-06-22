@@ -34,11 +34,11 @@ import io.mifos.deposit.service.internal.repository.ProductDefinitionRepository;
 import io.mifos.deposit.service.internal.repository.ProductInstanceEntity;
 import io.mifos.deposit.service.internal.repository.ProductInstanceRepository;
 import io.mifos.deposit.service.internal.service.helper.AccountingService;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
