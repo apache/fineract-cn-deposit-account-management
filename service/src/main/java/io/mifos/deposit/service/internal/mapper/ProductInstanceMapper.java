@@ -15,6 +15,7 @@
  */
 package io.mifos.deposit.service.internal.mapper;
 
+import io.mifos.accounting.api.v1.domain.Account;
 import io.mifos.core.lang.ServiceException;
 import io.mifos.deposit.api.v1.instance.domain.ProductInstance;
 import io.mifos.deposit.service.internal.repository.ProductDefinitionEntity;
@@ -55,7 +56,7 @@ public class ProductInstanceMapper {
     }
   }
 
-  public static ProductInstance map(final ProductInstanceEntity productInstanceEntity) {
+  public static ProductInstance map(final ProductInstanceEntity productInstanceEntity, final Account account) {
     final ProductInstance productInstance = new ProductInstance();
     productInstance.setCustomerIdentifier(productInstanceEntity.getCustomerIdentifier());
     productInstance.setAccountIdentifier(productInstanceEntity.getAccountIdentifier());
@@ -66,6 +67,12 @@ public class ProductInstanceMapper {
       productInstance.setBeneficiaries(new HashSet<>(
           Arrays.asList(StringUtils.split(productInstanceEntity.getBeneficiaries(), ","))
       ));
+    }
+
+    if (account != null && account.getBalance() != null) {
+      productInstance.setBalance(account.getBalance());
+    } else {
+      productInstance.setBalance(0.00D);
     }
 
     return productInstance;

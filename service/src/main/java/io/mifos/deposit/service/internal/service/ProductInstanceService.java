@@ -15,12 +15,14 @@
  */
 package io.mifos.deposit.service.internal.service;
 
+import io.mifos.accounting.api.v1.domain.Account;
 import io.mifos.deposit.api.v1.instance.domain.ProductInstance;
 import io.mifos.deposit.service.ServiceConstants;
 import io.mifos.deposit.service.internal.mapper.ProductInstanceMapper;
 import io.mifos.deposit.service.internal.repository.ProductDefinitionEntity;
 import io.mifos.deposit.service.internal.repository.ProductDefinitionRepository;
 import io.mifos.deposit.service.internal.repository.ProductInstanceRepository;
+import io.mifos.deposit.service.internal.service.helper.AccountingService;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -37,21 +39,27 @@ public class ProductInstanceService {
   private final Logger logger;
   private final ProductInstanceRepository productInstanceRepository;
   private final ProductDefinitionRepository productDefinitionRepository;
+  private final AccountingService accountingService;
 
   @Autowired
   public ProductInstanceService(@Qualifier(ServiceConstants.LOGGER_NAME) final Logger logger,
                                 final ProductInstanceRepository productInstanceRepository,
-                                final ProductDefinitionRepository productDefinitionRepository) {
+                                final ProductDefinitionRepository productDefinitionRepository,
+                                final AccountingService accountingService) {
     super();
     this.logger = logger;
     this.productInstanceRepository = productInstanceRepository;
     this.productDefinitionRepository = productDefinitionRepository;
+    this.accountingService = accountingService;
   }
 
   public List<ProductInstance> findByCustomer(final String customerIdentifier) {
     return this.productInstanceRepository.findByCustomerIdentifier(customerIdentifier)
         .stream()
-        .map(ProductInstanceMapper::map).
+        .map(productInstanceEntity -> {
+          final Account account = this.accountingService.findAccount(productInstanceEntity.getAccountIdentifier());
+          return ProductInstanceMapper.map(productInstanceEntity, account);
+        }).
         collect(Collectors.toList());
   }
 
@@ -61,12 +69,18 @@ public class ProductInstanceService {
     return optionalProductDefinition
         .map(productDefinitionEntity -> this.productInstanceRepository.findByProductDefinition(productDefinitionEntity)
           .stream()
-          .map(ProductInstanceMapper::map)
+          .map(productInstanceEntity -> {
+            final Account account = this.accountingService.findAccount(productInstanceEntity.getAccountIdentifier());
+            return ProductInstanceMapper.map(productInstanceEntity, account);
+          })
           .collect(Collectors.toList())).orElseGet(Collections::emptyList);
 
   }
 
   public Optional<ProductInstance> findByAccountIdentifier(final String identifier) {
-    return this.productInstanceRepository.findByAccountIdentifier(identifier).map(ProductInstanceMapper::map);
+    return this.productInstanceRepository.findByAccountIdentifier(identifier).map(productInstanceEntity -> {
+      final Account account = this.accountingService.findAccount(productInstanceEntity.getAccountIdentifier());
+      return ProductInstanceMapper.map(productInstanceEntity, account);
+    });
   }
 }

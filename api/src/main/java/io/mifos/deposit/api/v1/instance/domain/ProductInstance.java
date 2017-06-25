@@ -29,6 +29,7 @@ public class ProductInstance {
   private String accountIdentifier;
   private Set<String> beneficiaries;
   private String state;
+  private Double balance;
 
   public ProductInstance() {
     super();
@@ -72,5 +73,13 @@ public class ProductInstance {
 
   public void setState(final String state) {
     this.state = state;
+  }
+
+  public Double getBalance() {
+    return this.balance;
+  }
+
+  public void setBalance(final Double balance) {
+    this.balance = balance;
   }
 }

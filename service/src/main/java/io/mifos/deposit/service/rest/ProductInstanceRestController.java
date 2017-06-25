@@ -27,7 +27,6 @@ import io.mifos.deposit.service.internal.command.ActivateProductInstanceCommand;
 import io.mifos.deposit.service.internal.command.CloseProductInstanceCommand;
 import io.mifos.deposit.service.internal.command.CreateProductInstanceCommand;
 import io.mifos.deposit.service.internal.command.UpdateProductInstanceCommand;
-import io.mifos.deposit.service.internal.mapper.ProductInstanceMapper;
 import io.mifos.deposit.service.internal.service.ProductInstanceService;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;

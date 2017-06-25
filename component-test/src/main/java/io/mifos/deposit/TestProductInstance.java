@@ -216,6 +216,9 @@ public class TestProductInstance extends AbstractDepositAccountManagementTest {
 
     super.eventRecorder.wait(EventConstants.POST_PRODUCT_INSTANCE, productInstance.getCustomerIdentifier());
 
+    final Account account = new Account();
+    account.setBalance(1234.56D);
+
     final List<ProductInstance> productInstances =
         super.depositAccountManager.findProductInstances(productDefinition.getIdentifier());
 
@@ -223,10 +226,13 @@ public class TestProductInstance extends AbstractDepositAccountManagementTest {
 
     final ProductInstance fetchedProductInstance = productInstances.get(0);
 
+    Mockito.doAnswer(invocation -> account).when(super.accountingServiceSpy).findAccount(productInstance.getAccountIdentifier());
+
     final ProductInstance foundProductInstance =
         super.depositAccountManager.findProductInstance(fetchedProductInstance.getAccountIdentifier());
 
     Assert.assertNotNull(foundProductInstance);
+    Assert.assertEquals(account.getBalance(), foundProductInstance.getBalance());
   }
 
   @Test(expected = ProductInstanceNotFoundException.class)

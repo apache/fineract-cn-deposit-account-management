@@ -83,8 +83,7 @@ public class ProductInstanceAggregate {
       optionalProductDefinition.ifPresent(productDefinitionEntity -> {
 
         final List<ProductInstanceEntity> currentProductInstances =
-            this.productInstanceRepository.findByProductDefinitionAndCustomerIdentifier(productDefinitionEntity,
-                productInstance.getCustomerIdentifier());
+            this.productInstanceRepository.findByCustomerIdentifier(productInstance.getCustomerIdentifier());
 
         final int accountSuffix = currentProductInstances.size() + 1;
 
