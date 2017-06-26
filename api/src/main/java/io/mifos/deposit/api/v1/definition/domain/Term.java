@@ -40,11 +40,17 @@ public class Term {
   }
 
   public String getTimeUnit() {
-    return this.timeUnit.name();
+    if (this.timeUnit != null) {
+      return this.timeUnit.name();
+    } else {
+      return null;
+    }
   }
 
   public void setTimeUnit(final String timeUnit) {
-    this.timeUnit = TimeUnit.valueOf(timeUnit);
+    if (timeUnit != null) {
+      this.timeUnit = TimeUnit.valueOf(timeUnit);
+    }
   }
 
   public String getInterestPayable() {

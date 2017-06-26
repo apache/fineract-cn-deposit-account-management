@@ -36,7 +36,9 @@ public class TermMapper {
   public static Term map(final TermEntity termEntity) {
     final Term term = new Term();
     term.setPeriod(termEntity.getPeriod());
-    term.setTimeUnit(termEntity.getTimeUnit());
+    if (termEntity.getTimeUnit() != null) {
+      term.setTimeUnit(termEntity.getTimeUnit());
+    }
     term.setInterestPayable(termEntity.getInterestPayable());
 
     return term;
