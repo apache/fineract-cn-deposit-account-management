@@ -23,7 +23,6 @@ import javax.validation.constraints.NotNull;
 public class Term {
 
   private Integer period;
-  @NotNull
   private TimeUnit timeUnit;
   @NotNull
   private InterestPayable interestPayable;
