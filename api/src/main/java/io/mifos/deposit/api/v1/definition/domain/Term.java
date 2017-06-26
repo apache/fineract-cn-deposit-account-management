@@ -22,7 +22,6 @@ import javax.validation.constraints.NotNull;
 
 public class Term {
 
-  @NotNull
   private Integer period;
   @NotNull
   private TimeUnit timeUnit;
