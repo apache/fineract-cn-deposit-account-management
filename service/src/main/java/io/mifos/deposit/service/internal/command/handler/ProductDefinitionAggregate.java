@@ -207,6 +207,10 @@ public class ProductDefinitionAggregate {
     if (optionalProductDefinition.isPresent()) {
       final ProductDefinitionEntity productDefinitionEntity = optionalProductDefinition.get();
 
+      this.productDefinitionCommandRepository.delete(
+          this.productDefinitionCommandRepository.findByProductDefinition(productDefinitionEntity)
+      );
+
       this.currencyRepository.delete(productDefinitionEntity.getCurrency());
       this.termRepository.delete(productDefinitionEntity.getTerm());
       this.chargeRepository.delete(productDefinitionEntity.getCharges());
