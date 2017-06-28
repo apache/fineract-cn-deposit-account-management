@@ -20,7 +20,7 @@ import io.mifos.deposit.api.v1.domain.Type;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import java.util.List;
+import java.util.Set;
 
 public class ProductDefinition {
 
@@ -45,7 +45,7 @@ public class ProductDefinition {
   @NotNull
   private Term term;
   @Valid
-  private List<Charge> charges;
+  private Set<Charge> charges;
   private Boolean flexible;
   private Boolean active;
 
@@ -133,11 +133,11 @@ public class ProductDefinition {
     this.term = term;
   }
 
-  public List<Charge> getCharges() {
+  public Set<Charge> getCharges() {
     return this.charges;
   }
 
-  public void setCharges(final List<Charge> charges) {
+  public void setCharges(final Set<Charge> charges) {
     this.charges = charges;
   }
 

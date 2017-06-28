@@ -33,7 +33,7 @@ public class ChargeMapper {
     final Optional<ActionEntity> optionalActionEntity = actionRepository.findByIdentifier(charge.getActionIdentifier());
     if (optionalActionEntity.isPresent()) {
       final ChargeEntity chargeEntity = new ChargeEntity();
-      chargeEntity.setAction(optionalActionEntity.get());
+      chargeEntity.setActionId(optionalActionEntity.get().getId());
       chargeEntity.setIncomeAccountIdentifier(charge.getIncomeAccountIdentifier());
       chargeEntity.setName(charge.getName());
       chargeEntity.setDescription(charge.getDescription());
@@ -47,9 +47,10 @@ public class ChargeMapper {
     }
   }
 
-  public static Charge map(final ChargeEntity chargeEntity) {
+  public static Charge map(final ChargeEntity chargeEntity, final ActionRepository actionRepository) {
     final Charge charge = new Charge();
-    charge.setActionIdentifier(chargeEntity.getAction().getIdentifier());
+    final ActionEntity actionEntity = actionRepository.findOne(chargeEntity.getActionId());
+    charge.setActionIdentifier(actionEntity.getIdentifier());
     charge.setIncomeAccountIdentifier(chargeEntity.getIncomeAccountIdentifier());
     charge.setName(chargeEntity.getName());
     charge.setDescription(chargeEntity.getDescription());

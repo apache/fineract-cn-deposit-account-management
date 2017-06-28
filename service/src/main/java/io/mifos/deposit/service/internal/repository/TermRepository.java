@@ -18,4 +18,5 @@ package io.mifos.deposit.service.internal.repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface TermRepository extends JpaRepository<TermEntity, Long> {
+  TermEntity findByProductDefinition(final ProductDefinitionEntity productDefinition);
 }

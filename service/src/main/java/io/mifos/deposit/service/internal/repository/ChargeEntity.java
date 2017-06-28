@@ -17,7 +17,6 @@ package io.mifos.deposit.service.internal.repository;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -33,9 +32,8 @@ public class ChargeEntity {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "id", nullable = false, unique = true)
   private Long id;
-  @ManyToOne(fetch = FetchType.EAGER)
-  @JoinColumn(name = "action_id", nullable = false)
-  private ActionEntity action;
+  @Column(name = "action_id", nullable = false)
+  private Long actionId;
   @Column(name = "income_account_identifier", nullable = false, length = 32)
   private String incomeAccountIdentifier;
   @ManyToOne
@@ -62,12 +60,12 @@ public class ChargeEntity {
     this.id = id;
   }
 
-  public ActionEntity getAction() {
-    return this.action;
+  public Long getActionId() {
+    return this.actionId;
   }
 
-  public void setAction(final ActionEntity action) {
-    this.action = action;
+  public void setActionId(final Long action) {
+    this.actionId = action;
   }
 
   public String getIncomeAccountIdentifier() {

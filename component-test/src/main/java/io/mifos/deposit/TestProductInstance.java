@@ -226,7 +226,8 @@ public class TestProductInstance extends AbstractDepositAccountManagementTest {
 
     final ProductInstance fetchedProductInstance = productInstances.get(0);
 
-    Mockito.doAnswer(invocation -> account).when(super.accountingServiceSpy).findAccount(productInstance.getAccountIdentifier());
+    Mockito.doAnswer(invocation -> account)
+        .when(super.accountingServiceSpy).findAccount(fetchedProductInstance.getAccountIdentifier());
 
     final ProductInstance foundProductInstance =
         super.depositAccountManager.findProductInstance(fetchedProductInstance.getAccountIdentifier());

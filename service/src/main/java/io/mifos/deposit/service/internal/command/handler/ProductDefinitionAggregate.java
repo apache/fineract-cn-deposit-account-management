@@ -36,12 +36,15 @@ import io.mifos.deposit.service.internal.mapper.ProductDefinitionCommandMapper;
 import io.mifos.deposit.service.internal.mapper.ProductDefinitionMapper;
 import io.mifos.deposit.service.internal.mapper.TermMapper;
 import io.mifos.deposit.service.internal.repository.ActionRepository;
+import io.mifos.deposit.service.internal.repository.ChargeEntity;
 import io.mifos.deposit.service.internal.repository.ChargeRepository;
+import io.mifos.deposit.service.internal.repository.CurrencyEntity;
 import io.mifos.deposit.service.internal.repository.CurrencyRepository;
 import io.mifos.deposit.service.internal.repository.ProductDefinitionCommandEntity;
 import io.mifos.deposit.service.internal.repository.ProductDefinitionCommandRepository;
 import io.mifos.deposit.service.internal.repository.ProductDefinitionEntity;
 import io.mifos.deposit.service.internal.repository.ProductDefinitionRepository;
+import io.mifos.deposit.service.internal.repository.TermEntity;
 import io.mifos.deposit.service.internal.repository.TermRepository;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,6 +53,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -89,14 +93,15 @@ public class ProductDefinitionAggregate {
 
     final ProductDefinition productDefinition = createProductDefinitionCommand.productDefinition();
 
-    final ProductDefinitionEntity productDefinitionEntity =
-        ProductDefinitionMapper.map(productDefinition, this.actionRepository);
+    final ProductDefinitionEntity productDefinitionEntity = ProductDefinitionMapper.map(productDefinition);
     productDefinitionEntity.setActive(Boolean.FALSE);
 
     productDefinitionEntity.setCreatedBy(UserContextHolder.checkedGetUser());
     productDefinitionEntity.setCreatedOn(LocalDateTime.now(Clock.systemUTC()));
 
-    this.productDefinitionRepository.save(productDefinitionEntity);
+    final ProductDefinitionEntity savedProductEntity = this.productDefinitionRepository.save(productDefinitionEntity);
+
+    this.saveDependingEntities(productDefinition, savedProductEntity);
 
     return createProductDefinitionCommand.productDefinition().getIdentifier();
   }
@@ -169,28 +174,20 @@ public class ProductDefinitionAggregate {
     if (optionalProductDefinition.isPresent()) {
       final ProductDefinitionEntity productDefinitionEntity = optionalProductDefinition.get();
 
-      this.currencyRepository.delete(productDefinitionEntity.getCurrency());
-      this.termRepository.delete(productDefinitionEntity.getTerm());
-      this.chargeRepository.delete(productDefinitionEntity.getCharges());
+      this.deleteDependingEntities(productDefinitionEntity);
 
       productDefinitionEntity.setName(productDefinition.getName());
       productDefinitionEntity.setDescription(productDefinition.getDescription());
       productDefinitionEntity.setInterest(productDefinition.getInterest());
-      productDefinitionEntity.setTerm(TermMapper.map(productDefinition.getTerm()));
-      productDefinitionEntity.setCharges(
-          productDefinition.getCharges()
-              .stream()
-              .map(charge -> ChargeMapper.map(charge, this.actionRepository))
-              .collect(Collectors.toList())
-      );
-      productDefinitionEntity.setCurrency(CurrencyMapper.map(productDefinition.getCurrency()));
       productDefinitionEntity.setMinimumBalance(productDefinition.getMinimumBalance());
       productDefinitionEntity.setFlexible(productDefinition.getFlexible());
       productDefinitionEntity.setEquityLedgerIdentifier(productDefinition.getEquityLedgerIdentifier());
       productDefinitionEntity.setExpenseAccountIdentifier(productDefinition.getExpenseAccountIdentifier());
-      this.productDefinitionRepository.save(productDefinitionEntity);
+      final ProductDefinitionEntity savedProductDefinition = this.productDefinitionRepository.save(productDefinitionEntity);
 
-      return productDefinition.getIdentifier();
+      this.saveDependingEntities(productDefinition, savedProductDefinition);
+
+      return productDefinitionEntity.getIdentifier();
     } else {
       throw ServiceException.notFound("Product definition {0} not found.", productDefinition.getIdentifier());
     }
@@ -211,9 +208,7 @@ public class ProductDefinitionAggregate {
           this.productDefinitionCommandRepository.findByProductDefinition(productDefinitionEntity)
       );
 
-      this.currencyRepository.delete(productDefinitionEntity.getCurrency());
-      this.termRepository.delete(productDefinitionEntity.getTerm());
-      this.chargeRepository.delete(productDefinitionEntity.getCharges());
+      this.deleteDependingEntities(productDefinitionEntity);
 
       this.productDefinitionRepository.delete(productDefinitionEntity);
       return identifier;
@@ -221,5 +216,39 @@ public class ProductDefinitionAggregate {
       this.logger.info("Could not delete product definition {0}, not found.", identifier);
       return null;
     }
+  }
+
+  void saveDependingEntities(final ProductDefinition productDefinition, final ProductDefinitionEntity savedProductEntity) {
+    final CurrencyEntity currencyEntity = CurrencyMapper.map(productDefinition.getCurrency());
+    currencyEntity.setProductDefinition(savedProductEntity);
+    this.currencyRepository.save(currencyEntity);
+
+    final TermEntity termEntity = TermMapper.map(productDefinition.getTerm());
+    termEntity.setProductDefinition(savedProductEntity);
+    this.termRepository.save(termEntity);
+
+    this.chargeRepository.save(productDefinition.getCharges()
+        .stream()
+        .map(charge -> {
+          final ChargeEntity chargeEntity = ChargeMapper.map(charge, this.actionRepository);
+          chargeEntity.setProductDefinition(savedProductEntity);
+          return chargeEntity;
+        })
+        .collect(Collectors.toSet())
+    );
+  }
+
+  void deleteDependingEntities(final ProductDefinitionEntity productDefinitionEntity) {
+    final CurrencyEntity currencyEntity = this.currencyRepository.findByProductDefinition(productDefinitionEntity);
+    this.currencyRepository.delete(currencyEntity);
+    this.currencyRepository.flush();
+
+    final TermEntity termEntity = this.termRepository.findByProductDefinition(productDefinitionEntity);
+    this.termRepository.delete(termEntity);
+    this.termRepository.flush();
+
+    final List<ChargeEntity> chargeEntities = this.chargeRepository.findByProductDefinition(productDefinitionEntity);
+    this.chargeRepository.delete(chargeEntities);
+    this.chargeRepository.flush();
   }
 }

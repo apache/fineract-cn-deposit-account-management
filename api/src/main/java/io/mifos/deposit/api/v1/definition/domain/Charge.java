@@ -35,7 +35,7 @@ public class Charge {
     super();
   }
 
- public String getActionIdentifier() {
+  public String getActionIdentifier() {
     return this.actionIdentifier;
   }
 
@@ -81,5 +81,20 @@ public class Charge {
 
   public void setAmount(final Double amount) {
     this.amount = amount;
+  }
+
+  @Override
+  public boolean equals(final Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+
+    final Charge charge = (Charge) o;
+
+    return name != null ? name.equals(charge.name) : charge.name == null;
+  }
+
+  @Override
+  public int hashCode() {
+    return name != null ? name.hashCode() : 0;
   }
 }

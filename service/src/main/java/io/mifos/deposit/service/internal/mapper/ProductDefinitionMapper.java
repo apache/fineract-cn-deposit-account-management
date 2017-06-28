@@ -16,10 +16,7 @@
 package io.mifos.deposit.service.internal.mapper;
 
 import io.mifos.deposit.api.v1.definition.domain.ProductDefinition;
-import io.mifos.deposit.service.internal.repository.ActionRepository;
 import io.mifos.deposit.service.internal.repository.ProductDefinitionEntity;
-
-import java.util.stream.Collectors;
 
 public class ProductDefinitionMapper {
 
@@ -27,23 +24,16 @@ public class ProductDefinitionMapper {
     super();
   }
 
-  public static ProductDefinitionEntity map(final ProductDefinition productDefinition, final ActionRepository actionRepository) {
+  public static ProductDefinitionEntity map(final ProductDefinition productDefinition) {
     final ProductDefinitionEntity productDefinitionEntity = new ProductDefinitionEntity();
     productDefinitionEntity.setType(productDefinition.getType());
     productDefinitionEntity.setIdentifier(productDefinition.getIdentifier());
     productDefinitionEntity.setName(productDefinition.getName());
     productDefinitionEntity.setDescription(productDefinition.getName());
-    productDefinitionEntity.setCurrency(CurrencyMapper.map(productDefinition.getCurrency()));
     productDefinitionEntity.setMinimumBalance(productDefinition.getMinimumBalance());
     productDefinitionEntity.setEquityLedgerIdentifier(productDefinition.getEquityLedgerIdentifier());
     productDefinitionEntity.setExpenseAccountIdentifier(productDefinition.getExpenseAccountIdentifier());
     productDefinitionEntity.setInterest(productDefinition.getInterest());
-    productDefinitionEntity.setTerm(TermMapper.map(productDefinition.getTerm()));
-    productDefinitionEntity.setCharges(productDefinition.getCharges()
-        .stream()
-        .map(charge -> ChargeMapper.map(charge, actionRepository))
-        .collect(Collectors.toList())
-    );
     productDefinitionEntity.setFlexible(productDefinition.getFlexible());
 
     return productDefinitionEntity;
@@ -55,17 +45,10 @@ public class ProductDefinitionMapper {
     productDefinition.setIdentifier(productDefinitionEntity.getIdentifier());
     productDefinition.setName(productDefinitionEntity.getName());
     productDefinition.setDescription(productDefinitionEntity.getName());
-    productDefinition.setCurrency(CurrencyMapper.map(productDefinitionEntity.getCurrency()));
     productDefinition.setMinimumBalance(productDefinitionEntity.getMinimumBalance());
     productDefinition.setEquityLedgerIdentifier(productDefinitionEntity.getEquityLedgerIdentifier());
     productDefinition.setExpenseAccountIdentifier(productDefinitionEntity.getExpenseAccountIdentifier());
     productDefinition.setInterest(productDefinitionEntity.getInterest());
-    productDefinition.setTerm(TermMapper.map(productDefinitionEntity.getTerm()));
-    productDefinition.setCharges(productDefinitionEntity.getCharges()
-        .stream()
-        .map(ChargeMapper::map)
-        .collect(Collectors.toList())
-    );
     productDefinition.setFlexible(productDefinitionEntity.getFlexible());
     productDefinition.setActive(productDefinitionEntity.getActive());
 

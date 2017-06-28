@@ -18,4 +18,5 @@ package io.mifos.deposit.service.internal.repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface CurrencyRepository extends JpaRepository<CurrencyEntity, Long> {
+  CurrencyEntity findByProductDefinition(final ProductDefinitionEntity productDefinition);
 }

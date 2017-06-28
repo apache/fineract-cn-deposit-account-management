@@ -66,7 +66,7 @@ public class Fixture {
     productDefinition.setIdentifier(RandomStringUtils.randomAlphanumeric(8));
     productDefinition.setName(RandomStringUtils.randomAlphanumeric(256));
     productDefinition.setDescription(RandomStringUtils.randomAlphanumeric(2048));
-    productDefinition.setCharges(Arrays.asList(openingCharge, closingCharge));
+    productDefinition.setCharges(new HashSet<>(Arrays.asList(openingCharge, closingCharge)));
     productDefinition.setCurrency(currency);
     productDefinition.setInterest(1.25D);
     productDefinition.setEquityLedgerIdentifier("20300");

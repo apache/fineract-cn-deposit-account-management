@@ -17,19 +17,14 @@ package io.mifos.deposit.service.internal.repository;
 
 import io.mifos.core.mariadb.util.LocalDateTimeConverter;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Entity
 @Table(name = "shed_product_definitions")
@@ -47,8 +42,6 @@ public class ProductDefinitionEntity {
   private String name;
   @Column(name = "description", nullable = true, length = 4096)
   private String description;
-  @OneToOne(mappedBy = "productDefinition", cascade = CascadeType.ALL, optional = false, fetch = FetchType.EAGER)
-  private CurrencyEntity currency;
   @Column(name = "minimum_balance", nullable = true)
   private Double minimumBalance;
   @Column(name = "equity_ledger_identifier", nullable = false)
@@ -57,10 +50,6 @@ public class ProductDefinitionEntity {
   private String expenseAccountIdentifier;
   @Column(name = "interest", nullable = true)
   private Double interest;
-  @OneToOne(mappedBy = "productDefinition", cascade = CascadeType.ALL, optional = false, fetch = FetchType.EAGER)
-  private TermEntity term;
-  @OneToMany(mappedBy = "productDefinition", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-  private List<ChargeEntity> charges;
   @Column(name = "is_flexible", nullable = false)
   private Boolean flexible;
   @Column(name = "is_active", nullable = false)
@@ -120,15 +109,6 @@ public class ProductDefinitionEntity {
     this.description = description;
   }
 
-  public CurrencyEntity getCurrency() {
-    return this.currency;
-  }
-
-  public void setCurrency(final CurrencyEntity currency) {
-    this.currency = currency;
-    this.currency.setProductDefinition(this);
-  }
-
   public Double getMinimumBalance() {
     return this.minimumBalance;
   }
@@ -159,24 +139,6 @@ public class ProductDefinitionEntity {
 
   public void setInterest(final Double interest) {
     this.interest = interest;
-  }
-
-  public TermEntity getTerm() {
-    return this.term;
-  }
-
-  public void setTerm(final TermEntity term) {
-    this.term = term;
-    this.term.setProductDefinition(this);
-  }
-
-  public List<ChargeEntity> getCharges() {
-    return this.charges;
-  }
-
-  public void setCharges(final List<ChargeEntity> charges) {
-    this.charges = charges;
-    charges.forEach(chargeEntity -> chargeEntity.setProductDefinition(this));
   }
 
   public Boolean getFlexible() {
