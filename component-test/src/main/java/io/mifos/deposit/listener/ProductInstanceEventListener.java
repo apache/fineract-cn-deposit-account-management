@@ -58,7 +58,7 @@ public class ProductInstanceEventListener {
   )
   public void onActivateInstance(@Header(TenantHeaderFilter.TENANT_HEADER) final String tenant,
                                final String payload) {
-    this.logger.debug("Product instance created.");
+    this.logger.debug("Product instance activated.");
     this.eventRecorder.event(tenant, EventConstants.ACTIVATE_PRODUCT_INSTANCE, payload, String.class);
   }
 
@@ -69,7 +69,7 @@ public class ProductInstanceEventListener {
   )
   public void onCloseInstance(@Header(TenantHeaderFilter.TENANT_HEADER) final String tenant,
                                final String payload) {
-    this.logger.debug("Product instance created.");
+    this.logger.debug("Product instance closed.");
     this.eventRecorder.event(tenant, EventConstants.CLOSE_PRODUCT_INSTANCE, payload, String.class);
   }
 
@@ -80,7 +80,7 @@ public class ProductInstanceEventListener {
   )
   public void onUpdateInstance(@Header(TenantHeaderFilter.TENANT_HEADER) final String tenant,
                               final String payload) {
-    this.logger.debug("Product instance created.");
+    this.logger.debug("Product instance updated.");
     this.eventRecorder.event(tenant, EventConstants.PUT_PRODUCT_INSTANCE, payload, String.class);
   }
 }

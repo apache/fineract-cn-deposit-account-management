@@ -17,6 +17,7 @@ package io.mifos.deposit;
 
 import io.mifos.accounting.api.v1.domain.Account;
 import io.mifos.deposit.api.v1.EventConstants;
+import io.mifos.deposit.api.v1.definition.domain.Charge;
 import io.mifos.deposit.api.v1.definition.domain.ProductDefinition;
 import io.mifos.deposit.api.v1.instance.ProductInstanceNotFoundException;
 import io.mifos.deposit.api.v1.instance.ProductInstanceValidationException;
@@ -29,6 +30,7 @@ import org.mockito.Mockito;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class TestProductInstance extends AbstractDepositAccountManagementTest {
 
@@ -239,5 +241,43 @@ public class TestProductInstance extends AbstractDepositAccountManagementTest {
   @Test(expected = ProductInstanceNotFoundException.class)
   public void shouldNotFindProductInstanceNotFound() {
     super.depositAccountManager.findProductInstance(RandomStringUtils.randomAlphanumeric(32));
+  }
+
+  @Test
+  public void shouldOpenAccountAfterUpdatingDefinition() throws Exception {
+    final ProductDefinition productDefinition = Fixture.productDefinition();
+
+    super.depositAccountManager.create(productDefinition);
+
+    super.eventRecorder.wait(EventConstants.POST_PRODUCT_DEFINITION, productDefinition.getIdentifier());
+
+    final ProductInstance productInstance = Fixture.productInstance(productDefinition.getIdentifier());
+
+    super.depositAccountManager.create(productInstance);
+
+    super.eventRecorder.wait(EventConstants.POST_PRODUCT_INSTANCE, productInstance.getCustomerIdentifier());
+
+    final Charge openingCharge = new Charge();
+    openingCharge.setActionIdentifier("Open");
+    openingCharge.setAmount(5.00D);
+    openingCharge.setName("Opening Account Charge");
+    openingCharge.setIncomeAccountIdentifier("10123");
+    openingCharge.setProportional(Boolean.TRUE);
+
+    productDefinition.setCharges(new HashSet<>(Arrays.asList(openingCharge)));
+
+    super.depositAccountManager.changeProductDefinition(productDefinition.getIdentifier(), productDefinition);
+
+    super.eventRecorder.wait(EventConstants.PUT_PRODUCT_DEFINITION, productDefinition.getIdentifier());
+
+    final List<ProductInstance> productInstances = super.depositAccountManager.fetchProductInstances(productInstance.getCustomerIdentifier());
+    final ProductInstance fetchedProductInstance = productInstances.get(0);
+
+    super.depositAccountManager.postProductInstanceCommand(
+        fetchedProductInstance.getAccountIdentifier(), EventConstants.ACTIVATE_PRODUCT_INSTANCE_COMMAND);
+
+    Assert.assertTrue(
+        super.eventRecorder.wait(EventConstants.ACTIVATE_PRODUCT_INSTANCE,
+            fetchedProductInstance.getAccountIdentifier()));
   }
 }

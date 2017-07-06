@@ -177,6 +177,10 @@ public class TestProductDefinition extends AbstractDepositAccountManagementTest 
     super.depositAccountManager.changeProductDefinition(newProductDefinition.getIdentifier(), newProductDefinition);
 
     Assert.assertTrue(super.eventRecorder.wait(EventConstants.PUT_PRODUCT_DEFINITION, newProductDefinition.getIdentifier()));
+
+    final ProductDefinition fetchedProductDefinition = super.depositAccountManager.findProductDefinition(newProductDefinition.getIdentifier());
+
+    Assert.assertNotNull(fetchedProductDefinition);
   }
 
   @Test(expected = ProductDefinitionValidationException.class)
