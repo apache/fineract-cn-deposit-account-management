@@ -18,10 +18,7 @@ package io.mifos.deposit;
 import io.mifos.anubis.test.v1.TenantApplicationSecurityEnvironmentTestRule;
 import io.mifos.core.api.context.AutoUserContext;
 import io.mifos.core.lang.ApplicationName;
-import io.mifos.core.test.env.TestEnvironment;
 import io.mifos.core.test.fixture.TenantDataStoreContextTestRule;
-import io.mifos.core.test.fixture.cassandra.CassandraInitializer;
-import io.mifos.core.test.fixture.mariadb.MariaDBInitializer;
 import io.mifos.core.test.listener.EnableEventRecording;
 import io.mifos.core.test.listener.EventRecorder;
 import io.mifos.deposit.api.v1.EventConstants;
@@ -32,8 +29,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
-import org.junit.rules.RuleChain;
-import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,23 +49,12 @@ import org.springframework.test.context.junit4.SpringRunner;
     webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT,
     classes = {AbstractDepositAccountManagementTest.TestConfiguration.class}
 )
-public abstract class AbstractDepositAccountManagementTest {
-
-  private static final String APP_NAME = "deposit-v1";
+public abstract class AbstractDepositAccountManagementTest extends SuiteTestEnvironment {
   private static final String TEST_USER = "shed";
   public static final String TEST_LOGGER = "test-logger";
 
-  private final static TestEnvironment testEnvironment = new TestEnvironment(APP_NAME);
-  private final static CassandraInitializer cassandraInitializer = new CassandraInitializer();
-  private final static MariaDBInitializer mariaDBInitializer = new MariaDBInitializer();
-  private final static TenantDataStoreContextTestRule tenantDataStoreContext = TenantDataStoreContextTestRule.forRandomTenantName(cassandraInitializer, mariaDBInitializer);
-
   @ClassRule
-  public static TestRule orderClassRules = RuleChain
-      .outerRule(testEnvironment)
-      .around(cassandraInitializer)
-      .around(mariaDBInitializer)
-      .around(tenantDataStoreContext);
+  public final static TenantDataStoreContextTestRule tenantDataStoreContext = TenantDataStoreContextTestRule.forRandomTenantName(cassandraInitializer, mariaDBInitializer);
 
   @Rule
   public final TenantApplicationSecurityEnvironmentTestRule tenantApplicationSecurityEnvironment
