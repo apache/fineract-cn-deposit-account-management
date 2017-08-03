@@ -32,7 +32,9 @@ public class ProductDefinitionMapper {
     productDefinitionEntity.setDescription(productDefinition.getName());
     productDefinitionEntity.setMinimumBalance(productDefinition.getMinimumBalance());
     productDefinitionEntity.setEquityLedgerIdentifier(productDefinition.getEquityLedgerIdentifier());
+    productDefinitionEntity.setCashAccountIdentifier(productDefinition.getCashAccountIdentifier());
     productDefinitionEntity.setExpenseAccountIdentifier(productDefinition.getExpenseAccountIdentifier());
+    productDefinitionEntity.setAccrueAccountIdentifier(productDefinition.getAccrueAccountIdentifier());
     productDefinitionEntity.setInterest(productDefinition.getInterest());
     productDefinitionEntity.setFlexible(productDefinition.getFlexible());
 
@@ -47,7 +49,9 @@ public class ProductDefinitionMapper {
     productDefinition.setDescription(productDefinitionEntity.getName());
     productDefinition.setMinimumBalance(productDefinitionEntity.getMinimumBalance());
     productDefinition.setEquityLedgerIdentifier(productDefinitionEntity.getEquityLedgerIdentifier());
+    productDefinition.setCashAccountIdentifier(productDefinitionEntity.getCashAccountIdentifier());
     productDefinition.setExpenseAccountIdentifier(productDefinitionEntity.getExpenseAccountIdentifier());
+    productDefinition.setAccrueAccountIdentifier(productDefinitionEntity.getAccrueAccountIdentifier());
     productDefinition.setInterest(productDefinitionEntity.getInterest());
     productDefinition.setFlexible(productDefinitionEntity.getFlexible());
     productDefinition.setActive(productDefinitionEntity.getActive());

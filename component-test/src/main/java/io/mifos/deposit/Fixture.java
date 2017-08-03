@@ -62,15 +62,17 @@ public class Fixture {
     currency.setScale(3);
 
     final ProductDefinition productDefinition = new ProductDefinition();
-    productDefinition.setType(Type.SHARE.name());
+    productDefinition.setType(Type.SAVINGS.name());
     productDefinition.setIdentifier(RandomStringUtils.randomAlphanumeric(8));
     productDefinition.setName(RandomStringUtils.randomAlphanumeric(256));
     productDefinition.setDescription(RandomStringUtils.randomAlphanumeric(2048));
     productDefinition.setCharges(new HashSet<>(Arrays.asList(openingCharge, closingCharge)));
     productDefinition.setCurrency(currency);
     productDefinition.setInterest(1.25D);
-    productDefinition.setEquityLedgerIdentifier("20300");
-    productDefinition.setExpenseAccountIdentifier("30300");
+    productDefinition.setEquityLedgerIdentifier("91xx");
+    productDefinition.setCashAccountIdentifier("76xx");
+    productDefinition.setExpenseAccountIdentifier("38xx");
+    productDefinition.setAccrueAccountIdentifier("82xx");
     productDefinition.setFlexible(Boolean.FALSE);
     productDefinition.setMinimumBalance(50.00);
     productDefinition.setTerm(term);

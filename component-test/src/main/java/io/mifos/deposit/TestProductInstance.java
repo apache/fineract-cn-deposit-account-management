@@ -30,7 +30,6 @@ import org.mockito.Mockito;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 public class TestProductInstance extends AbstractDepositAccountManagementTest {
 

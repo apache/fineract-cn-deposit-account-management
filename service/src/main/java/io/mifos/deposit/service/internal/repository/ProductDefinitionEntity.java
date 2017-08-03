@@ -46,8 +46,12 @@ public class ProductDefinitionEntity {
   private Double minimumBalance;
   @Column(name = "equity_ledger_identifier", nullable = false)
   private String equityLedgerIdentifier;
+  @Column(name = "cash_account_identifier", nullable = false)
+  private String cashAccountIdentifier;
   @Column(name = "expense_account_identifier", nullable = false)
   private String expenseAccountIdentifier;
+  @Column(name = "accrue_account_identifier", nullable = true)
+  private String accrueAccountIdentifier;
   @Column(name = "interest", nullable = true)
   private Double interest;
   @Column(name = "is_flexible", nullable = false)
@@ -125,12 +129,28 @@ public class ProductDefinitionEntity {
     this.equityLedgerIdentifier = equityLedgerIdentifier;
   }
 
+  public String getCashAccountIdentifier() {
+    return this.cashAccountIdentifier;
+  }
+
+  public void setCashAccountIdentifier(final String cashAccountIdentifier) {
+    this.cashAccountIdentifier = cashAccountIdentifier;
+  }
+
   public String getExpenseAccountIdentifier() {
     return this.expenseAccountIdentifier;
   }
 
   public void setExpenseAccountIdentifier(final String expenseAccountIdentifier) {
     this.expenseAccountIdentifier = expenseAccountIdentifier;
+  }
+
+  public String getAccrueAccountIdentifier() {
+    return this.accrueAccountIdentifier;
+  }
+
+  public void setAccrueAccountIdentifier(final String accrueAccountIdentifier) {
+    this.accrueAccountIdentifier = accrueAccountIdentifier;
   }
 
   public Double getInterest() {

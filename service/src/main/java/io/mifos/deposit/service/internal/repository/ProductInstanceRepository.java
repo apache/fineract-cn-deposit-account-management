@@ -26,8 +26,5 @@ public interface ProductInstanceRepository extends JpaRepository<ProductInstance
 
   List<ProductInstanceEntity> findByProductDefinition(final ProductDefinitionEntity productDefinitionEntity);
 
-  List<ProductInstanceEntity> findByProductDefinitionAndCustomerIdentifier(
-      final ProductDefinitionEntity productDefinitionEntity, final String customerIdentifier);
-
   Optional<ProductInstanceEntity> findByAccountIdentifier(final String identifier);
 }

@@ -36,10 +36,14 @@ public class ProductDefinition {
   private Currency currency;
   @NotNull
   private Double minimumBalance;
-  @ValidIdentifier
+  @ValidIdentifier(maxLength = 34)
   private String equityLedgerIdentifier;
-  @ValidIdentifier
+  @ValidIdentifier(maxLength = 34)
+  private String cashAccountIdentifier;
+  @ValidIdentifier(maxLength = 34)
   private String expenseAccountIdentifier;
+  @ValidIdentifier(maxLength = 34, optional = true)
+  private String accrueAccountIdentifier;
   private Double interest;
   @Valid
   @NotNull
@@ -109,12 +113,28 @@ public class ProductDefinition {
     this.equityLedgerIdentifier = equityLedgerIdentifier;
   }
 
+  public String getCashAccountIdentifier() {
+    return this.cashAccountIdentifier;
+  }
+
+  public void setCashAccountIdentifier(final String cashAccountIdentifier) {
+    this.cashAccountIdentifier = cashAccountIdentifier;
+  }
+
   public String getExpenseAccountIdentifier() {
     return this.expenseAccountIdentifier;
   }
 
   public void setExpenseAccountIdentifier(final String expenseAccountIdentifier) {
     this.expenseAccountIdentifier = expenseAccountIdentifier;
+  }
+
+  public String getAccrueAccountIdentifier() {
+    return this.accrueAccountIdentifier;
+  }
+
+  public void setAccrueAccountIdentifier(final String accrueAccountIdentifier) {
+    this.accrueAccountIdentifier = accrueAccountIdentifier;
   }
 
   public Double getInterest() {

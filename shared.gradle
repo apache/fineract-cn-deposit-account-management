@@ -11,6 +11,8 @@ ext.versions = [
         frameworktest     : '0.1.0-BUILD-SNAPSHOT',
         frameworkanubis   : '0.1.0-BUILD-SNAPSHOT',
         frameworkledger   : '0.1.0-BUILD-SNAPSHOT',
+        frameworkrhythm   : '0.1.0-BUILD-SNAPSHOT',
+        javamoneylib      : '0.9-SNAPSHOT',
         validator         : '5.3.0.Final'
 ]
 

@@ -18,16 +18,20 @@ package io.mifos.deposit.service.rest;
 import io.mifos.anubis.annotation.AcceptedTokenType;
 import io.mifos.anubis.annotation.Permittable;
 import io.mifos.core.command.gateway.CommandGateway;
+import io.mifos.core.lang.DateConverter;
 import io.mifos.core.lang.ServiceException;
 import io.mifos.deposit.api.v1.PermittableGroupIds;
+import io.mifos.deposit.api.v1.definition.domain.DividendDistribution;
 import io.mifos.deposit.api.v1.definition.domain.ProductDefinition;
 import io.mifos.deposit.api.v1.definition.domain.ProductDefinitionCommand;
+import io.mifos.deposit.api.v1.domain.Type;
 import io.mifos.deposit.api.v1.instance.domain.ProductInstance;
 import io.mifos.deposit.service.ServiceConstants;
 import io.mifos.deposit.service.internal.command.ActivateProductDefinitionCommand;
 import io.mifos.deposit.service.internal.command.CreateProductDefinitionCommand;
 import io.mifos.deposit.service.internal.command.DeactivateProductDefinitionCommand;
 import io.mifos.deposit.service.internal.command.DeleteProductDefinitionCommand;
+import io.mifos.deposit.service.internal.command.DividendDistributionCommand;
 import io.mifos.deposit.service.internal.command.UpdateProductDefinitionCommand;
 import io.mifos.deposit.service.internal.service.ProductDefinitionService;
 import io.mifos.deposit.service.internal.service.ProductInstanceService;
@@ -44,6 +48,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -77,6 +82,11 @@ public class ProductDefinitionRestController {
   )
   @ResponseBody
   public ResponseEntity<Void> create(@RequestBody @Valid final ProductDefinition productDefinition) {
+    if (!productDefinition.getType().equals(Type.SHARE.name())
+        && productDefinition.getAccrueAccountIdentifier() == null) {
+      throw ServiceException.badRequest("Accrue account must be given.");
+    }
+
     if (this.productDefinitionService.findProductDefinition(productDefinition.getIdentifier()).isPresent()) {
       throw ServiceException.conflict("Product definition{0} already exists.", productDefinition.getIdentifier());
     } else {
@@ -226,5 +236,47 @@ public class ProductDefinitionRestController {
     this.commandGateway.process(new DeleteProductDefinitionCommand(identifier));
 
     return ResponseEntity.accepted().build();
+  }
+
+  @Permittable(value = AcceptedTokenType.TENANT, groupId = PermittableGroupIds.DEFINITION_MANAGEMENT)
+  @RequestMapping(
+      value = "/{identifier}/dividends",
+      method = RequestMethod.POST,
+      consumes = MediaType.APPLICATION_JSON_VALUE,
+      produces = MediaType.APPLICATION_JSON_VALUE
+  )
+  @ResponseBody
+  ResponseEntity<Void> dividendDistribution(@PathVariable("identifier") final String identifier,
+                                            @RequestBody @Valid final DividendDistribution dividendDistribution) {
+    final Optional<ProductDefinition> optionalProductDefinition = this.productDefinitionService.findProductDefinition(identifier);
+    if (!optionalProductDefinition.isPresent()) {
+      throw ServiceException.notFound("Product definition {0} not found", identifier);
+    } else {
+      final ProductDefinition productDefinition = optionalProductDefinition.get();
+      if (!productDefinition.getType().equals(Type.SHARE.name())) {
+        throw ServiceException.badRequest("Product definition {0} is not a share product.", identifier);
+      }
+    }
+
+    final LocalDate dueDate = DateConverter.dateFromIsoString(dividendDistribution.getDueDate());
+    final Double amount = Double.valueOf(dividendDistribution.getDividendRate());
+
+    this.commandGateway.process(new DividendDistributionCommand(identifier, dueDate, amount));
+
+    return ResponseEntity.accepted().build();
+  }
+
+  @Permittable(value = AcceptedTokenType.TENANT, groupId = PermittableGroupIds.DEFINITION_MANAGEMENT)
+  @RequestMapping(
+      value = "/{identifier}/dividends",
+      method = RequestMethod.GET,
+      consumes = MediaType.ALL_VALUE,
+      produces = MediaType.APPLICATION_JSON_VALUE
+  )
+  @ResponseBody
+  ResponseEntity<List<DividendDistribution>> fetchDividendDistributions(@PathVariable("identifier") final String identifier) {
+    return ResponseEntity.ok(
+        this.productDefinitionService.fetchDividendDistributions(identifier)
+    );
   }
 }

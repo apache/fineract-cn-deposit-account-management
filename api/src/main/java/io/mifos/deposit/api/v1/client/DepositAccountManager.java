@@ -23,6 +23,7 @@ import io.mifos.deposit.api.v1.definition.ProductDefinitionAlreadyExistsExceptio
 import io.mifos.deposit.api.v1.definition.ProductDefinitionNotFoundException;
 import io.mifos.deposit.api.v1.definition.ProductDefinitionValidationException;
 import io.mifos.deposit.api.v1.definition.domain.Action;
+import io.mifos.deposit.api.v1.definition.domain.DividendDistribution;
 import io.mifos.deposit.api.v1.definition.domain.ProductDefinition;
 import io.mifos.deposit.api.v1.definition.domain.ProductDefinitionCommand;
 import io.mifos.deposit.api.v1.instance.ProductInstanceNotFoundException;
@@ -188,4 +189,28 @@ public interface DepositAccountManager {
       @ThrowsException(status = HttpStatus.NOT_FOUND, exception = ProductInstanceNotFoundException.class)
   })
   ProductInstance findProductInstance(@PathVariable("identifier") final String identifier);
+
+  @RequestMapping(
+      value = "/definitions/{identifier}/dividends",
+      method = RequestMethod.POST,
+      consumes = MediaType.APPLICATION_JSON_VALUE,
+      produces = MediaType.APPLICATION_JSON_VALUE
+  )
+  @ThrowsExceptions({
+      @ThrowsException(status = HttpStatus.NOT_FOUND, exception = ProductDefinitionNotFoundException.class),
+      @ThrowsException(status = HttpStatus.BAD_REQUEST, exception = ProductDefinitionValidationException.class)
+  })
+  void dividendDistribution(@PathVariable("identifier") final String identifier,
+                            @RequestBody @Valid final DividendDistribution dividendDistribution);
+
+  @RequestMapping(
+      value = "/definitions/{identifier}/dividends",
+      method = RequestMethod.GET,
+      consumes = MediaType.APPLICATION_JSON_VALUE,
+      produces = MediaType.ALL_VALUE
+  )
+  @ThrowsExceptions({
+      @ThrowsException(status = HttpStatus.NOT_FOUND, exception = ProductDefinitionNotFoundException.class),
+  })
+  List<DividendDistribution> fetchDividendDistributions(@PathVariable("identifier") final String identifier);
 }

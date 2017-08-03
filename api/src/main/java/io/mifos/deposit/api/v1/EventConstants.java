@@ -49,4 +49,11 @@ public interface EventConstants {
 
   String ACTIVATE_PRODUCT_INSTANCE_COMMAND = "ACTIVATE";
   String CLOSE_PRODUCT_INSTANCE_COMMAND = "CLOSE";
+
+  String DIVIDEND_DISTRIBUTION = "dividend-distribution";
+  String SELECTOR_DIVIDEND_DISTRIBUTION = SELECTOR_NAME + " = '" + DIVIDEND_DISTRIBUTION + "'";
+  String INTEREST_ACCRUED = "interest-accrued";
+  String SELECTOR_INTEREST_ACCRUED = SELECTOR_NAME + " = '" + INTEREST_ACCRUED + "'";
+  String INTEREST_PAYED = "interest-payed";
+  String SELECTOR_INTEREST_PAYED = SELECTOR_NAME + " = '" + INTEREST_PAYED + "'";
 }

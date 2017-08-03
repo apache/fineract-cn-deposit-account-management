@@ -19,6 +19,8 @@ import io.mifos.accounting.api.v1.client.AccountNotFoundException;
 import io.mifos.accounting.api.v1.client.LedgerManager;
 import io.mifos.accounting.api.v1.client.LedgerNotFoundException;
 import io.mifos.accounting.api.v1.domain.Account;
+import io.mifos.accounting.api.v1.domain.AccountEntry;
+import io.mifos.accounting.api.v1.domain.JournalEntry;
 import io.mifos.accounting.api.v1.domain.Ledger;
 import io.mifos.core.lang.ServiceException;
 import io.mifos.deposit.service.ServiceConstants;
@@ -32,6 +34,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 
 @Service
 public class AccountingService {
@@ -85,5 +88,15 @@ public class AccountingService {
 
   public void updateAccount(final Account account) {
     this.ledgerManager.modifyAccount(account.getIdentifier(), account);
+  }
+
+  public List<AccountEntry> fetchEntries(final String identifier, final String dateRange, final String direction) {
+    return this.ledgerManager
+        .fetchAccountEntries(identifier, dateRange, null, 0, 1, "transactionDate", direction)
+        .getAccountEntries();
+  }
+
+  public void post(final JournalEntry journalEntry) {
+    this.ledgerManager.createJournalEntry(journalEntry);
   }
 }

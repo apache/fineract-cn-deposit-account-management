@@ -13,21 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.mifos.deposit;
+package io.mifos.deposit.service.internal.repository;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-/**
- * @author Myrle Krantz
- */
-@RunWith(Suite.class)
-@Suite.SuiteClasses({
-    TestProductDefinition.class,
-    TestProductInstance.class,
-    TestActions.class,
-    TestAccrual.class,
-    TestDividendDistribution.class
-})
-public class TestSuite extends SuiteTestEnvironment {
+import java.util.List;
+
+public interface DividendDistributionRepository extends JpaRepository<DividendDistributionEntity, Long> {
+
+  List<DividendDistributionEntity> findByProductDefinitionOrderByDueDateAsc(final ProductDefinitionEntity productDefinitionEntity);
 }

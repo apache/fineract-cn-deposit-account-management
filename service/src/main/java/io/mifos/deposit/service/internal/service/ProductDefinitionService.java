@@ -15,17 +15,21 @@
  */
 package io.mifos.deposit.service.internal.service;
 
+import io.mifos.core.lang.ServiceException;
+import io.mifos.deposit.api.v1.definition.domain.DividendDistribution;
 import io.mifos.deposit.api.v1.definition.domain.ProductDefinition;
 import io.mifos.deposit.api.v1.definition.domain.ProductDefinitionCommand;
 import io.mifos.deposit.service.ServiceConstants;
 import io.mifos.deposit.service.internal.mapper.ChargeMapper;
 import io.mifos.deposit.service.internal.mapper.CurrencyMapper;
+import io.mifos.deposit.service.internal.mapper.DividendDistributionMapper;
 import io.mifos.deposit.service.internal.mapper.ProductDefinitionCommandMapper;
 import io.mifos.deposit.service.internal.mapper.ProductDefinitionMapper;
 import io.mifos.deposit.service.internal.mapper.TermMapper;
 import io.mifos.deposit.service.internal.repository.ActionRepository;
 import io.mifos.deposit.service.internal.repository.ChargeRepository;
 import io.mifos.deposit.service.internal.repository.CurrencyRepository;
+import io.mifos.deposit.service.internal.repository.DividendDistributionRepository;
 import io.mifos.deposit.service.internal.repository.ProductDefinitionCommandRepository;
 import io.mifos.deposit.service.internal.repository.ProductDefinitionEntity;
 import io.mifos.deposit.service.internal.repository.ProductDefinitionRepository;
@@ -50,6 +54,7 @@ public class ProductDefinitionService {
   private final ChargeRepository chargeRepository;
   private final CurrencyRepository currencyRepository;
   private final TermRepository termRepository;
+  private final DividendDistributionRepository dividendDistributionRepository;
 
   @Autowired
   public ProductDefinitionService(@Qualifier(ServiceConstants.LOGGER_NAME) final Logger logger,
@@ -58,7 +63,8 @@ public class ProductDefinitionService {
                                   final ActionRepository actionRepository,
                                   final ChargeRepository chargeRepository,
                                   final CurrencyRepository currencyRepository,
-                                  final TermRepository termRepository) {
+                                  final TermRepository termRepository,
+                                  final DividendDistributionRepository dividendDistributionRepository) {
     super();
     this.logger = logger;
     this.productDefinitionRepository = productDefinitionRepository;
@@ -67,6 +73,7 @@ public class ProductDefinitionService {
     this.chargeRepository = chargeRepository;
     this.currencyRepository = currencyRepository;
     this.termRepository = termRepository;
+    this.dividendDistributionRepository = dividendDistributionRepository;
   }
 
   public List<ProductDefinition> fetchProductDefinitions() {
@@ -105,5 +112,17 @@ public class ProductDefinitionService {
             .map(ProductDefinitionCommandMapper::map)
             .collect(Collectors.toList()))
         .orElseGet(Collections::emptyList);
+  }
+
+  public List<DividendDistribution> fetchDividendDistributions(final String identifier) {
+    final Optional<ProductDefinitionEntity> optionalProductDefinition =
+        this.productDefinitionRepository.findByIdentifier(identifier);
+    if (optionalProductDefinition.isPresent()) {
+      return this.dividendDistributionRepository.findByProductDefinitionOrderByDueDateAsc(optionalProductDefinition.get())
+          .stream().map(DividendDistributionMapper::map)
+          .collect(Collectors.toList());
+    } else {
+      throw ServiceException.notFound("Product definition {0} not found", identifier);
+    }
   }
 }

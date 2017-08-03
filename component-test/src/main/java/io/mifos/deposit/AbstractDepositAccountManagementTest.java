@@ -62,7 +62,7 @@ public abstract class AbstractDepositAccountManagementTest extends SuiteTestEnvi
 
   @Autowired
   @Qualifier(TEST_LOGGER)
-  private Logger logger;
+  protected Logger logger;
 
   @Autowired
   DepositAccountManager depositAccountManager;

@@ -13,21 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.mifos.deposit;
+package io.mifos.deposit.service.internal.command;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
+import io.mifos.rhythm.spi.v1.domain.BeatPublish;
 
-/**
- * @author Myrle Krantz
- */
-@RunWith(Suite.class)
-@Suite.SuiteClasses({
-    TestProductDefinition.class,
-    TestProductInstance.class,
-    TestActions.class,
-    TestAccrual.class,
-    TestDividendDistribution.class
-})
-public class TestSuite extends SuiteTestEnvironment {
+public class BeatListenerCommand {
+
+  private final BeatPublish beatPublish;
+
+  public BeatListenerCommand(final BeatPublish beatPublish) {
+    super();
+    this.beatPublish = beatPublish;
+  }
+
+  public BeatPublish beatPublish() {
+    return this.beatPublish;
+  }
 }
