@@ -28,6 +28,7 @@ import io.mifos.deposit.api.v1.definition.domain.ProductDefinition;
 import io.mifos.deposit.api.v1.definition.domain.ProductDefinitionCommand;
 import io.mifos.deposit.api.v1.instance.ProductInstanceNotFoundException;
 import io.mifos.deposit.api.v1.instance.ProductInstanceValidationException;
+import io.mifos.deposit.api.v1.instance.domain.AvailableTransactionType;
 import io.mifos.deposit.api.v1.instance.domain.ProductInstance;
 import org.springframework.cloud.netflix.feign.FeignClient;
 import org.springframework.http.HttpStatus;
@@ -37,9 +38,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Set;
 
 @SuppressWarnings("unused")
 @FeignClient(value = "deposit-v1", path = "/deposit/v1", configuration = CustomFeignClientsConfiguration.class)
@@ -131,6 +134,17 @@ public interface DepositAccountManager {
       produces = MediaType.ALL_VALUE
   )
   List<ProductInstance> fetchProductInstances(@RequestParam(value = "customer", required = true) final String customer);
+
+  @RequestMapping(
+      value = "/instances/transactiontypes",
+      method = RequestMethod.GET,
+      consumes = MediaType.APPLICATION_JSON_VALUE,
+      produces = MediaType.ALL_VALUE
+  )
+  @ResponseBody
+  Set<AvailableTransactionType> fetchPossibleTransactionTypes(
+      @RequestParam(value = "customer", required = true) final String customer
+  );
 
   @RequestMapping(
       value = "/instances/{identifier}",
