@@ -15,12 +15,14 @@
  */
 package io.mifos.deposit;
 
+import com.google.common.collect.Sets;
 import io.mifos.accounting.api.v1.domain.Account;
 import io.mifos.deposit.api.v1.EventConstants;
 import io.mifos.deposit.api.v1.definition.domain.Charge;
 import io.mifos.deposit.api.v1.definition.domain.ProductDefinition;
 import io.mifos.deposit.api.v1.instance.ProductInstanceNotFoundException;
 import io.mifos.deposit.api.v1.instance.ProductInstanceValidationException;
+import io.mifos.deposit.api.v1.instance.domain.AvailableTransactionType;
 import io.mifos.deposit.api.v1.instance.domain.ProductInstance;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.Assert;
@@ -30,6 +32,8 @@ import org.mockito.Mockito;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 public class TestProductInstance extends AbstractDepositAccountManagementTest {
 
@@ -278,5 +282,52 @@ public class TestProductInstance extends AbstractDepositAccountManagementTest {
     Assert.assertTrue(
         super.eventRecorder.wait(EventConstants.ACTIVATE_PRODUCT_INSTANCE,
             fetchedProductInstance.getAccountIdentifier()));
+  }
+
+  @Test
+  public void shouldFindAvailableTransactionTypes() throws Exception {
+    final ProductDefinition productDefinition = Fixture.productDefinition();
+
+    super.depositAccountManager.create(productDefinition);
+
+    super.eventRecorder.wait(EventConstants.POST_PRODUCT_DEFINITION, productDefinition.getIdentifier());
+
+    final ProductInstance productInstance = Fixture.productInstance(productDefinition.getIdentifier());
+
+    super.depositAccountManager.create(productInstance);
+
+    super.eventRecorder.wait(EventConstants.POST_PRODUCT_INSTANCE, productInstance.getCustomerIdentifier());
+
+    final Set<AvailableTransactionType> availableTransactionTypesBeforeActivation =
+        super.depositAccountManager.fetchPossibleTransactionTypes(productInstance.getCustomerIdentifier());
+
+    Assert.assertFalse(availableTransactionTypesBeforeActivation.isEmpty());
+    Assert.assertTrue(availableTransactionTypesBeforeActivation.size() == 1);
+    final Optional<AvailableTransactionType> optionalTransactionType =
+        availableTransactionTypesBeforeActivation.stream().findFirst();
+    Assert.assertTrue(optionalTransactionType.isPresent());
+    Assert.assertEquals("ACCO", optionalTransactionType.get().getTransactionType());
+
+    final List<ProductInstance> productInstances = super.depositAccountManager.findProductInstances(productDefinition.getIdentifier());
+    Assert.assertNotNull(productInstances);
+    Assert.assertEquals(1, productInstances.size());
+    final ProductInstance foundProductInstance = productInstances.get(0);
+
+    super.depositAccountManager.postProductInstanceCommand(
+        foundProductInstance.getAccountIdentifier(), EventConstants.ACTIVATE_PRODUCT_INSTANCE_COMMAND);
+
+    super.eventRecorder.wait(EventConstants.ACTIVATE_PRODUCT_INSTANCE, foundProductInstance.getAccountIdentifier());
+
+    final Set<AvailableTransactionType> availableTransactionTypesAfterActivation =
+        super.depositAccountManager.fetchPossibleTransactionTypes(productInstance.getCustomerIdentifier());
+
+    Assert.assertFalse(availableTransactionTypesAfterActivation.isEmpty());
+    Assert.assertTrue(availableTransactionTypesAfterActivation.size() == 4);
+    final HashSet<String> expectedTransactionTypes = Sets.newHashSet("ACCC", "ACCT", "CDPT", "CWDL");
+    availableTransactionTypesAfterActivation.forEach(availableTransactionType ->
+        expectedTransactionTypes.remove(availableTransactionType.getTransactionType())
+    );
+
+    Assert.assertTrue(expectedTransactionTypes.isEmpty());
   }
 }
