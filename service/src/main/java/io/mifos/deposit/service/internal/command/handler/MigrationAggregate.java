@@ -23,6 +23,7 @@ import io.mifos.core.mariadb.domain.FlywayFactoryBean;
 import io.mifos.deposit.api.v1.EventConstants;
 import io.mifos.deposit.service.ServiceConstants;
 import io.mifos.deposit.service.internal.command.MigrationCommand;
+import io.mifos.deposit.service.internal.service.helper.RhythmService;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -37,17 +38,20 @@ public class MigrationAggregate {
   private final DataSource dataSource;
   private final FlywayFactoryBean flywayFactoryBean;
   private final ApplicationName applicationName;
+  private final RhythmService rhythmService;
 
   @Autowired
   public MigrationAggregate(@Qualifier(ServiceConstants.LOGGER_NAME) final Logger logger,
                             final DataSource dataSource,
                             final FlywayFactoryBean flywayFactoryBean,
-                            final ApplicationName applicationName) {
+                            final ApplicationName applicationName,
+                            final RhythmService rhythmService) {
     super();
     this.logger = logger;
     this.dataSource = dataSource;
     this.flywayFactoryBean = flywayFactoryBean;
     this.applicationName = applicationName;
+    this.rhythmService = rhythmService;
   }
 
   @CommandHandler
@@ -56,6 +60,8 @@ public class MigrationAggregate {
   public String process(final MigrationCommand migrationCommand) {
     this.logger.info("Starting migration for deposit account management version: {}.", applicationName.getVersionString());
     this.flywayFactoryBean.create(this.dataSource).migrate();
+
+    this.rhythmService.setBeat();
 
     this.logger.info("Migration finished.");
     return this.applicationName.getVersionString();
