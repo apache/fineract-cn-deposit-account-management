@@ -258,7 +258,7 @@ public class ProductDefinitionRestController {
       }
     }
 
-    final LocalDate dueDate = DateConverter.dateFromIsoString(dividendDistribution.getDueDate());
+    final LocalDate dueDate = dividendDistribution.getDueDate().toLocalDate();
     final Double amount = Double.valueOf(dividendDistribution.getDividendRate());
 
     this.commandGateway.process(new DividendDistributionCommand(identifier, dueDate, amount));

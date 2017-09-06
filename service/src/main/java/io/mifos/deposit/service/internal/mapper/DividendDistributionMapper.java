@@ -17,6 +17,7 @@ package io.mifos.deposit.service.internal.mapper;
 
 import io.mifos.core.api.util.UserContextHolder;
 import io.mifos.core.lang.DateConverter;
+import io.mifos.core.lang.DateOfBirth;
 import io.mifos.deposit.api.v1.definition.domain.DividendDistribution;
 import io.mifos.deposit.service.internal.repository.DividendDistributionEntity;
 import io.mifos.deposit.service.internal.repository.ProductDefinitionEntity;
@@ -36,7 +37,7 @@ public class DividendDistributionMapper {
     final DividendDistributionEntity dividendDistributionEntity = new DividendDistributionEntity();
 
     dividendDistributionEntity.setProductDefinition(productDefinitionEntity);
-    final Date dueDate = Date.valueOf(DateConverter.dateFromIsoString(dividendDistribution.getDueDate()));
+    final Date dueDate = Date.valueOf(dividendDistribution.getDueDate().toLocalDate());
     dividendDistributionEntity.setDueDate(dueDate);
     dividendDistributionEntity.setRate(Double.valueOf(dividendDistribution.getDividendRate()));
     dividendDistributionEntity.setCreatedOn(LocalDateTime.now(Clock.systemUTC()));
@@ -49,7 +50,7 @@ public class DividendDistributionMapper {
     final DividendDistribution dividendDistribution = new DividendDistribution();
 
     dividendDistribution.setDividendRate(dividendDistributionEntity.getRate().toString());
-    dividendDistribution.setDueDate(DateConverter.toIsoString(dividendDistributionEntity.getDueDate().toLocalDate()));
+    dividendDistribution.setDueDate(DateOfBirth.fromLocalDate(dividendDistributionEntity.getDueDate().toLocalDate()));
 
     return dividendDistribution;
   }

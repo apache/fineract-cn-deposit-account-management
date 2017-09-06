@@ -322,8 +322,8 @@ public class TestProductInstance extends AbstractDepositAccountManagementTest {
         super.depositAccountManager.fetchPossibleTransactionTypes(productInstance.getCustomerIdentifier());
 
     Assert.assertFalse(availableTransactionTypesAfterActivation.isEmpty());
-    Assert.assertTrue(availableTransactionTypesAfterActivation.size() == 4);
-    final HashSet<String> expectedTransactionTypes = Sets.newHashSet("ACCC", "ACCT", "CDPT", "CWDL");
+    Assert.assertTrue(availableTransactionTypesAfterActivation.size() == 5);
+    final HashSet<String> expectedTransactionTypes = Sets.newHashSet("ACCC", "ACCT", "CDPT", "CWDL", "CCHQ");
     availableTransactionTypesAfterActivation.forEach(availableTransactionType ->
         expectedTransactionTypes.remove(availableTransactionType.getTransactionType())
     );

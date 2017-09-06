@@ -15,12 +15,15 @@
  */
 package io.mifos.deposit.api.v1.definition.domain;
 
+import io.mifos.core.lang.DateOfBirth;
 import org.hibernate.validator.constraints.NotBlank;
+
+import javax.validation.constraints.NotNull;
 
 public class DividendDistribution {
 
-  @NotBlank
-  private String dueDate;
+  @NotNull
+  private DateOfBirth dueDate;
   @NotBlank
   private String dividendRate;
 
@@ -28,11 +31,11 @@ public class DividendDistribution {
     super();
   }
 
-  public String getDueDate() {
+  public DateOfBirth getDueDate() {
     return this.dueDate;
   }
 
-  public void setDueDate(final String dueDate) {
+  public void setDueDate(final DateOfBirth dueDate) {
     this.dueDate = dueDate;
   }
 
@@ -51,13 +54,13 @@ public class DividendDistribution {
 
     final DividendDistribution that = (DividendDistribution) o;
 
-    if (!dueDate.equals(that.dueDate)) return false;
+    if (!dueDate.toLocalDate().isEqual(that.dueDate.toLocalDate())) return false;
     return dividendRate.equals(that.dividendRate);
   }
 
   @Override
   public int hashCode() {
-    int result = dueDate.hashCode();
+    int result = dueDate.toLocalDate().hashCode();
     result = 31 * result + dividendRate.hashCode();
     return result;
   }

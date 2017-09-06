@@ -121,6 +121,9 @@ public class ProductInstanceRestController {
         final AvailableTransactionType actionClose = new AvailableTransactionType();
         actionClose.setTransactionType("ACCC");
         availableTransactionTypes.add(actionClose);
+        final AvailableTransactionType actionCheque = new AvailableTransactionType();
+        actionCheque.setTransactionType("CCHQ");
+        availableTransactionTypes.add(actionCheque);
       }
     });
     return ResponseEntity.ok(availableTransactionTypes);

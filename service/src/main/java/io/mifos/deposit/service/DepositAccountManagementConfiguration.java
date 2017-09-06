@@ -23,6 +23,7 @@ import io.mifos.core.command.config.EnableCommandProcessing;
 import io.mifos.core.lang.config.EnableServiceException;
 import io.mifos.core.lang.config.EnableTenantContext;
 import io.mifos.core.mariadb.config.EnableMariaDB;
+import io.mifos.rhythm.api.v1.client.RhythmManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -47,7 +48,8 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 @EnableAnubis
 @EnableServiceException
 @EnableFeignClients(clients = {
-    LedgerManager.class
+    LedgerManager.class,
+    RhythmManager.class
 })
 @ComponentScan({
     "io.mifos.deposit.service.rest",

@@ -109,7 +109,7 @@ public class ProductDefinitionAggregate {
   @CommandHandler
   @EventEmitter(selectorName = EventConstants.SELECTOR_NAME, selectorValue = EventConstants.POST_PRODUCT_DEFINITION_COMMAND)
   @Transactional
-  public String activateProductdefintion(final ActivateProductDefinitionCommand activateProductDefinitionCommand) {
+  public String activateProductDefinition(final ActivateProductDefinitionCommand activateProductDefinitionCommand) {
     final Optional<ProductDefinitionEntity> optionalProductDefinition = productDefinitionRepository.findByIdentifier(activateProductDefinitionCommand.identifier());
 
     if (optionalProductDefinition.isPresent()) {
@@ -137,7 +137,7 @@ public class ProductDefinitionAggregate {
   @CommandHandler
   @EventEmitter(selectorName = EventConstants.SELECTOR_NAME, selectorValue = EventConstants.POST_PRODUCT_DEFINITION_COMMAND)
   @Transactional
-  public String deactivateProductdefintion(final DeactivateProductDefinitionCommand activateProductDefinitionCommand) {
+  public String deactivateProductDefinition(final DeactivateProductDefinitionCommand activateProductDefinitionCommand) {
     final Optional<ProductDefinitionEntity> optionalProductDefinition = productDefinitionRepository.findByIdentifier(activateProductDefinitionCommand.identifier());
 
     if (optionalProductDefinition.isPresent()) {
@@ -207,6 +207,7 @@ public class ProductDefinitionAggregate {
       this.productDefinitionCommandRepository.delete(
           this.productDefinitionCommandRepository.findByProductDefinition(productDefinitionEntity)
       );
+      this.productDefinitionCommandRepository.flush();
 
       this.deleteDependingEntities(productDefinitionEntity);
 

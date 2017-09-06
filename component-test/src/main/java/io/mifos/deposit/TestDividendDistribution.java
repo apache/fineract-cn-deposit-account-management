@@ -18,6 +18,7 @@ package io.mifos.deposit;
 import io.mifos.accounting.api.v1.domain.Account;
 import io.mifos.accounting.api.v1.domain.AccountType;
 import io.mifos.accounting.api.v1.domain.JournalEntry;
+import io.mifos.core.lang.DateOfBirth;
 import io.mifos.deposit.api.v1.EventConstants;
 import io.mifos.deposit.api.v1.definition.domain.DividendDistribution;
 import io.mifos.deposit.api.v1.definition.domain.ProductDefinition;
@@ -74,7 +75,11 @@ public class TestDividendDistribution extends AbstractDepositAccountManagementTe
         .when(super.accountingServiceSpy).findAccount(shareAccount.getIdentifier());
 
     final DividendDistribution dividendDistribution = new DividendDistribution();
-    dividendDistribution.setDueDate("2017-07-31Z");
+    final DateOfBirth dueDate = new DateOfBirth();
+    dueDate.setYear(2017);
+    dueDate.setMonth(7);
+    dueDate.setDay(31);
+    dividendDistribution.setDueDate(dueDate);
     dividendDistribution.setDividendRate("2.5");
     this.depositAccountManager.dividendDistribution(productDefinition.getIdentifier(), dividendDistribution);
 
