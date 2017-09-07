@@ -145,6 +145,35 @@ public class TestProductDefinition extends AbstractDepositAccountManagementTest 
     Assert.assertTrue(super.eventRecorder.wait(EventConstants.DELETE_PRODUCT_DEFINITION, productDefinition.getIdentifier()));
   }
 
+  @Test
+  public void shouldDeleteProductDefinitionEvenWhenActed() throws Exception {
+    final ProductDefinition productDefinition = Fixture.productDefinition();
+
+    super.depositAccountManager.create(productDefinition);
+
+    super.eventRecorder.wait(EventConstants.POST_PRODUCT_DEFINITION, productDefinition.getIdentifier());
+
+    final ProductDefinitionCommand activateProduct = new ProductDefinitionCommand();
+    activateProduct.setAction(ProductDefinitionCommand.Action.ACTIVATE.name());
+    activateProduct.setNote(RandomStringUtils.randomAlphanumeric(2048));
+
+    super.depositAccountManager.process(productDefinition.getIdentifier(), activateProduct);
+
+    super.eventRecorder.wait(EventConstants.POST_PRODUCT_DEFINITION_COMMAND, productDefinition.getIdentifier());
+
+    final ProductDefinitionCommand deactivateProduct = new ProductDefinitionCommand();
+    deactivateProduct.setAction(ProductDefinitionCommand.Action.DEACTIVATE.name());
+    deactivateProduct.setNote(RandomStringUtils.randomAlphanumeric(2048));
+
+    super.depositAccountManager.process(productDefinition.getIdentifier(), deactivateProduct);
+
+    super.eventRecorder.wait(EventConstants.POST_PRODUCT_DEFINITION_COMMAND, productDefinition.getIdentifier());
+
+    super.depositAccountManager.deleteProductDefinition(productDefinition.getIdentifier());
+
+    Assert.assertTrue(super.eventRecorder.wait(EventConstants.DELETE_PRODUCT_DEFINITION, productDefinition.getIdentifier()));
+  }
+
   @Test(expected = ProductDefinitionValidationException.class)
   public void shouldNotDeleteProductDefinitionInstanceExists() throws Exception {
     final ProductDefinition productDefinition = Fixture.productDefinition();

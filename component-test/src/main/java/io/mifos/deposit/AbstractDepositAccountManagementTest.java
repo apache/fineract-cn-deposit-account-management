@@ -25,6 +25,7 @@ import io.mifos.deposit.api.v1.EventConstants;
 import io.mifos.deposit.api.v1.client.DepositAccountManager;
 import io.mifos.deposit.service.DepositAccountManagementConfiguration;
 import io.mifos.deposit.service.internal.service.helper.AccountingService;
+import io.mifos.deposit.service.internal.service.helper.RhythmService;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -75,6 +76,9 @@ public abstract class AbstractDepositAccountManagementTest extends SuiteTestEnvi
 
   @MockBean
   AccountingService accountingServiceSpy;
+
+  @MockBean
+  RhythmService rhythmService;
 
   private AutoUserContext autoUserContext;
 
