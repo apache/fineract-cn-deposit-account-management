@@ -38,7 +38,7 @@ public class ProductDefinitionCommandEntity {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "id", nullable = false)
   private Long id;
-  @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "product_definition_id", nullable = false)
   private ProductDefinitionEntity productDefinition;
   @Column(name = "a_action", nullable = false)
