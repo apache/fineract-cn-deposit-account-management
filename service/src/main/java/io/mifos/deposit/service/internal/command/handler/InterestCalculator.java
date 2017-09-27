@@ -210,44 +210,42 @@ public class InterestCalculator {
               this.productInstanceRepository.findByProductDefinition(productDefinitionEntity);
 
           productInstanceEntities.forEach(productInstanceEntity -> {
-            if (productInstanceEntity.getState().equals(ACTIVE)) {
-              final Optional<AccruedInterestEntity> optionalAccruedInterestEntity =
-                  this.accruedInterestRepository.findByCustomerAccountIdentifier(productInstanceEntity.getAccountIdentifier());
+            final Optional<AccruedInterestEntity> optionalAccruedInterestEntity =
+                this.accruedInterestRepository.findByCustomerAccountIdentifier(productInstanceEntity.getAccountIdentifier());
 
-              if (optionalAccruedInterestEntity.isPresent()) {
-                final AccruedInterestEntity accruedInterestEntity = optionalAccruedInterestEntity.get();
+            if (optionalAccruedInterestEntity.isPresent()) {
+              final AccruedInterestEntity accruedInterestEntity = optionalAccruedInterestEntity.get();
 
-                final String roundedAmount =
-                    BigDecimal.valueOf(accruedInterestEntity.getAmount())
-                        .setScale(2, BigDecimal.ROUND_HALF_EVEN).toString();
+              final String roundedAmount =
+                  BigDecimal.valueOf(accruedInterestEntity.getAmount())
+                      .setScale(2, BigDecimal.ROUND_HALF_EVEN).toString();
 
-                final JournalEntry accrueToExpenseJournalEntry = new JournalEntry();
-                accrueToExpenseJournalEntry.setTransactionIdentifier(RandomStringUtils.randomAlphanumeric(32));
-                accrueToExpenseJournalEntry.setTransactionDate(DateConverter.toIsoString(LocalDateTime.now(Clock.systemUTC())));
-                accrueToExpenseJournalEntry.setTransactionType("INTR");
-                accrueToExpenseJournalEntry.setClerk(UserContextHolder.checkedGetUser());
-                accrueToExpenseJournalEntry.setNote("Interest paid.");
+              final JournalEntry accrueToExpenseJournalEntry = new JournalEntry();
+              accrueToExpenseJournalEntry.setTransactionIdentifier(RandomStringUtils.randomAlphanumeric(32));
+              accrueToExpenseJournalEntry.setTransactionDate(DateConverter.toIsoString(LocalDateTime.now(Clock.systemUTC())));
+              accrueToExpenseJournalEntry.setTransactionType("INTR");
+              accrueToExpenseJournalEntry.setClerk(UserContextHolder.checkedGetUser());
+              accrueToExpenseJournalEntry.setNote("Interest paid.");
 
-                final Debtor accrueDebtor = new Debtor();
-                accrueDebtor.setAccountNumber(accruedInterestEntity.getAccrueAccountIdentifier());
-                accrueDebtor.setAmount(roundedAmount);
-                accrueToExpenseJournalEntry.setDebtors(Sets.newHashSet(accrueDebtor));
+              final Debtor accrueDebtor = new Debtor();
+              accrueDebtor.setAccountNumber(accruedInterestEntity.getAccrueAccountIdentifier());
+              accrueDebtor.setAmount(roundedAmount);
+              accrueToExpenseJournalEntry.setDebtors(Sets.newHashSet(accrueDebtor));
 
-                final Creditor expenseCreditor = new Creditor();
-                expenseCreditor.setAccountNumber(productDefinitionEntity.getExpenseAccountIdentifier());
-                expenseCreditor.setAmount(roundedAmount);
-                accrueToExpenseJournalEntry.setCreditors(Sets.newHashSet(expenseCreditor));
+              final Creditor expenseCreditor = new Creditor();
+              expenseCreditor.setAccountNumber(productDefinitionEntity.getExpenseAccountIdentifier());
+              expenseCreditor.setAmount(roundedAmount);
+              accrueToExpenseJournalEntry.setCreditors(Sets.newHashSet(expenseCreditor));
 
-                this.accruedInterestRepository.delete(accruedInterestEntity);
+              this.accruedInterestRepository.delete(accruedInterestEntity);
 
-                this.accountingService.post(accrueToExpenseJournalEntry);
+              this.accountingService.post(accrueToExpenseJournalEntry);
 
-                this.payoutInterest(
-                    productDefinitionEntity.getExpenseAccountIdentifier(),
-                    accruedInterestEntity.getCustomerAccountIdentifier(),
-                    roundedAmount
-                );
-              }
+              this.payoutInterest(
+                  productDefinitionEntity.getExpenseAccountIdentifier(),
+                  accruedInterestEntity.getCustomerAccountIdentifier(),
+                  roundedAmount
+              );
             }
           });
         }
