@@ -46,7 +46,7 @@ public class TestActions extends AbstractDepositAccountManagementTest {
   }
 
   @Test(expected = ActionAlreadyExistsException.class)
-  public void shouldNoCreateActionAlreadyExists() throws Exception {
+  public void shouldNotCreateActionAlreadyExists() throws Exception {
     final Action action = Fixture.action();
     super.depositAccountManager.create(action);
 

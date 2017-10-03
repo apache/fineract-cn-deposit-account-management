@@ -15,24 +15,22 @@
  */
 package io.mifos.deposit.service.internal.service.helper;
 
+import com.google.common.collect.Lists;
 import io.mifos.accounting.api.v1.client.AccountNotFoundException;
 import io.mifos.accounting.api.v1.client.LedgerManager;
 import io.mifos.accounting.api.v1.client.LedgerNotFoundException;
 import io.mifos.accounting.api.v1.domain.Account;
 import io.mifos.accounting.api.v1.domain.AccountEntry;
+import io.mifos.accounting.api.v1.domain.AccountPage;
 import io.mifos.accounting.api.v1.domain.JournalEntry;
 import io.mifos.accounting.api.v1.domain.Ledger;
 import io.mifos.core.lang.ServiceException;
 import io.mifos.deposit.service.ServiceConstants;
-import io.mifos.deposit.service.internal.repository.ProductDefinitionEntity;
-import io.mifos.deposit.service.internal.repository.ProductInstanceEntity;
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 
@@ -50,31 +48,27 @@ public class AccountingService {
     this.ledgerManager = ledgerManager;
   }
 
-  public void createAccount(final ProductDefinitionEntity productDefinitionEntity,
-                            final ProductInstanceEntity productInstanceEntity) {
-    final String ledgerIdentifier = productDefinitionEntity.getEquityLedgerIdentifier();
+  public void createAccount(final String equityLedger,
+                            final String productName,
+                            final String customer,
+                            final String accountNumber,
+                            final String alternativeAccountNumber) {
     try {
-      final Ledger ledger = this.ledgerManager.findLedger(ledgerIdentifier);
+      final Ledger ledger = this.ledgerManager.findLedger(equityLedger);
       final Account account = new Account();
-      account.setIdentifier(productInstanceEntity.getAccountIdentifier());
+      account.setIdentifier(accountNumber);
       account.setType(ledger.getType());
-      account.setLedger(ledgerIdentifier);
-      account.setName(productDefinitionEntity.getName());
-
-      account.setHolders(new HashSet<>(
-          Arrays.asList(productInstanceEntity.getCustomerIdentifier()))
-      );
-
-      if (productInstanceEntity.getBeneficiaries() != null) {
-        account.setSignatureAuthorities(new HashSet<>(
-            Arrays.asList(StringUtils.split(productInstanceEntity.getBeneficiaries(), ","))
-        ));
+      account.setLedger(equityLedger);
+      account.setName(productName);
+      account.setHolders(new HashSet<>(Lists.newArrayList(customer)));
+      account.setBalance(0.00D);
+      if (alternativeAccountNumber != null && !alternativeAccountNumber.equals(accountNumber)) {
+        account.setAlternativeAccountNumber(alternativeAccountNumber);
       }
 
-      account.setBalance(0.00D);
       this.ledgerManager.createAccount(account);
     } catch (final LedgerNotFoundException lnfex) {
-      throw ServiceException.notFound("Ledger {0} not found.", ledgerIdentifier);
+      throw ServiceException.notFound("Ledger {0} not found.", equityLedger);
     }
   }
 
@@ -82,7 +76,14 @@ public class AccountingService {
     try {
       return this.ledgerManager.findAccount(identifier);
     } catch (final AccountNotFoundException anfex) {
-      throw ServiceException.notFound("Account {0} not found.", identifier);
+      final AccountPage accountPage = this.ledgerManager.fetchAccounts(true, identifier, null, true,
+          0, 10, null, null);
+
+      return accountPage.getAccounts()
+          .stream()
+          .filter(account -> account.getAlternativeAccountNumber().equals(identifier))
+          .findFirst()
+          .orElseThrow(() -> ServiceException.notFound("Account {0} not found.", identifier));
     }
   }
 
