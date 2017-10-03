@@ -17,7 +17,6 @@ package io.mifos.deposit.service.internal.repository;
 
 import io.mifos.core.mariadb.util.LocalDateTimeConverter;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Entity;

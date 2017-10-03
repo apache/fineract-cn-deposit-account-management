@@ -76,31 +76,30 @@ public class ProductInstanceAggregate {
     final ProductInstanceEntity productInstanceEntity =
         ProductInstanceMapper.map(productInstance, this.productDefinitionRepository);
 
-    if (productInstance.getAccountIdentifier() == null) {
-      final Optional<ProductDefinitionEntity> optionalProductDefinition =
-          productDefinitionRepository.findByIdentifier(productInstance.getProductIdentifier());
+    final Optional<ProductDefinitionEntity> optionalProductDefinition =
+        productDefinitionRepository.findByIdentifier(productInstance.getProductIdentifier());
 
-      optionalProductDefinition.ifPresent(productDefinitionEntity -> {
+    optionalProductDefinition.ifPresent(productDefinitionEntity -> {
 
-        final List<ProductInstanceEntity> currentProductInstances =
-            this.productInstanceRepository.findByCustomerIdentifier(productInstance.getCustomerIdentifier());
+      final List<ProductInstanceEntity> currentProductInstances =
+          this.productInstanceRepository.findByCustomerIdentifier(productInstance.getCustomerIdentifier());
 
-        final int accountSuffix = currentProductInstances.size() + 1;
+      final int accountSuffix = currentProductInstances.size() + 1;
+      final String accountNumber =
+          productInstance.getCustomerIdentifier() +
+              "." + productDefinitionEntity.getEquityLedgerIdentifier() +
+              "." + String.format("%05d", accountSuffix);
 
-        final StringBuilder stringBuilder = new StringBuilder();
-        final String accountNumber = stringBuilder
-            .append(productInstance.getCustomerIdentifier())
-            .append(".")
-            .append(productDefinitionEntity.getEquityLedgerIdentifier())
-            .append(".")
-            .append(String.format("%05d", accountSuffix))
-            .toString();
-
+      if (productInstance.getAccountIdentifier() == null) {
         productInstanceEntity.setAccountIdentifier(accountNumber);
+      } else {
+        productInstanceEntity.setAccountIdentifier(productInstance.getAccountIdentifier());
+      }
 
-        this.accountingService.createAccount(productDefinitionEntity, productInstanceEntity);
-      });
-    }
+      this.accountingService.createAccount(productDefinitionEntity.getEquityLedgerIdentifier(),
+          productDefinitionEntity.getName(), productInstanceEntity.getCustomerIdentifier(),
+          accountNumber, productInstance.getAccountIdentifier());
+    });
 
     productInstanceEntity.setCreatedBy(UserContextHolder.checkedGetUser());
     productInstanceEntity.setCreatedOn(LocalDateTime.now(Clock.systemUTC()));

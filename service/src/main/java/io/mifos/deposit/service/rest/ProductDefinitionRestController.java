@@ -18,7 +18,6 @@ package io.mifos.deposit.service.rest;
 import io.mifos.anubis.annotation.AcceptedTokenType;
 import io.mifos.anubis.annotation.Permittable;
 import io.mifos.core.command.gateway.CommandGateway;
-import io.mifos.core.lang.DateConverter;
 import io.mifos.core.lang.ServiceException;
 import io.mifos.deposit.api.v1.PermittableGroupIds;
 import io.mifos.deposit.api.v1.definition.domain.DividendDistribution;

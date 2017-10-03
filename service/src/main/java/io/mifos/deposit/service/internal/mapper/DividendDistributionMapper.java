@@ -16,7 +16,6 @@
 package io.mifos.deposit.service.internal.mapper;
 
 import io.mifos.core.api.util.UserContextHolder;
-import io.mifos.core.lang.DateConverter;
 import io.mifos.core.lang.DateOfBirth;
 import io.mifos.deposit.api.v1.definition.domain.DividendDistribution;
 import io.mifos.deposit.service.internal.repository.DividendDistributionEntity;
