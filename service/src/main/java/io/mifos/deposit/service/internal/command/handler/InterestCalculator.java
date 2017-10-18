@@ -278,8 +278,8 @@ public class InterestCalculator {
             final Account account =
                 this.accountingService.findAccount(productInstanceEntity.getAccountIdentifier());
 
-            final LocalDateTime startDate = dividendDistributionCommand.dueDate().plusDays(1).atStartOfDay();
-            final LocalDateTime now = LocalDateTime.now(Clock.systemUTC());
+            final LocalDate startDate = dividendDistributionCommand.dueDate().plusDays(1);
+            final LocalDate now = LocalDate.now(Clock.systemUTC());
 
             final String findCurrentEntries = DateConverter.toIsoString(startDate) + ".." + DateConverter.toIsoString(now);
             final List<AccountEntry> currentAccountEntries =
