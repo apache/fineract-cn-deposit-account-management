@@ -28,6 +28,8 @@ public class ProductInstance {
   @ValidIdentifier(maxLength = 34, optional = true)
   private String accountIdentifier;
   private Set<String> beneficiaries;
+  private String openedOn;
+  private String lastTransactionDate;
   private String state;
   private Double balance;
 
@@ -65,6 +67,22 @@ public class ProductInstance {
 
   public void setBeneficiaries(final Set<String> beneficiaries) {
     this.beneficiaries = beneficiaries;
+  }
+
+  public String getOpenedOn() {
+    return this.openedOn;
+  }
+
+  public void setOpenedOn(final String openedOn) {
+    this.openedOn = openedOn;
+  }
+
+  public String getLastTransactionDate() {
+    return this.lastTransactionDate;
+  }
+
+  public void setLastTransactionDate(final String lastTransactionDate) {
+    this.lastTransactionDate = lastTransactionDate;
   }
 
   public String getState() {

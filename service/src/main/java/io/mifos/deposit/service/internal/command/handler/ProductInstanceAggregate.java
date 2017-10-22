@@ -27,6 +27,7 @@ import io.mifos.deposit.service.ServiceConstants;
 import io.mifos.deposit.service.internal.command.ActivateProductInstanceCommand;
 import io.mifos.deposit.service.internal.command.CloseProductInstanceCommand;
 import io.mifos.deposit.service.internal.command.CreateProductInstanceCommand;
+import io.mifos.deposit.service.internal.command.TransactionProcessedCommand;
 import io.mifos.deposit.service.internal.command.UpdateProductInstanceCommand;
 import io.mifos.deposit.service.internal.mapper.ProductInstanceMapper;
 import io.mifos.deposit.service.internal.repository.ProductDefinitionEntity;
@@ -41,6 +42,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Clock;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -120,6 +122,9 @@ public class ProductInstanceAggregate {
     if (optionalProductInstance.isPresent()) {
       final ProductInstanceEntity productInstanceEntity = optionalProductInstance.get();
       productInstanceEntity.setState("ACTIVE");
+      if (productInstanceEntity.getOpenedOn() == null) {
+        productInstanceEntity.setOpenedOn(LocalDate.now(Clock.systemUTC()));
+      }
       productInstanceEntity.setLastModifiedBy(UserContextHolder.checkedGetUser());
       productInstanceEntity.setLastModifiedOn(LocalDateTime.now(Clock.systemUTC()));
       this.productInstanceRepository.save(productInstanceEntity);
@@ -184,6 +189,23 @@ public class ProductInstanceAggregate {
     } else {
       throw ServiceException.notFound("Product instance {0} not found.", productInstance.getAccountIdentifier());
     }
+  }
+
+  @Transactional
+  @CommandHandler
+  @EventEmitter(selectorName = EventConstants.SELECTOR_NAME, selectorValue = EventConstants.PUT_PRODUCT_INSTANCE)
+  public String process(final TransactionProcessedCommand transactionProcessedCommand) {
+    final Optional<ProductInstanceEntity> optionalProductInstance =
+        this.productInstanceRepository.findByAccountIdentifier(transactionProcessedCommand.accountIdentifier());
+
+    final ProductInstanceEntity productInstanceEntity = optionalProductInstance.orElseThrow(() ->
+        ServiceException.notFound("Product instance {0} not found.", transactionProcessedCommand.accountIdentifier()));
+
+    productInstanceEntity.setLastTransactionDate(LocalDateTime.now(Clock.systemUTC()));
+    
+    this.productInstanceRepository.save(productInstanceEntity);
+
+    return transactionProcessedCommand.accountIdentifier();
   }
 
   private boolean hasChanged(final ProductInstance productInstance, final ProductInstanceEntity productInstanceEntity) {

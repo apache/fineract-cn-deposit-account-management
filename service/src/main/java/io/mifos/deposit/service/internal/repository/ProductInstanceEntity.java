@@ -15,6 +15,7 @@
  */
 package io.mifos.deposit.service.internal.repository;
 
+import io.mifos.core.mariadb.util.LocalDateConverter;
 import io.mifos.core.mariadb.util.LocalDateTimeConverter;
 
 import javax.persistence.CascadeType;
@@ -28,6 +29,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -47,6 +49,12 @@ public class ProductInstanceEntity {
   private String accountIdentifier;
   @Column(name = "beneficiaries", nullable = true, length = 256)
   private String beneficiaries;
+  @Convert(converter = LocalDateConverter.class)
+  @Column(name = "opened_on", nullable = false)
+  private LocalDate openedOn;
+  @Convert(converter = LocalDateTimeConverter.class)
+  @Column(name = "last_transaction_date", nullable = false)
+  private LocalDateTime lastTransactionDate;
   @Column(name = "a_state", nullable = false)
   private String state;
   @Column(name = "created_by", nullable = false, length = 32)
@@ -102,6 +110,22 @@ public class ProductInstanceEntity {
 
   public void setBeneficiaries(final String beneficiaries) {
     this.beneficiaries = beneficiaries;
+  }
+
+  public LocalDate getOpenedOn() {
+    return this.openedOn;
+  }
+
+  public void setOpenedOn(final LocalDate openedOn) {
+    this.openedOn = openedOn;
+  }
+
+  public LocalDateTime getLastTransactionDate() {
+    return this.lastTransactionDate;
+  }
+
+  public void setLastTransactionDate(final LocalDateTime lastTransactionDate) {
+    this.lastTransactionDate = lastTransactionDate;
   }
 
   public String getState() {

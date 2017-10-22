@@ -16,6 +16,7 @@
 package io.mifos.deposit.service.internal.mapper;
 
 import io.mifos.accounting.api.v1.domain.Account;
+import io.mifos.core.lang.DateConverter;
 import io.mifos.core.lang.ServiceException;
 import io.mifos.deposit.api.v1.instance.domain.ProductInstance;
 import io.mifos.deposit.service.internal.repository.ProductDefinitionEntity;
@@ -49,6 +50,14 @@ public class ProductInstanceMapper {
             productInstance.getBeneficiaries().stream().collect(Collectors.joining(",")));
       }
 
+      if (productInstance.getOpenedOn() != null) {
+        productInstanceEntity.setOpenedOn(DateConverter.dateFromIsoString(productInstance.getOpenedOn()));
+      }
+
+      if (productInstance.getLastTransactionDate() != null) {
+        productInstanceEntity.setLastTransactionDate(DateConverter.fromIsoString(productInstance.getLastTransactionDate()));
+      }
+
       return productInstanceEntity;
     } else {
       throw ServiceException.notFound("Unable to assign product {0} to customer {1}, product not found.",
@@ -67,6 +76,14 @@ public class ProductInstanceMapper {
       productInstance.setBeneficiaries(new HashSet<>(
           Arrays.asList(StringUtils.split(productInstanceEntity.getBeneficiaries(), ","))
       ));
+    }
+
+    if (productInstanceEntity.getOpenedOn() != null) {
+      productInstance.setOpenedOn(DateConverter.toIsoString(productInstanceEntity.getOpenedOn()));
+    }
+
+    if (productInstanceEntity.getLastTransactionDate() != null) {
+      productInstance.setLastTransactionDate(DateConverter.toIsoString(productInstanceEntity.getLastTransactionDate()));
     }
 
     if (account != null && account.getBalance() != null) {

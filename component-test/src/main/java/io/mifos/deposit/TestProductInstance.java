@@ -90,17 +90,21 @@ public class TestProductInstance extends AbstractDepositAccountManagementTest {
     Assert.assertTrue(
         super.eventRecorder.wait(EventConstants.ACTIVATE_PRODUCT_INSTANCE,
             foundProductInstance.getAccountIdentifier()));
+
+    final ProductInstance activatedProductInstance = super.depositAccountManager.findProductInstance(foundProductInstance.getAccountIdentifier());
+    Assert.assertNotNull(activatedProductInstance.getOpenedOn());
   }
 
   @Test
   public void shouldCloseProductInstance() throws Exception {
     final ProductDefinition productDefinition = Fixture.productDefinition();
-
     super.depositAccountManager.create(productDefinition);
 
     super.eventRecorder.wait(EventConstants.POST_PRODUCT_DEFINITION, productDefinition.getIdentifier());
 
     final ProductInstance productInstance = Fixture.productInstance(productDefinition.getIdentifier());
+    final String openedOn = "2013-05-08Z";
+    productInstance.setOpenedOn(openedOn);
 
     super.depositAccountManager.create(productInstance);
 
@@ -110,6 +114,7 @@ public class TestProductInstance extends AbstractDepositAccountManagementTest {
     Assert.assertNotNull(productInstances);
     Assert.assertEquals(1, productInstances.size());
     final ProductInstance foundProductInstance = productInstances.get(0);
+    Assert.assertEquals(openedOn, foundProductInstance.getOpenedOn());
 
     super.depositAccountManager.postProductInstanceCommand(
         foundProductInstance.getAccountIdentifier(), EventConstants.CLOSE_PRODUCT_INSTANCE_COMMAND);
@@ -329,5 +334,45 @@ public class TestProductInstance extends AbstractDepositAccountManagementTest {
     );
 
     Assert.assertTrue(expectedTransactionTypes.isEmpty());
+  }
+
+  @Test
+  public void shouldAddTransactionDateProductInstance() throws Exception {
+    final ProductDefinition productDefinition = Fixture.productDefinition();
+
+    super.depositAccountManager.create(productDefinition);
+
+    super.eventRecorder.wait(EventConstants.POST_PRODUCT_DEFINITION, productDefinition.getIdentifier());
+
+    final ProductInstance productInstance = Fixture.productInstance(productDefinition.getIdentifier());
+
+    super.depositAccountManager.create(productInstance);
+
+    super.eventRecorder.wait(EventConstants.POST_PRODUCT_INSTANCE, productInstance.getCustomerIdentifier());
+
+    final List<ProductInstance> productInstances = super.depositAccountManager.findProductInstances(productDefinition.getIdentifier());
+    Assert.assertNotNull(productInstances);
+    Assert.assertEquals(1, productInstances.size());
+    final ProductInstance foundProductInstance = productInstances.get(0);
+
+    super.depositAccountManager.postProductInstanceCommand(
+        foundProductInstance.getAccountIdentifier(), EventConstants.ACTIVATE_PRODUCT_INSTANCE_COMMAND);
+
+    Assert.assertTrue(
+        super.eventRecorder.wait(EventConstants.ACTIVATE_PRODUCT_INSTANCE,
+            foundProductInstance.getAccountIdentifier()));
+
+    super.depositAccountManager.postProductInstanceCommand(
+        foundProductInstance.getAccountIdentifier(), EventConstants.PRODUCT_INSTANCE_TRANSACTION);
+
+    Assert.assertTrue(
+        super.eventRecorder.wait(EventConstants.PUT_PRODUCT_INSTANCE,
+            foundProductInstance.getAccountIdentifier()));
+
+    final List<ProductInstance> transactedProductInstances = super.depositAccountManager.findProductInstances(productDefinition.getIdentifier());
+    Assert.assertNotNull(transactedProductInstances);
+    Assert.assertEquals(1, transactedProductInstances.size());
+    final ProductInstance transactedProductInstance = transactedProductInstances.get(0);
+    Assert.assertNotNull(transactedProductInstance.getLastTransactionDate());
   }
 }
