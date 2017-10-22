@@ -27,6 +27,7 @@ import io.mifos.deposit.service.ServiceConstants;
 import io.mifos.deposit.service.internal.command.ActivateProductInstanceCommand;
 import io.mifos.deposit.service.internal.command.CloseProductInstanceCommand;
 import io.mifos.deposit.service.internal.command.CreateProductInstanceCommand;
+import io.mifos.deposit.service.internal.command.TransactionProcessedCommand;
 import io.mifos.deposit.service.internal.command.UpdateProductInstanceCommand;
 import io.mifos.deposit.service.internal.service.ProductInstanceService;
 import org.slf4j.Logger;
@@ -149,6 +150,9 @@ public class ProductInstanceRestController {
         break;
       case EventConstants.CLOSE_PRODUCT_INSTANCE_COMMAND:
         this.commandGateway.process(new CloseProductInstanceCommand(identifier));
+        break;
+      case EventConstants.PRODUCT_INSTANCE_TRANSACTION:
+        this.commandGateway.process(new TransactionProcessedCommand(identifier));
         break;
       default:
         throw ServiceException.badRequest("Unsupported command {0}", command);
