@@ -51,7 +51,13 @@ public class ProductInstanceMapper {
       }
 
       if (productInstance.getOpenedOn() != null) {
-        productInstanceEntity.setOpenedOn(DateConverter.dateFromIsoString(productInstance.getOpenedOn()));
+        final String editedOpenedDate;
+        if (!productInstance.getOpenedOn().endsWith("Z")) {
+          editedOpenedDate = productInstance.getOpenedOn() + "Z";
+        } else {
+          editedOpenedDate = productInstance.getOpenedOn();
+        }
+        productInstanceEntity.setOpenedOn(DateConverter.dateFromIsoString(editedOpenedDate));
       }
 
       if (productInstance.getLastTransactionDate() != null) {
@@ -79,7 +85,8 @@ public class ProductInstanceMapper {
     }
 
     if (productInstanceEntity.getOpenedOn() != null) {
-      productInstance.setOpenedOn(DateConverter.toIsoString(productInstanceEntity.getOpenedOn()));
+      final String editedOpenedDate = DateConverter.toIsoString(productInstanceEntity.getOpenedOn()).substring(0, 10);
+      productInstance.setOpenedOn(editedOpenedDate);
     }
 
     if (productInstanceEntity.getLastTransactionDate() != null) {

@@ -103,7 +103,7 @@ public class TestProductInstance extends AbstractDepositAccountManagementTest {
     super.eventRecorder.wait(EventConstants.POST_PRODUCT_DEFINITION, productDefinition.getIdentifier());
 
     final ProductInstance productInstance = Fixture.productInstance(productDefinition.getIdentifier());
-    final String openedOn = "2013-05-08Z";
+    final String openedOn = "2013-05-08";
     productInstance.setOpenedOn(openedOn);
 
     super.depositAccountManager.create(productInstance);
