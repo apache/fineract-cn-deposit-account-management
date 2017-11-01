@@ -50,6 +50,7 @@ public class ProductDefinition {
   private Term term;
   @Valid
   private Set<Charge> charges;
+  @NotNull
   private Boolean flexible;
   private Boolean active;
 

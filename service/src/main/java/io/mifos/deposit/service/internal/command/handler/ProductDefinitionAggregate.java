@@ -228,15 +228,17 @@ public class ProductDefinitionAggregate {
     termEntity.setProductDefinition(savedProductEntity);
     this.termRepository.save(termEntity);
 
-    this.chargeRepository.save(productDefinition.getCharges()
-        .stream()
-        .map(charge -> {
-          final ChargeEntity chargeEntity = ChargeMapper.map(charge, this.actionRepository);
-          chargeEntity.setProductDefinition(savedProductEntity);
-          return chargeEntity;
-        })
-        .collect(Collectors.toSet())
-    );
+    if (productDefinition.getCharges() != null && !productDefinition.getCharges().isEmpty()) {
+      this.chargeRepository.save(productDefinition.getCharges()
+              .stream()
+              .map(charge -> {
+                final ChargeEntity chargeEntity = ChargeMapper.map(charge, this.actionRepository);
+                chargeEntity.setProductDefinition(savedProductEntity);
+                return chargeEntity;
+              })
+              .collect(Collectors.toSet())
+      );
+    }
   }
 
   void deleteDependingEntities(final ProductDefinitionEntity productDefinitionEntity) {
