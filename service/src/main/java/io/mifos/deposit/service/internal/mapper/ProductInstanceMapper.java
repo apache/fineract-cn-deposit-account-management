@@ -93,12 +93,14 @@ public class ProductInstanceMapper {
       productInstance.setLastTransactionDate(DateConverter.toIsoString(productInstanceEntity.getLastTransactionDate()));
     }
 
-    if (account != null && account.getBalance() != null) {
-      productInstance.setBalance(account.getBalance());
-    } else {
-      productInstance.setBalance(0.00D);
+    if (account != null) {
+      productInstance.setAlternativeAccountNumber(account.getAlternativeAccountNumber());
+      if (account.getBalance() != null) {
+        productInstance.setBalance(account.getBalance());
+      } else {
+        productInstance.setBalance(0.00D);
+      }
     }
-
     return productInstance;
   }
 }
