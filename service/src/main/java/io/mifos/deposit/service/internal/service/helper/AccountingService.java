@@ -52,7 +52,8 @@ public class AccountingService {
                             final String productName,
                             final String customer,
                             final String accountNumber,
-                            final String alternativeAccountNumber) {
+                            final String alternativeAccountNumber,
+                            final Double balance) {
     try {
       final Ledger ledger = this.ledgerManager.findLedger(equityLedger);
       final Account account = new Account();
@@ -61,10 +62,8 @@ public class AccountingService {
       account.setLedger(equityLedger);
       account.setName(productName);
       account.setHolders(new HashSet<>(Lists.newArrayList(customer)));
-      account.setBalance(0.00D);
-      if (alternativeAccountNumber != null && !alternativeAccountNumber.equals(accountNumber)) {
-        account.setAlternativeAccountNumber(alternativeAccountNumber);
-      }
+      account.setBalance(balance != null ? balance : 0.00D);
+      account.setAlternativeAccountNumber(alternativeAccountNumber);
 
       this.ledgerManager.createAccount(account);
     } catch (final LedgerNotFoundException lnfex) {

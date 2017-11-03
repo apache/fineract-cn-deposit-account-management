@@ -92,15 +92,12 @@ public class ProductInstanceAggregate {
               "." + productDefinitionEntity.getEquityLedgerIdentifier() +
               "." + String.format("%05d", accountSuffix);
 
-      if (productInstance.getAccountIdentifier() == null) {
-        productInstanceEntity.setAccountIdentifier(accountNumber);
-      } else {
-        productInstanceEntity.setAccountIdentifier(productInstance.getAccountIdentifier());
-      }
+      productInstanceEntity.setAccountIdentifier(accountNumber);
 
       this.accountingService.createAccount(productDefinitionEntity.getEquityLedgerIdentifier(),
           productDefinitionEntity.getName(), productInstanceEntity.getCustomerIdentifier(),
-          accountNumber, productInstance.getAccountIdentifier());
+          accountNumber, productInstance.getAlternativeAccountNumber(),
+          productInstance.getBalance());
     });
 
     productInstanceEntity.setCreatedBy(UserContextHolder.checkedGetUser());

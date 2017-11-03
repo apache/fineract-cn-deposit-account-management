@@ -27,6 +27,7 @@ public class ProductInstance {
   private String productIdentifier;
   @ValidIdentifier(maxLength = 34, optional = true)
   private String accountIdentifier;
+  private String alternativeAccountNumber;
   private Set<String> beneficiaries;
   private String openedOn;
   private String lastTransactionDate;
@@ -59,6 +60,14 @@ public class ProductInstance {
 
   public void setAccountIdentifier(final String accountIdentifier) {
     this.accountIdentifier = accountIdentifier;
+  }
+
+  public String getAlternativeAccountNumber() {
+    return alternativeAccountNumber;
+  }
+
+  public void setAlternativeAccountNumber(String alternativeAccountNumber) {
+    this.alternativeAccountNumber = alternativeAccountNumber;
   }
 
   public Set<String> getBeneficiaries() {

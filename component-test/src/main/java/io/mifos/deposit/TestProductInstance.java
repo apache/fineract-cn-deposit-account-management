@@ -27,6 +27,7 @@ import io.mifos.deposit.api.v1.instance.domain.ProductInstance;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.Assert;
 import org.junit.Test;
+import org.mockito.Matchers;
 import org.mockito.Mockito;
 
 import java.util.Arrays;
@@ -374,5 +375,38 @@ public class TestProductInstance extends AbstractDepositAccountManagementTest {
     Assert.assertEquals(1, transactedProductInstances.size());
     final ProductInstance transactedProductInstance = transactedProductInstances.get(0);
     Assert.assertNotNull(transactedProductInstance.getLastTransactionDate());
+  }
+
+  @Test
+  public void shouldSetAlternativeAccountAndBalanceProductInstance() throws Exception {
+    final ProductDefinition productDefinition = Fixture.productDefinition();
+
+    super.depositAccountManager.create(productDefinition);
+
+    super.eventRecorder.wait(EventConstants.POST_PRODUCT_DEFINITION, productDefinition.getIdentifier());
+
+    final ProductInstance productInstance = Fixture.productInstance(productDefinition.getIdentifier());
+    productInstance.setAlternativeAccountNumber("08154711");
+    productInstance.setBalance(1000.00D);
+
+    super.depositAccountManager.create(productInstance);
+
+    super.eventRecorder.wait(EventConstants.POST_PRODUCT_INSTANCE, productInstance.getCustomerIdentifier());
+
+    final Account dummy = new Account();
+    dummy.setAlternativeAccountNumber(productInstance.getAlternativeAccountNumber());
+    dummy.setBalance(productInstance.getBalance());
+    Mockito
+        .doAnswer(invocation -> dummy)
+        .when(super.accountingServiceSpy).findAccount(Matchers.anyString());
+
+    final List<ProductInstance> productInstances = super.depositAccountManager.findProductInstances(productDefinition.getIdentifier());
+    Assert.assertNotNull(productInstances);
+    Assert.assertEquals(1, productInstances.size());
+    final ProductInstance foundProductInstance = productInstances.get(0);
+    Assert.assertNotNull(foundProductInstance.getAccountIdentifier());
+    Assert.assertNotEquals(productInstance.getAlternativeAccountNumber(), foundProductInstance.getAccountIdentifier());
+    Assert.assertEquals(productInstance.getAlternativeAccountNumber(), foundProductInstance.getAlternativeAccountNumber());
+    Assert.assertEquals(productInstance.getBalance(), foundProductInstance.getBalance());
   }
 }
