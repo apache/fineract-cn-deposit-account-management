@@ -1,4 +1,4 @@
-group 'io.mifos.deposit-account-management'
+group 'org.apache.fineract.cn.deposit-account-management'
 version '0.1.0-BUILD-SNAPSHOT'
 
 ext.versions = [
