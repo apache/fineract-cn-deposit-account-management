@@ -18,10 +18,9 @@
  */
 package io.mifos.deposit.api.v1.definition.domain;
 
-import io.mifos.core.lang.DateOfBirth;
-import org.hibernate.validator.constraints.NotBlank;
-
 import javax.validation.constraints.NotNull;
+import org.apache.fineract.cn.lang.DateOfBirth;
+import org.hibernate.validator.constraints.NotBlank;
 
 public class DividendDistribution {
 

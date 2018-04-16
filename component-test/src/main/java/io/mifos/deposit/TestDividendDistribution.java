@@ -18,22 +18,21 @@
  */
 package io.mifos.deposit;
 
-import io.mifos.accounting.api.v1.domain.Account;
-import io.mifos.accounting.api.v1.domain.AccountType;
-import io.mifos.accounting.api.v1.domain.JournalEntry;
-import io.mifos.core.lang.DateOfBirth;
 import io.mifos.deposit.api.v1.EventConstants;
 import io.mifos.deposit.api.v1.definition.domain.DividendDistribution;
 import io.mifos.deposit.api.v1.definition.domain.ProductDefinition;
 import io.mifos.deposit.api.v1.definition.domain.ProductDefinitionCommand;
 import io.mifos.deposit.api.v1.domain.Type;
 import io.mifos.deposit.api.v1.instance.domain.ProductInstance;
+import java.util.List;
+import org.apache.fineract.cn.accounting.api.v1.domain.Account;
+import org.apache.fineract.cn.accounting.api.v1.domain.AccountType;
+import org.apache.fineract.cn.accounting.api.v1.domain.JournalEntry;
+import org.apache.fineract.cn.lang.DateOfBirth;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
-
-import java.util.List;
 
 public class TestDividendDistribution extends AbstractDepositAccountManagementTest {
 

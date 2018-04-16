@@ -18,19 +18,18 @@
  */
 package io.mifos.deposit.service.internal.command.handler;
 
-import io.mifos.core.command.annotation.Aggregate;
-import io.mifos.core.command.annotation.CommandHandler;
-import io.mifos.core.command.domain.CommandCallback;
-import io.mifos.core.command.gateway.CommandGateway;
-import io.mifos.core.lang.DateConverter;
-import io.mifos.core.lang.ServiceException;
 import io.mifos.deposit.service.internal.command.AccrualCommand;
 import io.mifos.deposit.service.internal.command.BeatListenerCommand;
 import io.mifos.deposit.service.internal.command.PayInterestCommand;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import javax.transaction.Transactional;
 import java.time.LocalDateTime;
+import javax.transaction.Transactional;
+import org.apache.fineract.cn.command.annotation.Aggregate;
+import org.apache.fineract.cn.command.annotation.CommandHandler;
+import org.apache.fineract.cn.command.domain.CommandCallback;
+import org.apache.fineract.cn.command.gateway.CommandGateway;
+import org.apache.fineract.cn.lang.DateConverter;
+import org.apache.fineract.cn.lang.ServiceException;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @Aggregate
 public class BeatListenerCommandHandler {

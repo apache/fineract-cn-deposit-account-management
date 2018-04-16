@@ -18,15 +18,15 @@
  */
 package io.mifos.deposit.service.internal.command.handler;
 
-import io.mifos.core.command.annotation.Aggregate;
-import io.mifos.core.command.annotation.CommandHandler;
-import io.mifos.core.command.annotation.EventEmitter;
 import io.mifos.deposit.api.v1.EventConstants;
 import io.mifos.deposit.api.v1.definition.domain.Action;
 import io.mifos.deposit.service.ServiceConstants;
 import io.mifos.deposit.service.internal.command.CreateActionCommand;
 import io.mifos.deposit.service.internal.mapper.ActionMapper;
 import io.mifos.deposit.service.internal.repository.ActionRepository;
+import org.apache.fineract.cn.command.annotation.Aggregate;
+import org.apache.fineract.cn.command.annotation.CommandHandler;
+import org.apache.fineract.cn.command.annotation.EventEmitter;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;

@@ -18,19 +18,18 @@
  */
 package io.mifos.deposit.service.internal.mapper;
 
-import io.mifos.accounting.api.v1.domain.Account;
-import io.mifos.core.lang.DateConverter;
-import io.mifos.core.lang.ServiceException;
 import io.mifos.deposit.api.v1.instance.domain.ProductInstance;
 import io.mifos.deposit.service.internal.repository.ProductDefinitionEntity;
 import io.mifos.deposit.service.internal.repository.ProductDefinitionRepository;
 import io.mifos.deposit.service.internal.repository.ProductInstanceEntity;
-import org.apache.commons.lang.StringUtils;
-
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.apache.commons.lang.StringUtils;
+import org.apache.fineract.cn.accounting.api.v1.domain.Account;
+import org.apache.fineract.cn.lang.DateConverter;
+import org.apache.fineract.cn.lang.ServiceException;
 
 public class ProductInstanceMapper {
 

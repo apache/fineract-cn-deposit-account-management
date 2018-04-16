@@ -18,13 +18,12 @@
  */
 package io.mifos.deposit.service.internal.mapper;
 
-import io.mifos.core.lang.ServiceException;
 import io.mifos.deposit.api.v1.definition.domain.Charge;
 import io.mifos.deposit.service.internal.repository.ActionEntity;
 import io.mifos.deposit.service.internal.repository.ActionRepository;
 import io.mifos.deposit.service.internal.repository.ChargeEntity;
-
 import java.util.Optional;
+import org.apache.fineract.cn.lang.ServiceException;
 
 public class ChargeMapper {
 

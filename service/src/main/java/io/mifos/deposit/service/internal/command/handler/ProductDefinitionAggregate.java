@@ -18,12 +18,6 @@
  */
 package io.mifos.deposit.service.internal.command.handler;
 
-import io.mifos.core.api.util.UserContextHolder;
-import io.mifos.core.command.annotation.Aggregate;
-import io.mifos.core.command.annotation.CommandHandler;
-import io.mifos.core.command.annotation.EventEmitter;
-import io.mifos.core.lang.DateConverter;
-import io.mifos.core.lang.ServiceException;
 import io.mifos.deposit.api.v1.EventConstants;
 import io.mifos.deposit.api.v1.definition.domain.ProductDefinition;
 import io.mifos.deposit.api.v1.definition.domain.ProductDefinitionCommand;
@@ -49,16 +43,21 @@ import io.mifos.deposit.service.internal.repository.ProductDefinitionEntity;
 import io.mifos.deposit.service.internal.repository.ProductDefinitionRepository;
 import io.mifos.deposit.service.internal.repository.TermEntity;
 import io.mifos.deposit.service.internal.repository.TermRepository;
-import org.slf4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.apache.fineract.cn.api.util.UserContextHolder;
+import org.apache.fineract.cn.command.annotation.Aggregate;
+import org.apache.fineract.cn.command.annotation.CommandHandler;
+import org.apache.fineract.cn.command.annotation.EventEmitter;
+import org.apache.fineract.cn.lang.DateConverter;
+import org.apache.fineract.cn.lang.ServiceException;
+import org.slf4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.transaction.annotation.Transactional;
 
 @Aggregate
 public class ProductDefinitionAggregate {

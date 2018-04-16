@@ -18,10 +18,6 @@
  */
 package io.mifos.deposit;
 
-import io.mifos.accounting.api.v1.domain.Account;
-import io.mifos.accounting.api.v1.domain.AccountType;
-import io.mifos.core.api.util.ApiFactory;
-import io.mifos.core.lang.DateConverter;
 import io.mifos.deposit.api.v1.EventConstants;
 import io.mifos.deposit.api.v1.definition.domain.ProductDefinition;
 import io.mifos.deposit.api.v1.definition.domain.ProductDefinitionCommand;
@@ -29,19 +25,22 @@ import io.mifos.deposit.api.v1.domain.Type;
 import io.mifos.deposit.api.v1.instance.domain.ProductInstance;
 import io.mifos.deposit.service.internal.repository.AccruedInterestEntity;
 import io.mifos.deposit.service.internal.repository.AccruedInterestRepository;
-import io.mifos.rhythm.spi.v1.client.BeatListener;
-import io.mifos.rhythm.spi.v1.domain.BeatPublish;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
 import org.apache.commons.lang.RandomStringUtils;
+import org.apache.fineract.cn.accounting.api.v1.domain.Account;
+import org.apache.fineract.cn.accounting.api.v1.domain.AccountType;
+import org.apache.fineract.cn.api.util.ApiFactory;
+import org.apache.fineract.cn.lang.DateConverter;
+import org.apache.fineract.cn.rhythm.spi.v1.client.BeatListener;
+import org.apache.fineract.cn.rhythm.spi.v1.domain.BeatPublish;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
 
 public class TestAccrual extends AbstractDepositAccountManagementTest {
 

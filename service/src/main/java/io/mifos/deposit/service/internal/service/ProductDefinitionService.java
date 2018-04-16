@@ -18,7 +18,6 @@
  */
 package io.mifos.deposit.service.internal.service;
 
-import io.mifos.core.lang.ServiceException;
 import io.mifos.deposit.api.v1.definition.domain.DividendDistribution;
 import io.mifos.deposit.api.v1.definition.domain.ProductDefinition;
 import io.mifos.deposit.api.v1.definition.domain.ProductDefinitionCommand;
@@ -37,15 +36,15 @@ import io.mifos.deposit.service.internal.repository.ProductDefinitionCommandRepo
 import io.mifos.deposit.service.internal.repository.ProductDefinitionEntity;
 import io.mifos.deposit.service.internal.repository.ProductDefinitionRepository;
 import io.mifos.deposit.service.internal.repository.TermRepository;
-import org.slf4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Service;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.apache.fineract.cn.lang.ServiceException;
+import org.slf4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
 
 @Service
 public class ProductDefinitionService {

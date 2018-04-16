@@ -18,9 +18,9 @@
  */
 package io.mifos.deposit.service.internal.mapper;
 
-import io.mifos.core.lang.DateConverter;
 import io.mifos.deposit.api.v1.definition.domain.ProductDefinitionCommand;
 import io.mifos.deposit.service.internal.repository.ProductDefinitionCommandEntity;
+import org.apache.fineract.cn.lang.DateConverter;
 
 public class ProductDefinitionCommandMapper {
 

@@ -18,9 +18,8 @@
  */
 package io.mifos.deposit.api.v1.definition.domain;
 
-import io.mifos.core.lang.validation.constraints.ValidIdentifier;
-
 import javax.validation.constraints.NotNull;
+import org.apache.fineract.cn.lang.validation.constraints.ValidIdentifier;
 
 public class Charge {
 

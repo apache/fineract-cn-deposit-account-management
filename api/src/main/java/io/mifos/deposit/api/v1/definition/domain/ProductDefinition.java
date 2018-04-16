@@ -18,12 +18,11 @@
  */
 package io.mifos.deposit.api.v1.definition.domain;
 
-import io.mifos.core.lang.validation.constraints.ValidIdentifier;
 import io.mifos.deposit.api.v1.domain.Type;
-
+import java.util.Set;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import java.util.Set;
+import org.apache.fineract.cn.lang.validation.constraints.ValidIdentifier;
 
 public class ProductDefinition {
 

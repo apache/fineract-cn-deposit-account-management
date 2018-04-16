@@ -18,13 +18,14 @@
  */
 package io.mifos.deposit.service.rest;
 
-import io.mifos.anubis.annotation.AcceptedTokenType;
-import io.mifos.anubis.annotation.Permittable;
-import io.mifos.core.command.gateway.CommandGateway;
 import io.mifos.deposit.service.ServiceConstants;
 import io.mifos.deposit.service.internal.command.BeatListenerCommand;
-import io.mifos.rhythm.spi.v1.client.BeatListener;
-import io.mifos.rhythm.spi.v1.domain.BeatPublish;
+import javax.validation.Valid;
+import org.apache.fineract.cn.anubis.annotation.AcceptedTokenType;
+import org.apache.fineract.cn.anubis.annotation.Permittable;
+import org.apache.fineract.cn.command.gateway.CommandGateway;
+import org.apache.fineract.cn.rhythm.spi.v1.client.BeatListener;
+import org.apache.fineract.cn.rhythm.spi.v1.domain.BeatPublish;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -35,8 +36,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
-
-import javax.validation.Valid;
 
 @RestController
 @RequestMapping(BeatListener.PUBLISH_BEAT_PATH)

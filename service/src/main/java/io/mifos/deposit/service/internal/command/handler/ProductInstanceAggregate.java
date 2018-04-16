@@ -18,12 +18,6 @@
  */
 package io.mifos.deposit.service.internal.command.handler;
 
-import io.mifos.accounting.api.v1.domain.Account;
-import io.mifos.core.api.util.UserContextHolder;
-import io.mifos.core.command.annotation.Aggregate;
-import io.mifos.core.command.annotation.CommandHandler;
-import io.mifos.core.command.annotation.EventEmitter;
-import io.mifos.core.lang.ServiceException;
 import io.mifos.deposit.api.v1.EventConstants;
 import io.mifos.deposit.api.v1.instance.domain.ProductInstance;
 import io.mifos.deposit.service.ServiceConstants;
@@ -38,12 +32,6 @@ import io.mifos.deposit.service.internal.repository.ProductDefinitionRepository;
 import io.mifos.deposit.service.internal.repository.ProductInstanceEntity;
 import io.mifos.deposit.service.internal.repository.ProductInstanceRepository;
 import io.mifos.deposit.service.internal.service.helper.AccountingService;
-import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -52,6 +40,17 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.apache.commons.lang.StringUtils;
+import org.apache.fineract.cn.accounting.api.v1.domain.Account;
+import org.apache.fineract.cn.api.util.UserContextHolder;
+import org.apache.fineract.cn.command.annotation.Aggregate;
+import org.apache.fineract.cn.command.annotation.CommandHandler;
+import org.apache.fineract.cn.command.annotation.EventEmitter;
+import org.apache.fineract.cn.lang.ServiceException;
+import org.slf4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.transaction.annotation.Transactional;
 
 @Aggregate
 public class ProductInstanceAggregate {

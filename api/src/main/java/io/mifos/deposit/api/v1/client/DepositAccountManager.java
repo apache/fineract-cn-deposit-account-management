@@ -18,9 +18,6 @@
  */
 package io.mifos.deposit.api.v1.client;
 
-import io.mifos.core.api.annotation.ThrowsException;
-import io.mifos.core.api.annotation.ThrowsExceptions;
-import io.mifos.core.api.util.CustomFeignClientsConfiguration;
 import io.mifos.deposit.api.v1.definition.ActionAlreadyExistsException;
 import io.mifos.deposit.api.v1.definition.ProductDefinitionAlreadyExistsException;
 import io.mifos.deposit.api.v1.definition.ProductDefinitionNotFoundException;
@@ -33,6 +30,12 @@ import io.mifos.deposit.api.v1.instance.ProductInstanceNotFoundException;
 import io.mifos.deposit.api.v1.instance.ProductInstanceValidationException;
 import io.mifos.deposit.api.v1.instance.domain.AvailableTransactionType;
 import io.mifos.deposit.api.v1.instance.domain.ProductInstance;
+import java.util.List;
+import java.util.Set;
+import javax.validation.Valid;
+import org.apache.fineract.cn.api.annotation.ThrowsException;
+import org.apache.fineract.cn.api.annotation.ThrowsExceptions;
+import org.apache.fineract.cn.api.util.CustomFeignClientsConfiguration;
 import org.springframework.cloud.netflix.feign.FeignClient;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -42,10 +45,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-
-import javax.validation.Valid;
-import java.util.List;
-import java.util.Set;
 
 @SuppressWarnings("unused")
 @FeignClient(value = "deposit-v1", path = "/deposit/v1", configuration = CustomFeignClientsConfiguration.class)

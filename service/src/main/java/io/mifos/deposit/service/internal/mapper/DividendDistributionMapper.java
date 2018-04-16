@@ -18,15 +18,14 @@
  */
 package io.mifos.deposit.service.internal.mapper;
 
-import io.mifos.core.api.util.UserContextHolder;
-import io.mifos.core.lang.DateOfBirth;
 import io.mifos.deposit.api.v1.definition.domain.DividendDistribution;
 import io.mifos.deposit.service.internal.repository.DividendDistributionEntity;
 import io.mifos.deposit.service.internal.repository.ProductDefinitionEntity;
-
 import java.sql.Date;
 import java.time.Clock;
 import java.time.LocalDateTime;
+import org.apache.fineract.cn.api.util.UserContextHolder;
+import org.apache.fineract.cn.lang.DateOfBirth;
 
 public class DividendDistributionMapper {
 
@@ -52,7 +51,8 @@ public class DividendDistributionMapper {
     final DividendDistribution dividendDistribution = new DividendDistribution();
 
     dividendDistribution.setDividendRate(dividendDistributionEntity.getRate().toString());
-    dividendDistribution.setDueDate(DateOfBirth.fromLocalDate(dividendDistributionEntity.getDueDate().toLocalDate()));
+    dividendDistribution.setDueDate(DateOfBirth
+        .fromLocalDate(dividendDistributionEntity.getDueDate().toLocalDate()));
 
     return dividendDistribution;
   }

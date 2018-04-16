@@ -18,17 +18,17 @@
  */
 package io.mifos.deposit;
 
-import io.mifos.anubis.test.v1.TenantApplicationSecurityEnvironmentTestRule;
-import io.mifos.core.api.context.AutoUserContext;
-import io.mifos.core.lang.ApplicationName;
-import io.mifos.core.test.fixture.TenantDataStoreContextTestRule;
-import io.mifos.core.test.listener.EnableEventRecording;
-import io.mifos.core.test.listener.EventRecorder;
 import io.mifos.deposit.api.v1.EventConstants;
 import io.mifos.deposit.api.v1.client.DepositAccountManager;
 import io.mifos.deposit.service.DepositAccountManagementConfiguration;
 import io.mifos.deposit.service.internal.service.helper.AccountingService;
 import io.mifos.deposit.service.internal.service.helper.RhythmService;
+import org.apache.fineract.cn.anubis.test.v1.TenantApplicationSecurityEnvironmentTestRule;
+import org.apache.fineract.cn.api.context.AutoUserContext;
+import org.apache.fineract.cn.lang.ApplicationName;
+import org.apache.fineract.cn.test.fixture.TenantDataStoreContextTestRule;
+import org.apache.fineract.cn.test.listener.EnableEventRecording;
+import org.apache.fineract.cn.test.listener.EventRecorder;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;

@@ -18,9 +18,8 @@
  */
 package io.mifos.deposit.api.v1.instance.domain;
 
-import io.mifos.core.lang.validation.constraints.ValidIdentifier;
-
 import java.util.Set;
+import org.apache.fineract.cn.lang.validation.constraints.ValidIdentifier;
 
 public class ProductInstance {
 

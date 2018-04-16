@@ -19,7 +19,6 @@
 package io.mifos.deposit;
 
 import com.google.common.collect.Sets;
-import io.mifos.accounting.api.v1.domain.Account;
 import io.mifos.deposit.api.v1.EventConstants;
 import io.mifos.deposit.api.v1.definition.domain.Charge;
 import io.mifos.deposit.api.v1.definition.domain.ProductDefinition;
@@ -27,17 +26,17 @@ import io.mifos.deposit.api.v1.instance.ProductInstanceNotFoundException;
 import io.mifos.deposit.api.v1.instance.ProductInstanceValidationException;
 import io.mifos.deposit.api.v1.instance.domain.AvailableTransactionType;
 import io.mifos.deposit.api.v1.instance.domain.ProductInstance;
-import org.apache.commons.lang3.RandomStringUtils;
-import org.junit.Assert;
-import org.junit.Test;
-import org.mockito.Matchers;
-import org.mockito.Mockito;
-
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.fineract.cn.accounting.api.v1.domain.Account;
+import org.junit.Assert;
+import org.junit.Test;
+import org.mockito.Matchers;
+import org.mockito.Mockito;
 
 public class TestProductInstance extends AbstractDepositAccountManagementTest {
 

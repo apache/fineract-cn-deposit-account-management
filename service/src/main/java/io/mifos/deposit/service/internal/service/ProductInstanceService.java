@@ -18,7 +18,6 @@
  */
 package io.mifos.deposit.service.internal.service;
 
-import io.mifos.accounting.api.v1.domain.Account;
 import io.mifos.deposit.api.v1.instance.domain.ProductInstance;
 import io.mifos.deposit.service.ServiceConstants;
 import io.mifos.deposit.service.internal.mapper.ProductInstanceMapper;
@@ -26,15 +25,15 @@ import io.mifos.deposit.service.internal.repository.ProductDefinitionEntity;
 import io.mifos.deposit.service.internal.repository.ProductDefinitionRepository;
 import io.mifos.deposit.service.internal.repository.ProductInstanceRepository;
 import io.mifos.deposit.service.internal.service.helper.AccountingService;
-import org.slf4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Service;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.apache.fineract.cn.accounting.api.v1.domain.Account;
+import org.slf4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
 
 @Service
 public class ProductInstanceService {

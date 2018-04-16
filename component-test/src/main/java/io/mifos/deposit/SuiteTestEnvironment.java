@@ -19,9 +19,9 @@
 package io.mifos.deposit;
 
 
-import io.mifos.core.test.env.TestEnvironment;
-import io.mifos.core.test.fixture.cassandra.CassandraInitializer;
-import io.mifos.core.test.fixture.mariadb.MariaDBInitializer;
+import org.apache.fineract.cn.test.env.TestEnvironment;
+import org.apache.fineract.cn.test.fixture.cassandra.CassandraInitializer;
+import org.apache.fineract.cn.test.fixture.mariadb.MariaDBInitializer;
 import org.junit.ClassRule;
 import org.junit.rules.RuleChain;
 import org.junit.rules.RunExternalResourceOnce;

@@ -18,7 +18,7 @@
  */
 package io.mifos.deposit.service.internal.command;
 
-import io.mifos.rhythm.spi.v1.domain.BeatPublish;
+import org.apache.fineract.cn.rhythm.spi.v1.domain.BeatPublish;
 
 public class BeatListenerCommand {
 

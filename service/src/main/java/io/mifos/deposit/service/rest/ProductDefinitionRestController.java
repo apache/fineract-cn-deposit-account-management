@@ -18,10 +18,6 @@
  */
 package io.mifos.deposit.service.rest;
 
-import io.mifos.anubis.annotation.AcceptedTokenType;
-import io.mifos.anubis.annotation.Permittable;
-import io.mifos.core.command.gateway.CommandGateway;
-import io.mifos.core.lang.ServiceException;
 import io.mifos.deposit.api.v1.PermittableGroupIds;
 import io.mifos.deposit.api.v1.definition.domain.DividendDistribution;
 import io.mifos.deposit.api.v1.definition.domain.ProductDefinition;
@@ -37,6 +33,14 @@ import io.mifos.deposit.service.internal.command.DividendDistributionCommand;
 import io.mifos.deposit.service.internal.command.UpdateProductDefinitionCommand;
 import io.mifos.deposit.service.internal.service.ProductDefinitionService;
 import io.mifos.deposit.service.internal.service.ProductInstanceService;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
+import javax.validation.Valid;
+import org.apache.fineract.cn.anubis.annotation.AcceptedTokenType;
+import org.apache.fineract.cn.anubis.annotation.Permittable;
+import org.apache.fineract.cn.command.gateway.CommandGateway;
+import org.apache.fineract.cn.lang.ServiceException;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -48,11 +52,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
-
-import javax.validation.Valid;
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/definitions")
