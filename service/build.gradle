@@ -60,9 +60,6 @@ dependencies {
             [group: 'org.apache.fineract.cn.rhythm', name: 'spi', version: versions.frameworkrhythm],
             [group: 'org.apache.fineract.cn.rhythm', name: 'api', version: versions.frameworkrhythm],
             [group: 'org.hibernate', name: 'hibernate-validator', version: versions.validator],
-            [group: 'org.javamoney.lib', name: 'javamoney-calc', version: versions.javamoneylib],
-            [group: 'javax.money', name: 'money-api', version: '1.0.1'],
-            [group: 'org.javamoney', name: 'moneta', version: '1.0.1'],
             [group: 'org.threeten', name: 'threeten-extra', version: '1.2']
     )
 }
