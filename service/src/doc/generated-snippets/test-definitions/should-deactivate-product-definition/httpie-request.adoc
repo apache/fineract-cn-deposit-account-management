@@ -1,0 +1,4 @@
+[source,bash]
+----
+$ echo 'G5ZwGoZN' | http PUT 'http://localhost:8080/deposit/v1/definitions/G5ZwGoZN' 'Accept:application/json' 'Content-Type:application/json'
+----

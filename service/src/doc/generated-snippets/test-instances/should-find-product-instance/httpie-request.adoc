@@ -1,0 +1,4 @@
+[source,bash]
+----
+$ http GET 'http://localhost:8080/deposit/v1/instances' 'Accept:*/*' 'Content-Type:application/json'
+----

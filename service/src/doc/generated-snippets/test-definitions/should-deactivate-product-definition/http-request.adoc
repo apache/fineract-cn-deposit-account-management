@@ -1,0 +1,10 @@
+[source,http,options="nowrap"]
+----
+PUT /deposit/v1/definitions/G5ZwGoZN HTTP/1.1
+Accept: application/json
+Content-Type: application/json
+Host: localhost:8080
+Content-Length: 8
+
+G5ZwGoZN
+----

@@ -1,0 +1,4 @@
+[source,bash]
+----
+$ curl 'http://localhost:8080/deposit/v1/definitions/IUM2xv8N' -i -H 'Accept: */*' -H 'Content-Type: application/json'
+----

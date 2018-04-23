@@ -1,0 +1,10 @@
+[source,http,options="nowrap"]
+----
+DELETE /deposit/v1/definitions/KMdOIEEJ HTTP/1.1
+Accept: */*
+Content-Type: application/json
+Host: localhost:8080
+Content-Length: 16
+
+application/json
+----

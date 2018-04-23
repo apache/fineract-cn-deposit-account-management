@@ -1,0 +1,4 @@
+[source,bash]
+----
+$ echo 'ZmLKEouR' | http POST 'http://localhost:8080/deposit/v1/definitions' 'Accept:application/json' 'Content-Type:application/json'
+----

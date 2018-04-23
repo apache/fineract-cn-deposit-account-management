@@ -1,0 +1,4 @@
+[source,bash]
+----
+$ echo 'oMeOsoRMayyE4j2XNJrQmUssSKD2UOv0' | http POST 'http://localhost:8080/deposit/v1/actions' 'Accept:application/json' 'Content-Type:application/json'
+----

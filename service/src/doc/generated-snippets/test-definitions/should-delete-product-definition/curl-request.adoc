@@ -1,0 +1,4 @@
+[source,bash]
+----
+$ curl 'http://localhost:8080/deposit/v1/definitions/KMdOIEEJ' -i -X DELETE -H 'Accept: */*' -H 'Content-Type: application/json' -d 'application/json'
+----

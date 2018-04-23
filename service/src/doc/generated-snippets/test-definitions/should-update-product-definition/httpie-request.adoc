@@ -1,0 +1,4 @@
+[source,bash]
+----
+$ echo 'tBSiWosu' | http PUT 'http://localhost:8080/deposit/v1/definitions/tBSiWosu' 'Accept:application/json' 'Content-Type:application/json'
+----
