@@ -1,0 +1,4 @@
+[source,bash]
+----
+$ echo 'wGZPqFXZ' | http POST 'http://localhost:8080/deposit/v1/instances' 'Accept:application/json' 'Content-Type:application/json'
+----

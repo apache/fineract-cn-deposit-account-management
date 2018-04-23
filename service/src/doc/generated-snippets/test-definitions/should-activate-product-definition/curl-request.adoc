@@ -1,0 +1,4 @@
+[source,bash]
+----
+$ curl 'http://localhost:8080/deposit/v1/definitions/J55UjH3A' -i -X PUT -H 'Accept: application/json' -H 'Content-Type: application/json' -d 'J55UjH3A'
+----

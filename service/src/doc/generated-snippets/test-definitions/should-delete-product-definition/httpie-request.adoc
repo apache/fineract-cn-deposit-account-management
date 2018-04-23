@@ -1,0 +1,4 @@
+[source,bash]
+----
+$ echo 'application/json' | http DELETE 'http://localhost:8080/deposit/v1/definitions/KMdOIEEJ' 'Accept:*/*' 'Content-Type:application/json'
+----
