@@ -66,9 +66,9 @@ public class Fixture {
 
     final ProductDefinition productDefinition = new ProductDefinition();
     productDefinition.setType(Type.SAVINGS.name());
-    productDefinition.setIdentifier(RandomStringUtils.randomAlphanumeric(8));
-    productDefinition.setName(RandomStringUtils.randomAlphanumeric(256));
-    productDefinition.setDescription(RandomStringUtils.randomAlphanumeric(2048));
+    productDefinition.setIdentifier("pdtDef" + RandomStringUtils.randomAlphanumeric(4));
+    productDefinition.setName("PdtName " + RandomStringUtils.randomAlphanumeric(6));
+    productDefinition.setDescription("Product Description" + RandomStringUtils.randomAlphanumeric(8));
     productDefinition.setCharges(new HashSet<>(Arrays.asList(openingCharge, closingCharge)));
     productDefinition.setCurrency(currency);
     productDefinition.setInterest(1.25D);
@@ -85,9 +85,9 @@ public class Fixture {
 
   public static Action action() {
     final Action action = new Action();
-    action.setIdentifier(RandomStringUtils.randomAlphanumeric(32));
-    action.setName(RandomStringUtils.randomAlphanumeric(256));
-    action.setDescription(RandomStringUtils.randomAlphanumeric(2048));
+    action.setIdentifier("Acc" + RandomStringUtils.randomAlphanumeric(2));
+    action.setName("Action" + RandomStringUtils.randomAlphanumeric(3));
+    action.setDescription("Action's Description " + RandomStringUtils.randomAlphanumeric(4));
     action.setTransactionType("ACCO");
 
     return action;
@@ -96,10 +96,10 @@ public class Fixture {
   public static ProductInstance productInstance(final String productIdentifier) {
     final ProductInstance productInstance = new ProductInstance();
     productInstance.setProductIdentifier(productIdentifier);
-    productInstance.setCustomerIdentifier(RandomStringUtils.randomAlphanumeric(8));
+    productInstance.setCustomerIdentifier("Customer" + RandomStringUtils.randomAlphanumeric(3));
     productInstance.setBeneficiaries(new HashSet<>(Arrays.asList(
-        RandomStringUtils.randomAlphanumeric(8),
-        RandomStringUtils.randomAlphanumeric(8)
+        "Benefiary" + RandomStringUtils.randomAlphanumeric(3),
+        "Benefiary" + RandomStringUtils.randomAlphanumeric(3)
     )));
     return productInstance;
   }
