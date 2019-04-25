@@ -1,4 +1,4 @@
-# Apache Fineract CN Deposit Account Management
+# Apache Fineract CN Deposit Account Management [![Build Status](https://api.travis-ci.com/apache/fineract-cn-deposit-account-management.svg?branch=develop)](https://travis-ci.com/apache/fineract-cn-deposit-account-management)
 
 This project provides a services to create deposit accounts, e.g. checking, savings, and shares.
 
