@@ -17,5 +17,7 @@
 -- under the License.
 --
 
-ALTER TABLE shed_product_instances MODIFY COLUMN account_identifier VARCHAR(34) NOT NULL;
-ALTER TABLE shed_product_instances ADD COLUMN beneficiaries VARCHAR(256) NULL;
+ALTER TABLE shed_product_instances ADD COLUMN opened_on DATE NULL;
+ALTER TABLE shed_product_instances ADD COLUMN last_transaction_date TIMESTAMP(3) NULL;
+
+UPDATE shed_product_instances set opened_on = CURRENT_DATE WHERE a_state <> 'PENDING';
