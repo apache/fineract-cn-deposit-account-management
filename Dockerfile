@@ -31,6 +31,6 @@ ENV server.max-http-header-size=16384 \
     server.port=$deposit_port
 
 WORKDIR /tmp
-COPY  --from=builder /builddir/service/build/libs/deposit-account-management-service-boot-0.1.0-BUILD-SNAPSHOT.jar ./deposit-account-management-service-boot.jar
+COPY  --from=builder /builddir/service/build/libs/service-0.1.0-BUILD-SNAPSHOT-boot.jar ./deposit-account-management-service-boot.jar
 
 CMD ["java", "-jar", "deposit-account-management-service-boot.jar"]
