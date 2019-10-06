@@ -1,6 +1,7 @@
-# Apache Fineract CN Deposit Account Management [![Build Status](https://api.travis-ci.com/apache/fineract-cn-deposit-account-management.svg?branch=develop)](https://travis-ci.com/apache/fineract-cn-deposit-account-management) [![Docker Cloud Build Status](https://img.shields.io/docker/cloud/build/apache/fineract-cn-deposit-account-management)](https://hub.docker.com/r/apache/fineract-cn-deposit-account-management/builds)
+# Apache Fineract CN Deposit Account Management [![Build Status](https://api.travis-ci.com/apache/fineract-cn-deposit-account-management.svg?branch=develop)](https://travis-ci.com/apache/fineract-cn-deposit-account-management) [![Docker Cloud Build Status](https://img.shields.io/docker/cloud/build/apache/fineract-cn-deposit-account-management)](https://hub.docker.com/r/apache/fineract-cn-deposit-account-management/builds) [![Docker Cloud Build Status](https://img.shields.io/docker/cloud/build/apache/fineract-cn-deposit-account-management)](https://hub.docker.com/r/apache/fineract-cn-deposit-account-management/builds)
 
 This project provides a services to create deposit accounts, e.g. checking, savings, and shares. [Read more](https://cwiki.apache.org/confluence/display/FINERACT/Fineract+CN+Project+Structure#FineractCNProjectStructure-deposit-account-management).
+[Read more](https://cwiki.apache.org/confluence/display/FINERACT/Fineract+CN+Project+Structure#FineractCNProjectStructure-deposit-account-management).
 
 
 ## Abstract
