@@ -16,21 +16,21 @@
  */
 
 group 'org.apache.fineract.cn.deposit-account-management'
-version '0.1.0-BUILD-SNAPSHOT'
+version 'spring_boot_2-SNAPSHOT'
 
 ext.versions = [
-        frameworkapi       : '0.1.0-BUILD-SNAPSHOT',
-        frameworklang      : '0.1.0-BUILD-SNAPSHOT',
-        frameworkasync     : '0.1.0-BUILD-SNAPSHOT',
-        frameworkcassandra : '0.1.0-BUILD-SNAPSHOT',
-        frameworkpostgresql: '0.1.0-BUILD-SNAPSHOT',
-        frameworkcommand   : '0.1.0-BUILD-SNAPSHOT',
-        frameworktest      : '0.1.0-BUILD-SNAPSHOT',
-        frameworkanubis    : '0.1.0-BUILD-SNAPSHOT',
-        frameworkledger    : '0.1.0-BUILD-SNAPSHOT',
-        frameworkrhythm    : '0.1.0-BUILD-SNAPSHOT',
+        frameworkapi       : 'spring_boot_2-SNAPSHOT',
+        frameworklang      : 'spring_boot_2-SNAPSHOT',
+        frameworkasync     : 'spring_boot_2-SNAPSHOT',
+        frameworkcassandra : 'spring_boot_2-SNAPSHOT',
+        frameworkpostgresql: 'spring_boot_2-SNAPSHOT',
+        frameworkcommand   : 'spring_boot_2-SNAPSHOT',
+        frameworktest      : 'spring_boot_2-SNAPSHOT',
+        frameworkanubis    : 'spring_boot_2-SNAPSHOT',
+        frameworkledger    : 'spring_boot_2-SNAPSHOT',
+        frameworkrhythm    : 'spring_boot_2-SNAPSHOT',
         javamoneylib       : '0.9-SNAPSHOT',
-        validator          : '5.3.0.Final'
+        validator          : '6.1.4.Final'
 ]
 
 tasks.withType(JavaCompile) {
@@ -46,8 +46,8 @@ repositories {
 
 dependencyManagement {
     imports {
-        mavenBom 'io.spring.platform:platform-bom:Athens-RELEASE'
-        mavenBom 'org.springframework.cloud:spring-cloud-dependencies:Camden.SR1'
+        mavenBom 'io.spring.platform:platform-bom:Cairo-SR8'
+        mavenBom 'org.springframework.cloud:spring-cloud-dependencies:Hoxton.SR3'
     }
 }
 
@@ -112,6 +112,10 @@ rat {
         "**/build/**",
         "gradlew",
         "gradlew.bat",
-        "README.md"
+        "README.md",
+        ".classpath",
+        ".project",
+        ".settings",
+        "**/bin/**"
     ]
 }

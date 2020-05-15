@@ -74,7 +74,7 @@ task rat {
     dependsOn gradle.includedBuild('component-test').task(':rat')
 }
 
-task dependencies {
+task otherDependencies {
     group 'other'
     dependsOn gradle.includedBuild('service').task(':htmlDependencyReport')
 }
