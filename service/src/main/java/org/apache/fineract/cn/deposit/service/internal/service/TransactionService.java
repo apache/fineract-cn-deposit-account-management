@@ -20,7 +20,10 @@ package org.apache.fineract.cn.deposit.service.internal.service;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.fineract.cn.accounting.api.v1.client.LedgerManager;
-import org.apache.fineract.cn.accounting.api.v1.domain.*;
+import org.apache.fineract.cn.accounting.api.v1.domain.Account;
+import org.apache.fineract.cn.accounting.api.v1.domain.Creditor;
+import org.apache.fineract.cn.accounting.api.v1.domain.Debtor;
+import org.apache.fineract.cn.accounting.api.v1.domain.JournalEntry;
 import org.apache.fineract.cn.api.util.UserContextHolder;
 import org.apache.fineract.cn.deposit.api.v1.definition.domain.Action;
 import org.apache.fineract.cn.deposit.api.v1.definition.domain.Charge;
@@ -67,6 +70,9 @@ public class TransactionService {
     private final SubTxnTypesService subTxnTypesService;
     private final TransactionRepository transactionRepository;
     private final ProductInstanceRepository productInstanceRepository;
+
+    public static final String DEBIT = "DEBIT";
+    public static final String CREDIT = "CREDIT";
 
     @Autowired
     public TransactionService(@Qualifier(ServiceConstants.LOGGER_NAME) Logger logger, LedgerManager ledgerManager,
@@ -118,7 +124,7 @@ public class TransactionService {
     private TransactionEntity doDeposit(TransactionRequestData request, AccountWrapper accountWrapper, List<Charge> charges, LocalDateTime transactionDate) {
         BigDecimal amount = request.getAmount().getAmount();
 
-        TransactionEntity txn = createTransaction(request,TransactionTypeEnum.DEPOSIT, transactionDate);
+        TransactionEntity txn = createTransaction(request,TransactionTypeEnum.DEPOSIT, transactionDate, CREDIT, null);
         String debitAccountIdentifier = accountWrapper.productDefinition.getCashAccountIdentifier();
         /* if subtxn is provided and it has an account configured the do debit that account*/
         if(StringUtils.isNotBlank(request.getSubTxnId())){
@@ -159,7 +165,7 @@ public class TransactionService {
                                  List<Charge> charges, LocalDateTime transactionDate) {
         BigDecimal amount = request.getAmount().getAmount();
 
-        TransactionEntity txn = createTransaction(request, TransactionTypeEnum.WITHDRAWAL, transactionDate);
+        TransactionEntity txn = createTransaction(request, TransactionTypeEnum.WITHDRAWAL, transactionDate, DEBIT, null);
 
         String creditAccountIdentifier = accountWrapper.productDefinition.getCashAccountIdentifier();
         /* if subtxn is provided and it has an account configured the do credit that account*/
@@ -218,6 +224,7 @@ public class TransactionService {
         for(Charge charge : charges){
             addCreditor(charge.getIncomeAccountIdentifier(), calcChargeAmount(amount, charge).doubleValue(), creditors);
             addDebtor(accountWrapper.account.getIdentifier(), calcChargeAmount(amount, charge).doubleValue(), debtors);
+            createTransaction(request,TransactionTypeEnum.CHARGES_PAYMENT, getNow(), DEBIT, txn);
         }
 
     }
@@ -351,9 +358,16 @@ public class TransactionService {
         return charges.stream().map(charge -> calcChargeAmount(amount, charge)).reduce(MathUtil::add).orElse(BigDecimal.ZERO);
     }
 
-    private TransactionEntity createTransaction(TransactionRequestData request, TransactionTypeEnum txnType, LocalDateTime transactionDate) {
+
+    private TransactionEntity createTransaction(TransactionRequestData request, TransactionTypeEnum txnType,
+                                                LocalDateTime transactionDate, String tranType,
+                                                TransactionEntity parent) {
         TransactionEntity txn = new TransactionEntity();
         UUID uuid=UUID.randomUUID();
+
+        while(transactionRepository.findByIdentifier(uuid.toString()).isPresent()){
+            uuid=UUID.randomUUID();
+        }
 
         txn.setIdentifier(uuid.toString());
         txn.setRoutingCode(request.getRoutingCode());
@@ -371,6 +385,8 @@ public class TransactionService {
         txn.setLastModifiedOn();*/
         markLastTransaction(request.getAccountId(), transactionDate);
         txn.setAccountId(request.getAccountId());
+        txn.setType(tranType);
+        txn.setParentTransaction(parent);
         transactionRepository.save(txn);
         return txn;
     }
@@ -386,6 +402,22 @@ public class TransactionService {
 
         this.productInstanceRepository.save(productInstanceEntity);
 
+    }
+    public List<StatementResponse> fetchStatement(String accountId,
+                                                  LocalDateTime fromDateTime,
+                                                  LocalDateTime toDateTime) {
+        return transactionRepository.findByAccountIdAndTransactionDateBetween(accountId, fromDateTime, toDateTime)
+                .stream().map(txn -> {
+                    StatementResponse statementObj = new StatementResponse();
+                    statementObj.setTransactionCode(txn.getIdentifier());
+                    statementObj.setTranType(txn.getTransactionType().name());
+                    statementObj.setAmount(txn.getAmount());
+                    statementObj.setTransactionDate(txn.getTransactionDate());
+                    statementObj.setSubTxnType(txn.getSubTxnType());
+                    statementObj.setType(txn.getType());
+                    statementObj.setDescription(txn.getDescription());
+                    return statementObj;
+                }).collect(Collectors.toList());
     }
 
     public static class AccountWrapper {

@@ -102,6 +102,12 @@ public class TransactionEntity {
     @Convert(converter = LocalDateTimeConverter.class)
     private LocalDateTime lastModifiedOn;
 
+    @Column(name = "a_type", length = 32)
+    private String type;
+
+    @ManyToOne(fetch = FetchType.EAGER, optional = true, cascade = CascadeType.ALL)
+    @JoinColumn(name = "parent_txn_id", nullable = false)
+    private TransactionEntity parentTransaction;
 
     public TransactionEntity() {
     }
@@ -268,5 +274,21 @@ public class TransactionEntity {
 
     public void setAccountId(String accountId) {
         this.accountId = accountId;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public TransactionEntity getParentTransaction() {
+        return parentTransaction;
+    }
+
+    public void setParentTransaction(TransactionEntity parentTransaction) {
+        this.parentTransaction = parentTransaction;
     }
 }
