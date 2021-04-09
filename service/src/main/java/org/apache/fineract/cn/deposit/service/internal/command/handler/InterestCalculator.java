@@ -457,7 +457,7 @@ public class InterestCalculator {
     final BigDecimal annualInterest = amount.multiply(baseFactor.pow(periods).subtract(BigDecimal.ONE));
 
     return annualInterest
-            .divide(BigDecimal.valueOf(lengthOfYear),
+            .divide(  BigDecimal.valueOf(lengthOfYear),
                 amount.scale() + INTEREST_PRECISION, BigDecimal.ROUND_HALF_EVEN);
   }
 }
