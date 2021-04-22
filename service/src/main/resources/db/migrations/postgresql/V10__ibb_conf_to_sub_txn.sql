@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 --
 -- Licensed to the Apache Software Foundation (ASF) under one
 -- or more contributor license agreements.  See the NOTICE file
@@ -18,13 +17,8 @@
 -- under the License.
 --
 
-ALTER TABLE shed_transactions
-ADD COLUMN a_type varchar(32)  NULL;
+ALTER TABLE shed_sub_tx_type
+ADD COLUMN ibb_conf_plus_days  INT  0;
 
-ALTER TABLE shed_transactions
-ADD COLUMN parent_txn_id bigint NULL;
-
-ALTER TABLE shed_transactions
-ADD CONSTRAINT shed_txn_to_txn_fk
-FOREIGN KEY (parent_txn_id)
-REFERENCES shed_transactions (id);
+ALTER TABLE shed_sub_tx_type
+ADD COLUMN ibb_conf_minus_days  INT  0;

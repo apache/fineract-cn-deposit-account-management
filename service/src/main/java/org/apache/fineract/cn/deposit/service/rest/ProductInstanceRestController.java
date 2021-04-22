@@ -25,10 +25,22 @@ import org.apache.fineract.cn.deposit.api.v1.EventConstants;
 import org.apache.fineract.cn.deposit.api.v1.PermittableGroupIds;
 import org.apache.fineract.cn.deposit.api.v1.instance.domain.AvailableTransactionType;
 import org.apache.fineract.cn.deposit.api.v1.instance.domain.ProductInstance;
+import org.apache.fineract.cn.deposit.api.v1.transaction.domain.data.BalanceResponse;
 import org.apache.fineract.cn.deposit.api.v1.transaction.domain.data.StatementResponse;
 import org.apache.fineract.cn.deposit.service.ServiceConstants;
 import org.apache.fineract.cn.deposit.service.internal.command.*;
 import org.apache.fineract.cn.deposit.service.internal.service.ProductInstanceService;
+
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import javax.validation.Valid;
+import org.apache.fineract.cn.anubis.annotation.AcceptedTokenType;
+import org.apache.fineract.cn.anubis.annotation.Permittable;
+import org.apache.fineract.cn.command.gateway.CommandGateway;
 import org.apache.fineract.cn.deposit.service.internal.service.TransactionService;
 import org.apache.fineract.cn.lang.ServiceException;
 import org.slf4j.Logger;
@@ -220,6 +232,18 @@ public class ProductInstanceRestController {
     List<StatementResponse> statement= transactionService.fetchStatement(identifier, fromDateTime, toDateTime);
 
     return ResponseEntity.ok(statement);
+  }
+
+  @Permittable(value = AcceptedTokenType.TENANT, groupId = PermittableGroupIds.INSTANCE_MANAGEMENT)
+  @RequestMapping(
+          value = "/{identifier}/balance",
+          method = RequestMethod.GET,
+          consumes = MediaType.ALL_VALUE,
+          produces = MediaType.APPLICATION_JSON_VALUE
+  )
+  @ResponseBody
+  ResponseEntity<BalanceResponse> balance(@PathVariable("identifier") final String identifier) {
+    return ResponseEntity.ok(transactionService.fetchBalance(identifier));
   }
 
   private  LocalDateTime convertToLocalDateTime(Date dateToConvert) {
