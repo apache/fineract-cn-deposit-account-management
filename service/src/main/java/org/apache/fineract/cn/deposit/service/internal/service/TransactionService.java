@@ -419,6 +419,14 @@ public class TransactionService {
                     return statementObj;
                 }).collect(Collectors.toList());
     }
+    
+    public BalanceResponse fetchBalance(String identifier) {
+        Account account = ledgerManager.findAccount(identifier);
+        BalanceResponse balance = new BalanceResponse();
+        balance.setBalance(new BigDecimal(account.getBalance()));
+        balance.setInterest(BigDecimal.ZERO);
+        return balance;
+    }
 
     public static class AccountWrapper {
         @NotNull
