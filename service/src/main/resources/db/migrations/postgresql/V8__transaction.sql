@@ -24,6 +24,7 @@ CREATE TABLE shed_transactions (
   routing_code                  VARCHAR(40)    NULL,
   external_id                  VARCHAR(40)     NULL,
   a_name                      VARCHAR(256)   NULL,
+  a_type                      VARCHAR(32)   NULL,
   description                 VARCHAR(1024)  NULL,
   transaction_type            VARCHAR(32)    NOT NULL,
   sub_txn_type                VARCHAR(32)  NULL,
@@ -35,6 +36,7 @@ CREATE TABLE shed_transactions (
   nostro_account_identifier   VARCHAR(32)    NULL,
   transaction_date            TIMESTAMP   NULL,
   expiration_date             TIMESTAMP   NULL,
+  parent_txn_id               BIGINT     NULL,
   created_by                  VARCHAR(32)     NULL,
   created_on                  TIMESTAMP    NULL,
   last_modified_by            VARCHAR(32)    NULL,
@@ -42,5 +44,6 @@ CREATE TABLE shed_transactions (
   CONSTRAINT pk_shed_transactions PRIMARY KEY (id),
   CONSTRAINT uk_shed_transactions_id UNIQUE (identifier),
   CONSTRAINT shed_txn_sub_txn_type_fk FOREIGN KEY (sub_txn_type) REFERENCES shed_sub_tx_type (identifier),
-  CONSTRAINT shed_txn_prod_instance_fk FOREIGN KEY (account_identifier) REFERENCES shed_product_instances (account_identifier)
+  CONSTRAINT shed_txn_prod_instance_fk FOREIGN KEY (account_identifier) REFERENCES shed_product_instances (account_identifier),
+  CONSTRAINT shed_txn_to_txn_fk FOREIGN KEY (parent_txn_id) REFERENCES shed_transactions (id)
 );
