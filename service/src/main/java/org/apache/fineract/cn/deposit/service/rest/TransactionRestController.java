@@ -59,7 +59,7 @@ public class TransactionRestController {
         this.service = service;
     }
 
-    @Permittable(value = AcceptedTokenType.TENANT, groupId = PermittableGroupIds.INSTANCE_MANAGEMENT)
+    @Permittable(value = AcceptedTokenType.TENANT, groupId = PermittableGroupIds.TXN_MANAGEMENT)
     @RequestMapping(
             value = "",
             method = RequestMethod.POST,

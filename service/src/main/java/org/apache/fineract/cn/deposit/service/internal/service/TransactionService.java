@@ -64,7 +64,6 @@ import java.util.stream.Collectors;
 public class TransactionService {
     private final Logger logger;
     private final LedgerManager ledgerManager;
-    private final ProductInstanceService productInstanceService;
     private final ProductDefinitionService productDefinitionService;
     private final ActionService actionService;
     private final SubTxnTypesService subTxnTypesService;
@@ -76,12 +75,10 @@ public class TransactionService {
 
     @Autowired
     public TransactionService(@Qualifier(ServiceConstants.LOGGER_NAME) Logger logger, LedgerManager ledgerManager,
-                              ProductInstanceService productInstanceService,
                               ProductDefinitionService productDefinitionService, ActionService actionService,
                               SubTxnTypesService subTxnTypesService, TransactionRepository transactionRepository, ProductInstanceRepository productInstanceRepository) {
         this.logger = logger;
         this.ledgerManager = ledgerManager;
-        this.productInstanceService = productInstanceService;
         this.productDefinitionService = productDefinitionService;
         this.actionService = actionService;
         this.subTxnTypesService = subTxnTypesService;
@@ -237,8 +234,10 @@ public class TransactionService {
         Account account = ledgerManager.findAccount(accountId);
         validateAccount(request, account);
 
-        ProductInstance product = productInstanceService.findByAccountIdentifier(accountId).get();
-        ProductDefinition productDefinition = productDefinitionService.findProductDefinition(product.getProductIdentifier()).get();
+        ProductInstanceEntity instance = productInstanceRepository.findByAccountIdentifier(accountId).orElseThrow(
+                () -> ServiceException.notFound("Account {0} not found", accountId)
+        );
+        ProductDefinition productDefinition = productDefinitionService.findProductDefinition(instance.getProductDefinition().getIdentifier()).get();
 
         Currency currency = productDefinition.getCurrency();
         if (!currency.getCode().equals(request.getAmount().getCurrency()))
@@ -250,7 +249,7 @@ public class TransactionService {
         if (txnType == TransactionTypeEnum.WITHDRAWAL && withdrawableBalance < request.getAmount().getAmount().doubleValue())
             throw new UnsupportedOperationException();
 
-        return new AccountWrapper(account, product, productDefinition, withdrawableBalance);
+        return new AccountWrapper(account, instance, productDefinition, withdrawableBalance);
     }
 
     Double getWithdrawableBalance(Account account, ProductDefinition productDefinition) {
@@ -265,8 +264,10 @@ public class TransactionService {
         String accountId = account.getIdentifier();
 
         if (account.getHolders() != null) { // customer account
-            ProductInstance product = productInstanceService.findByAccountIdentifier(accountId).get();
-            ProductDefinition productDefinition = productDefinitionService.findProductDefinition(product.getProductIdentifier()).get();
+            ProductInstanceEntity instance = productInstanceRepository.findByAccountIdentifier(accountId).orElseThrow(
+                    () -> ServiceException.notFound("Account {0} not found", accountId)
+            );;
+            ProductDefinition productDefinition = productDefinitionService.findProductDefinition(instance.getProductDefinition().getIdentifier()).get();
             if (!Boolean.TRUE.equals(productDefinition.getActive()))
                 throw new UnsupportedOperationException("Product Definition is inactive");
 
@@ -292,8 +293,11 @@ public class TransactionService {
                 .map(Action::getIdentifier)
                 .collect(Collectors.toList());
 
-        ProductInstance product = productInstanceService.findByAccountIdentifier(accountIdentifier).get();
-        ProductDefinition productDefinition = productDefinitionService.findProductDefinition(product.getProductIdentifier()).get();
+        ProductInstanceEntity instance = productInstanceRepository.findByAccountIdentifier(accountIdentifier).orElseThrow(
+                () -> ServiceException.notFound("Account {0} not found", accountIdentifier)
+        );;
+        ProductDefinition productDefinition = productDefinitionService.findProductDefinition(instance.getProductDefinition().getIdentifier()).get();
+
 
         return productDefinition.getCharges()
                 .stream()
@@ -432,15 +436,16 @@ public class TransactionService {
         @NotNull
         private final Account account;
         @NotNull
-        private final ProductInstance product;
+        private final ProductInstanceEntity instance;
         @NotNull
         private final ProductDefinition productDefinition;
         @NotNull
         private final Double withdrawableBalance;
 
-        public AccountWrapper(Account account, ProductInstance product, ProductDefinition productDefinition, Double withdrawableBalance) {
+        public AccountWrapper(Account account, ProductInstanceEntity instance,
+                              ProductDefinition productDefinition, Double withdrawableBalance) {
             this.account = account;
-            this.product = product;
+            this.instance = instance;
             this.productDefinition = productDefinition;
             this.withdrawableBalance = withdrawableBalance;
         }
