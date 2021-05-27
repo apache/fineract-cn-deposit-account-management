@@ -133,6 +133,8 @@ public class TransactionService {
                 if (subTxnTypeOpt.get().getLedgerAccount() != null) {
                     debitAccountIdentifier = subTxnTypeOpt.get().getLedgerAccount();
                 }
+            }else{
+                throw ServiceException.notFound("Sub Txn Type {0} not found.", request.getSubTxnId());
             }
         }
         final JournalEntry journalEntry = createJournalEntry(txn.getIdentifier(), TransactionTypeEnum.DEPOSIT.getCode(),
@@ -176,6 +178,8 @@ public class TransactionService {
                 if (subTxnTypeOpt.get().getLedgerAccount() != null) {
                     creditAccountIdentifier = subTxnTypeOpt.get().getLedgerAccount();
                 }
+            }else{
+                throw ServiceException.notFound("Sub Txn Type {0} not found.", request.getSubTxnId());
             }
         }
         final JournalEntry journalEntry = createJournalEntry(txn.getIdentifier(), TransactionTypeEnum.WITHDRAWAL.getCode(),

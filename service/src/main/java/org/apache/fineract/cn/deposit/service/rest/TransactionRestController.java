@@ -36,6 +36,7 @@ import org.apache.fineract.cn.lang.ServiceException;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -49,6 +50,10 @@ public class TransactionRestController {
     private final Logger logger;
     private final CommandGateway commandGateway;
     private final SubTxnTypesService service;
+
+    @Value("${config.txnMaxRetry}")
+    private Integer txnMaxRetry;
+
 
     @Autowired
     public TransactionRestController(@Qualifier(ServiceConstants.LOGGER_NAME) final Logger logger,
@@ -70,10 +75,29 @@ public class TransactionRestController {
     @ResponseBody
     ResponseEntity<TransactionResponseData> performTxn(@RequestParam("action") String action, @RequestBody TransactionRequestData requestData)
             throws Throwable {
-        CommandCallback<TransactionResponseData> result = commandGateway.process(new TransactionCommand(requestData, TransactionActionType.valueOf(action)),
-                TransactionResponseData.class);
+        int retryCount = 0;
+        Exception e = null;
+        do {
+            retryCount++;
+            logger.info("Try transaction :  " + retryCount + " of " + txnMaxRetry);
+            System.out.println("**************Try transaction :  " + retryCount + " of " + txnMaxRetry);
+            try {
+                CommandCallback<TransactionResponseData> result = commandGateway.process(new TransactionCommand(requestData, TransactionActionType.valueOf(action)),
+                        TransactionResponseData.class);
 
-        return ResponseEntity.ok(result.get());
+                return ResponseEntity.ok(result.get());
+            } catch (Exception ex) {
+                logger.info(ex.getClass().getCanonicalName());
+                System.out.println(ex.getClass().getCanonicalName());
+                logger.info(ex.getClass().getName());
+                System.out.println(ex.getClass().getName());
+                logger.info(ex.getMessage());
+                System.out.println(ex.getMessage());
+                e=ex;
+            }
+        } while (retryCount < txnMaxRetry);
+        //throw the last exception
+        throw e;
     }
 
 }
