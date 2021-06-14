@@ -80,7 +80,7 @@ public class TransactionRestController {
         do {
             retryCount++;
             logger.info("Try transaction :  " + retryCount + " of " + txnMaxRetry);
-            System.out.println("**************Try transaction :  " + retryCount + " of " + txnMaxRetry);
+            System.out.println("*******Try transaction :  " + retryCount + " of " + txnMaxRetry);
             try {
                 CommandCallback<TransactionResponseData> result = commandGateway.process(new TransactionCommand(requestData, TransactionActionType.valueOf(action)),
                         TransactionResponseData.class);
