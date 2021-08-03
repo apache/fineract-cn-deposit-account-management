@@ -24,12 +24,12 @@ import org.apache.fineract.cn.accounting.api.v1.domain.Account;
 import org.apache.fineract.cn.accounting.api.v1.domain.Creditor;
 import org.apache.fineract.cn.accounting.api.v1.domain.Debtor;
 import org.apache.fineract.cn.accounting.api.v1.domain.JournalEntry;
+import org.apache.fineract.cn.anubis.security.AccountLevelAccessVerifierCustom;
 import org.apache.fineract.cn.api.util.UserContextHolder;
 import org.apache.fineract.cn.deposit.api.v1.definition.domain.Action;
 import org.apache.fineract.cn.deposit.api.v1.definition.domain.Charge;
 import org.apache.fineract.cn.deposit.api.v1.definition.domain.Currency;
 import org.apache.fineract.cn.deposit.api.v1.definition.domain.ProductDefinition;
-import org.apache.fineract.cn.deposit.api.v1.instance.domain.ProductInstance;
 import org.apache.fineract.cn.deposit.api.v1.instance.domain.SubTransactionType;
 import org.apache.fineract.cn.deposit.api.v1.transaction.domain.data.*;
 import org.apache.fineract.cn.deposit.api.v1.transaction.utils.MathUtil;
@@ -44,8 +44,6 @@ import org.apache.fineract.cn.lang.ServiceException;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -62,6 +60,9 @@ import java.util.stream.Collectors;
 
 @Service
 public class TransactionService {
+    private static final String ACCT_DEPOSIT_OPERATION = "ADD";
+    private static final String ACCT_WITHDRAWAL_OPERATION = "SUBTRACT";
+    private static final String ACCT_READ_OPERATION = "READ";
     private final Logger logger;
     private final LedgerManager ledgerManager;
     private final ProductDefinitionService productDefinitionService;
@@ -69,6 +70,7 @@ public class TransactionService {
     private final SubTxnTypesService subTxnTypesService;
     private final TransactionRepository transactionRepository;
     private final ProductInstanceRepository productInstanceRepository;
+    private final AccountLevelAccessVerifierCustom accountAccessValidator;
 
     public static final String DEBIT = "DEBIT";
     public static final String CREDIT = "CREDIT";
@@ -76,7 +78,9 @@ public class TransactionService {
     @Autowired
     public TransactionService(@Qualifier(ServiceConstants.LOGGER_NAME) Logger logger, LedgerManager ledgerManager,
                               ProductDefinitionService productDefinitionService, ActionService actionService,
-                              SubTxnTypesService subTxnTypesService, TransactionRepository transactionRepository, ProductInstanceRepository productInstanceRepository) {
+                              SubTxnTypesService subTxnTypesService, TransactionRepository transactionRepository,
+                              ProductInstanceRepository productInstanceRepository,
+                              AccountLevelAccessVerifierCustom accountAccessValidator) {
         this.logger = logger;
         this.ledgerManager = ledgerManager;
         this.productDefinitionService = productDefinitionService;
@@ -84,11 +88,13 @@ public class TransactionService {
         this.subTxnTypesService = subTxnTypesService;
         this.transactionRepository = transactionRepository;
         this.productInstanceRepository = productInstanceRepository;
+        this.accountAccessValidator = accountAccessValidator;
     }
 
     @Transactional
     public TransactionResponseData withdraw(TransactionCommand command) {
         TransactionRequestData request = command.getTransactionRequest();
+        accountAccessValidator.validate(request.getAccountId(), ACCT_WITHDRAWAL_OPERATION);
         AccountWrapper accountWrapper = validateAndGetAccount(request, TransactionTypeEnum.WITHDRAWAL);
         LocalDateTime transactionDate = getNow();
         //get txntype charges
@@ -106,6 +112,7 @@ public class TransactionService {
     @Transactional
     public TransactionResponseData deposit(TransactionCommand command) {
         TransactionRequestData request = command.getTransactionRequest();
+        accountAccessValidator.validate(request.getAccountId(), ACCT_DEPOSIT_OPERATION);
         AccountWrapper accountWrapper = validateAndGetAccount(request, TransactionTypeEnum.DEPOSIT);
         LocalDateTime transactionDate = getNow();
         //get txntype charges
@@ -400,6 +407,7 @@ public class TransactionService {
     public List<StatementResponse> fetchStatement(String accountId,
                                                   LocalDateTime fromDateTime,
                                                   LocalDateTime toDateTime) {
+        accountAccessValidator.validate(accountId, ACCT_READ_OPERATION);
         return transactionRepository.findByAccountIdAndTransactionDateBetween(accountId, fromDateTime, toDateTime)
                 .stream().map(txn -> {
                     StatementResponse statementObj = new StatementResponse();
@@ -415,6 +423,7 @@ public class TransactionService {
     }
     
     public BalanceResponse fetchBalance(String identifier) {
+        accountAccessValidator.validate(identifier, ACCT_READ_OPERATION);
         Account account = ledgerManager.findAccount(identifier);
         BalanceResponse balance = new BalanceResponse();
         balance.setBalance(new BigDecimal(account.getBalance()));
