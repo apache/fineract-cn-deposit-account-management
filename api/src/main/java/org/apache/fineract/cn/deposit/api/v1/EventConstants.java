@@ -50,6 +50,9 @@ public interface EventConstants {
   String PUT_PRODUCT_INSTANCE = "put-product-instance";
   String SELECTOR_PUT_PRODUCT_INSTANCE = SELECTOR_NAME + " = '" + PUT_PRODUCT_INSTANCE + "'";
 
+  String POST_SUB_TXN_TYPE = "post-sub-txn-type";
+  String PUT_SUB_TXN_TYPE = "put-sub-txn-type";
+
   String ACTIVATE_PRODUCT_INSTANCE_COMMAND = "ACTIVATE";
   String CLOSE_PRODUCT_INSTANCE_COMMAND = "CLOSE";
   String PRODUCT_INSTANCE_TRANSACTION = "TRANSACTION";

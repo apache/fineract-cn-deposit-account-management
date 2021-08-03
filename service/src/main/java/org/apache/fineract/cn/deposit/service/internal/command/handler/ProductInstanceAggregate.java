@@ -50,6 +50,7 @@ import org.apache.fineract.cn.lang.ServiceException;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.transaction.annotation.Transactional;
 
 @Aggregate
@@ -59,6 +60,9 @@ public class ProductInstanceAggregate {
   private final ProductInstanceRepository productInstanceRepository;
   private final ProductDefinitionRepository productDefinitionRepository;
   private final AccountingService accountingService;
+
+  @Value("${config.fixedAccountId}")
+  private Boolean fixedAccountId;
 
   @Autowired
   public ProductInstanceAggregate(@Qualifier(ServiceConstants.LOGGER_NAME) final Logger logger,
@@ -89,7 +93,7 @@ public class ProductInstanceAggregate {
           this.productInstanceRepository.findByCustomerIdentifier(productInstance.getCustomerIdentifier());
 
       final int accountSuffix = currentProductInstances.size() + 1;
-      final String accountNumber =
+      final String accountNumber = fixedAccountId ? productInstance.getCustomerIdentifier() :
           productInstance.getCustomerIdentifier() +
               "." + productDefinitionEntity.getEquityLedgerIdentifier() +
               "." + String.format("%05d", accountSuffix);
