@@ -50,7 +50,7 @@ public class CollectionsRestController {
         this.commandGateway = commandGateway;
         this.collectionsService = collectionsService;
     }
-    @Permittable(value = AcceptedTokenType.TENANT, groupId = PermittableGroupIds.INSTANCE_MANAGEMENT)
+    @Permittable(value = AcceptedTokenType.TENANT, groupId = PermittableGroupIds.COLLECTION_MANAGEMENT)
     @RequestMapping(
             value = "",
             method = RequestMethod.POST,
@@ -68,7 +68,7 @@ public class CollectionsRestController {
     }
 
 
-    @Permittable(value = AcceptedTokenType.TENANT, groupId = PermittableGroupIds.INSTANCE_MANAGEMENT)
+    @Permittable(value = AcceptedTokenType.TENANT, groupId = PermittableGroupIds.COLLECTION_MANAGEMENT)
     @RequestMapping(
             value = "/{collectionsReference}",
             method = RequestMethod.PUT,
@@ -85,7 +85,7 @@ public class CollectionsRestController {
     }
 
 
-    @Permittable(value = AcceptedTokenType.TENANT, groupId = PermittableGroupIds.INSTANCE_MANAGEMENT)
+    @Permittable(value = AcceptedTokenType.TENANT, groupId = PermittableGroupIds.COLLECTION_MANAGEMENT)
     @RequestMapping(
             value = "/{collectionsReference}",
             method = RequestMethod.GET,
@@ -99,6 +99,4 @@ public class CollectionsRestController {
         CollectionsResponse result = collectionsService.fetchCollection(collectionsReference);
         return ResponseEntity.ok(result);
     }
-
-
 }

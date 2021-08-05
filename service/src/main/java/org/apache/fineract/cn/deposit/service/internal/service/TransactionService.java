@@ -61,7 +61,6 @@ import java.util.stream.Collectors;
 public class TransactionService {
     private final Logger logger;
     private final LedgerManager ledgerManager;
-    private final ProductInstanceService productInstanceService;
     private final ProductDefinitionService productDefinitionService;
     private final ActionService actionService;
     private final SubTxnTypesService subTxnTypesService;
@@ -73,12 +72,10 @@ public class TransactionService {
 
     @Autowired
     public TransactionService(@Qualifier(ServiceConstants.LOGGER_NAME) Logger logger, LedgerManager ledgerManager,
-                              ProductInstanceService productInstanceService,
                               ProductDefinitionService productDefinitionService, ActionService actionService,
                               SubTxnTypesService subTxnTypesService, TransactionRepository transactionRepository, ProductInstanceRepository productInstanceRepository) {
         this.logger = logger;
         this.ledgerManager = ledgerManager;
-        this.productInstanceService = productInstanceService;
         this.productDefinitionService = productDefinitionService;
         this.actionService = actionService;
         this.subTxnTypesService = subTxnTypesService;
@@ -92,7 +89,7 @@ public class TransactionService {
         AccountWrapper accountWrapper = validateAndGetAccount(request, request.getAccountId(), TransactionTypeEnum.WITHDRAWAL);
         LocalDateTime transactionDate = getNow();
         //get txntype charges
-        List<Charge> charges = getCharges(accountWrapper.account.getIdentifier(), TransactionTypeEnum.WITHDRAWAL);
+        List<Charge> charges = getCharges(accountWrapper.productDefinition, TransactionTypeEnum.WITHDRAWAL);
         //todo: get subTxnType charges
 
         TransactionEntity txn = doWithdraw(request, accountWrapper, charges, getNow(), request.getAccountId());
@@ -109,7 +106,7 @@ public class TransactionService {
         AccountWrapper accountWrapper = validateAndGetAccount(request, request.getAccountId(), TransactionTypeEnum.DEPOSIT);
         LocalDateTime transactionDate = getNow();
         //get txntype charges
-        List<Charge> charges = getCharges(accountWrapper.account.getIdentifier(), TransactionTypeEnum.DEPOSIT);
+        List<Charge> charges = getCharges(accountWrapper.productDefinition, TransactionTypeEnum.DEPOSIT);
         //todo: get subTxnType charges
         TransactionEntity txn = doDeposit(request, accountWrapper, charges, getNow(), request.getAccountId());
 
@@ -124,7 +121,7 @@ public class TransactionService {
         AccountWrapper toAccountWrapper = validateAndGetAccount(request, request.getToAccountId(), TransactionTypeEnum.DEPOSIT);
         LocalDateTime transactionDate = getNow();
         //get txntype charges
-        List<Charge> charges = getCharges(fromAccountWrapper.account.getIdentifier(), TransactionTypeEnum.ACCOUNT_TRANSFER);
+        List<Charge> charges = getCharges(fromAccountWrapper.productDefinition, TransactionTypeEnum.ACCOUNT_TRANSFER);
         //todo: get subTxnType charges
 
         TransactionEntity txn = doWithdraw(request, fromAccountWrapper, charges, getNow(), request.getFromAccountId());
@@ -139,7 +136,9 @@ public class TransactionService {
                                         List<Charge> charges, LocalDateTime transactionDate, String accountId) {
         BigDecimal amount = request.getAmount().getAmount();
 
-        TransactionEntity txn = createTransaction(request,TransactionTypeEnum.DEPOSIT, transactionDate, CREDIT, null, accountId);
+        TransactionEntity txn = createTransaction(request,TransactionTypeEnum.DEPOSIT, transactionDate, CREDIT,
+                null, accountId, accountWrapper.instance);
+
         String debitAccountIdentifier = accountWrapper.productDefinition.getCashAccountIdentifier();
         /* if subtxn is provided and it has an account configured the do debit that account*/
         if(StringUtils.isNotBlank(request.getSubTxnId())){
@@ -149,6 +148,8 @@ public class TransactionService {
                 if (subTxnTypeOpt.get().getLedgerAccount() != null) {
                     debitAccountIdentifier = subTxnTypeOpt.get().getLedgerAccount();
                 }
+            }else{
+                throw ServiceException.notFound("Sub Txn Type {0} not found.", request.getSubTxnId());
             }
         }
         final JournalEntry journalEntry = createJournalEntry(txn.getIdentifier(), TransactionTypeEnum.DEPOSIT.getCode(),
@@ -180,7 +181,8 @@ public class TransactionService {
                                  List<Charge> charges, LocalDateTime transactionDate, String accountId) {
         BigDecimal amount = request.getAmount().getAmount();
 
-        TransactionEntity txn = createTransaction(request, TransactionTypeEnum.WITHDRAWAL, transactionDate, DEBIT, null, accountId);
+        TransactionEntity txn = createTransaction(request, TransactionTypeEnum.WITHDRAWAL, transactionDate, DEBIT,
+                null, accountId, accountWrapper.instance);
 
         String creditAccountIdentifier = accountWrapper.productDefinition.getCashAccountIdentifier();
         /* if subtxn is provided and it has an account configured the do credit that account*/
@@ -191,6 +193,8 @@ public class TransactionService {
                 if (subTxnTypeOpt.get().getLedgerAccount() != null) {
                     creditAccountIdentifier = subTxnTypeOpt.get().getLedgerAccount();
                 }
+            }else{
+                throw ServiceException.notFound("Sub Txn Type {0} not found.", request.getSubTxnId());
             }
         }
         final JournalEntry journalEntry = createJournalEntry(txn.getIdentifier(), TransactionTypeEnum.WITHDRAWAL.getCode(),
@@ -239,7 +243,8 @@ public class TransactionService {
         for(Charge charge : charges){
             addCreditor(charge.getIncomeAccountIdentifier(), calcChargeAmount(amount, charge).doubleValue(), creditors);
             addDebtor(accountWrapper.account.getIdentifier(), calcChargeAmount(amount, charge).doubleValue(), debtors);
-            createTransaction(request,TransactionTypeEnum.CHARGES_PAYMENT, getNow(), DEBIT, txn, accountId);
+            createTransaction(request,TransactionTypeEnum.CHARGES_PAYMENT, getNow(), DEBIT, txn,
+                    accountId, accountWrapper.instance);
         }
 
     }
@@ -250,8 +255,10 @@ public class TransactionService {
         Account account = ledgerManager.findAccount(accountId);
         validateAccount(request.getAmount(), account);
 
-        ProductInstance product = productInstanceService.findByAccountIdentifier(accountId).get();
-        ProductDefinition productDefinition = productDefinitionService.findProductDefinition(product.getProductIdentifier()).get();
+        ProductInstanceEntity instance = productInstanceRepository.findByAccountIdentifier(accountId).orElseThrow(
+                () -> ServiceException.notFound("Account {0} not found", accountId)
+        );
+        ProductDefinition productDefinition = productDefinitionService.findProductDefinition(instance.getProductDefinition().getIdentifier()).get();
 
         Currency currency = productDefinition.getCurrency();
         if (!currency.getCode().equals(request.getAmount().getCurrency()))
@@ -263,7 +270,7 @@ public class TransactionService {
         if (txnType == TransactionTypeEnum.WITHDRAWAL && withdrawableBalance < request.getAmount().getAmount().doubleValue())
             throw new UnsupportedOperationException();
 
-        return new AccountWrapper(account, product, productDefinition, withdrawableBalance);
+        return new AccountWrapper(account, instance, productDefinition, withdrawableBalance);
     }
 
     Double getWithdrawableBalance(Account account, ProductDefinition productDefinition) {
@@ -278,8 +285,10 @@ public class TransactionService {
         String accountId = account.getIdentifier();
 
         if (account.getHolders() != null) { // customer account
-            ProductInstance product = productInstanceService.findByAccountIdentifier(accountId).get();
-            ProductDefinition productDefinition = productDefinitionService.findProductDefinition(product.getProductIdentifier()).get();
+            ProductInstanceEntity instance = productInstanceRepository.findByAccountIdentifier(accountId).orElseThrow(
+                    () -> ServiceException.notFound("Account {0} not found", accountId)
+            );
+            ProductDefinition productDefinition = productDefinitionService.findProductDefinition(instance.getProductDefinition().getIdentifier()).get();
             if (!Boolean.TRUE.equals(productDefinition.getActive()))
                 throw new UnsupportedOperationException("Product Definition is inactive");
 
@@ -296,7 +305,7 @@ public class TransactionService {
             throw new UnsupportedOperationException("Account is in state " + account.getState());
     }
 
-    public List<Charge> getCharges(String accountIdentifier, TransactionTypeEnum transactionType) {
+    public List<Charge> getCharges(ProductDefinition productDefinition, TransactionTypeEnum transactionType) {
         List<Action> actions = actionService.fetchActions();
 
         List<String> actionIds = actions
@@ -304,9 +313,6 @@ public class TransactionService {
                 .filter(action -> action.getTransactionType().equals(transactionType.getCode()))
                 .map(Action::getIdentifier)
                 .collect(Collectors.toList());
-
-        ProductInstance product = productInstanceService.findByAccountIdentifier(accountIdentifier).get();
-        ProductDefinition productDefinition = productDefinitionService.findProductDefinition(product.getProductIdentifier()).get();
 
         return productDefinition.getCharges()
                 .stream()
@@ -374,7 +380,8 @@ public class TransactionService {
 
     private TransactionEntity createTransaction(TransactionRequestData request, TransactionTypeEnum txnType,
                                                 LocalDateTime transactionDate, String tranType,
-                                                TransactionEntity parent, String accountId) {
+                                                TransactionEntity parent, String accountId,
+                                                ProductInstanceEntity productInstanceEntity) {
         TransactionEntity txn = new TransactionEntity();
         UUID uuid=UUID.randomUUID();
 
@@ -401,6 +408,8 @@ public class TransactionService {
         txn.setType(tranType);
         txn.setParentTransaction(parent);
         transactionRepository.save(txn);
+        productInstanceEntity.setLastTransactionDate(transactionDate);
+        this.productInstanceRepository.save(productInstanceEntity);
         return txn;
     }
 
@@ -416,6 +425,7 @@ public class TransactionService {
         this.productInstanceRepository.save(productInstanceEntity);
 
     }
+
     public List<StatementResponse> fetchStatement(String accountId,
                                                   LocalDateTime fromDateTime,
                                                   LocalDateTime toDateTime) {
@@ -446,15 +456,16 @@ public class TransactionService {
         @NotNull
         private final Account account;
         @NotNull
-        private final ProductInstance product;
+        private final ProductInstanceEntity instance;
         @NotNull
         private final ProductDefinition productDefinition;
         @NotNull
         private final Double withdrawableBalance;
 
-        public AccountWrapper(Account account, ProductInstance product, ProductDefinition productDefinition, Double withdrawableBalance) {
+        public AccountWrapper(Account account, ProductInstanceEntity instance,
+                              ProductDefinition productDefinition, Double withdrawableBalance) {
             this.account = account;
-            this.product = product;
+            this.instance = instance;
             this.productDefinition = productDefinition;
             this.withdrawableBalance = withdrawableBalance;
         }
