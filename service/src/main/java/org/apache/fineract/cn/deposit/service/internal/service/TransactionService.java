@@ -54,10 +54,7 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import java.time.Clock;
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -92,13 +89,13 @@ public class TransactionService {
     @Transactional
     public TransactionResponseData withdraw(TransactionCommand command) {
         TransactionRequestData request = command.getTransactionRequest();
-        AccountWrapper accountWrapper = validateAndGetAccount(request, TransactionTypeEnum.WITHDRAWAL);
+        AccountWrapper accountWrapper = validateAndGetAccount(request, request.getAccountId(), TransactionTypeEnum.WITHDRAWAL);
         LocalDateTime transactionDate = getNow();
         //get txntype charges
         List<Charge> charges = getCharges(accountWrapper.account.getIdentifier(), TransactionTypeEnum.WITHDRAWAL);
         //todo: get subTxnType charges
 
-        TransactionEntity txn = doWithdraw(request, accountWrapper, charges, getNow());
+        TransactionEntity txn = doWithdraw(request, accountWrapper, charges, getNow(), request.getAccountId());
 
 
         return TransactionResponseData.build(request.getRoutingCode(), request.getExternalId(),
@@ -109,22 +106,40 @@ public class TransactionService {
     @Transactional
     public TransactionResponseData deposit(TransactionCommand command) {
         TransactionRequestData request = command.getTransactionRequest();
-        AccountWrapper accountWrapper = validateAndGetAccount(request, TransactionTypeEnum.DEPOSIT);
+        AccountWrapper accountWrapper = validateAndGetAccount(request, request.getAccountId(), TransactionTypeEnum.DEPOSIT);
         LocalDateTime transactionDate = getNow();
         //get txntype charges
         List<Charge> charges = getCharges(accountWrapper.account.getIdentifier(), TransactionTypeEnum.DEPOSIT);
         //todo: get subTxnType charges
-        TransactionEntity txn = doDeposit(request, accountWrapper, charges, getNow());
+        TransactionEntity txn = doDeposit(request, accountWrapper, charges, getNow(), request.getAccountId());
 
         return TransactionResponseData.build(request.getRoutingCode(), request.getExternalId(),
                 request.getRequestCode(), ActionState.ACCEPTED,
                 null, txn.getIdentifier(), transactionDate);
     }
 
-    private TransactionEntity doDeposit(TransactionRequestData request, AccountWrapper accountWrapper, List<Charge> charges, LocalDateTime transactionDate) {
+    public TransactionResponseData transfer(TransactionCommand command) {
+        TransactionRequestData request = command.getTransactionRequest();
+        AccountWrapper fromAccountWrapper = validateAndGetAccount(request, request.getFromAccountId(), TransactionTypeEnum.WITHDRAWAL);
+        AccountWrapper toAccountWrapper = validateAndGetAccount(request, request.getToAccountId(), TransactionTypeEnum.DEPOSIT);
+        LocalDateTime transactionDate = getNow();
+        //get txntype charges
+        List<Charge> charges = getCharges(fromAccountWrapper.account.getIdentifier(), TransactionTypeEnum.ACCOUNT_TRANSFER);
+        //todo: get subTxnType charges
+
+        TransactionEntity txn = doWithdraw(request, fromAccountWrapper, charges, getNow(), request.getFromAccountId());
+        TransactionEntity txn2 = doDeposit(request, toAccountWrapper, new ArrayList<>(), getNow(), request.getToAccountId());
+
+        return TransactionResponseData.build(request.getRoutingCode(), request.getExternalId(),
+                request.getRequestCode(), ActionState.ACCEPTED,
+                null, txn.getIdentifier() +"_to_"+ txn2.getIdentifier(), transactionDate);
+    }
+
+    private TransactionEntity doDeposit(TransactionRequestData request, AccountWrapper accountWrapper,
+                                        List<Charge> charges, LocalDateTime transactionDate, String accountId) {
         BigDecimal amount = request.getAmount().getAmount();
 
-        TransactionEntity txn = createTransaction(request,TransactionTypeEnum.DEPOSIT, transactionDate, CREDIT, null);
+        TransactionEntity txn = createTransaction(request,TransactionTypeEnum.DEPOSIT, transactionDate, CREDIT, null, accountId);
         String debitAccountIdentifier = accountWrapper.productDefinition.getCashAccountIdentifier();
         /* if subtxn is provided and it has an account configured the do debit that account*/
         if(StringUtils.isNotBlank(request.getSubTxnId())){
@@ -146,7 +161,7 @@ public class TransactionService {
         addDebtor(debitAccountIdentifier, amount.doubleValue(), debtors);
 
 
-        prepareCharges(request, accountWrapper, charges, debtors, creditors, txn);
+        prepareCharges(request, accountWrapper, charges, debtors, creditors, txn, accountId);
 
         if (debtors.isEmpty()) // must be same size as creditors
             throw ServiceException.badRequest("Debit and Credit doesn't match");
@@ -162,10 +177,10 @@ public class TransactionService {
 
 
     private TransactionEntity doWithdraw(@NotNull TransactionRequestData request, @NotNull AccountWrapper accountWrapper,
-                                 List<Charge> charges, LocalDateTime transactionDate) {
+                                 List<Charge> charges, LocalDateTime transactionDate, String accountId) {
         BigDecimal amount = request.getAmount().getAmount();
 
-        TransactionEntity txn = createTransaction(request, TransactionTypeEnum.WITHDRAWAL, transactionDate, DEBIT, null);
+        TransactionEntity txn = createTransaction(request, TransactionTypeEnum.WITHDRAWAL, transactionDate, DEBIT, null, accountId);
 
         String creditAccountIdentifier = accountWrapper.productDefinition.getCashAccountIdentifier();
         /* if subtxn is provided and it has an account configured the do credit that account*/
@@ -187,7 +202,7 @@ public class TransactionService {
         addCreditor(creditAccountIdentifier, amount.doubleValue(), creditors);
         addDebtor(accountWrapper.account.getIdentifier(), amount.doubleValue(), debtors);
 
-        prepareCharges(request, accountWrapper, charges, debtors, creditors, txn);
+        prepareCharges(request, accountWrapper, charges, debtors, creditors, txn, accountId);
 
         if (debtors.isEmpty()) // must be same size as creditors
             throw ServiceException.badRequest("Debit and Credit doesn't match");
@@ -203,7 +218,7 @@ public class TransactionService {
 
     private void prepareCharges(@NotNull TransactionRequestData request, @NotNull AccountWrapper accountWrapper,
                                 @NotNull List<Charge> charges, HashSet<Debtor> debtors, HashSet<Creditor> creditors,
-                                TransactionEntity txn) {
+                                TransactionEntity txn, String accountId) {
 
 
         BigDecimal amount = request.getAmount().getAmount();
@@ -224,18 +239,16 @@ public class TransactionService {
         for(Charge charge : charges){
             addCreditor(charge.getIncomeAccountIdentifier(), calcChargeAmount(amount, charge).doubleValue(), creditors);
             addDebtor(accountWrapper.account.getIdentifier(), calcChargeAmount(amount, charge).doubleValue(), debtors);
-            createTransaction(request,TransactionTypeEnum.CHARGES_PAYMENT, getNow(), DEBIT, txn);
+            createTransaction(request,TransactionTypeEnum.CHARGES_PAYMENT, getNow(), DEBIT, txn, accountId);
         }
 
     }
 
 
-
-    private AccountWrapper validateAndGetAccount(@NotNull TransactionRequestData request, TransactionTypeEnum txnType) {
+    private AccountWrapper validateAndGetAccount(@NotNull TransactionRequestData request, String accountId, TransactionTypeEnum txnType) {
         //TODO: error handling
-        String accountId = request.getAccountId();
         Account account = ledgerManager.findAccount(accountId);
-        validateAccount(request, account);
+        validateAccount(request.getAmount(), account);
 
         ProductInstance product = productInstanceService.findByAccountIdentifier(accountId).get();
         ProductDefinition productDefinition = productDefinitionService.findProductDefinition(product.getProductIdentifier()).get();
@@ -259,7 +272,7 @@ public class TransactionService {
     }
 
 
-    private void validateAccount(@NotNull TransactionRequestData request, Account account) {
+    private void validateAccount(MoneyData requestAmount, Account account) {
         validateAccount(account);
 
         String accountId = account.getIdentifier();
@@ -271,7 +284,7 @@ public class TransactionService {
                 throw new UnsupportedOperationException("Product Definition is inactive");
 
             Currency currency = productDefinition.getCurrency();
-            if (!currency.getCode().equals(request.getAmount().getCurrency()))
+            if (!currency.getCode().equals(requestAmount.getCurrency()))
                 throw new UnsupportedOperationException();
         }
     }
@@ -361,7 +374,7 @@ public class TransactionService {
 
     private TransactionEntity createTransaction(TransactionRequestData request, TransactionTypeEnum txnType,
                                                 LocalDateTime transactionDate, String tranType,
-                                                TransactionEntity parent) {
+                                                TransactionEntity parent, String accountId) {
         TransactionEntity txn = new TransactionEntity();
         UUID uuid=UUID.randomUUID();
 
@@ -383,8 +396,8 @@ public class TransactionService {
         txn.setCreatedOn(getNow());
         /*txn.setLastModifiedBy();
         txn.setLastModifiedOn();*/
-        markLastTransaction(request.getAccountId(), transactionDate);
-        txn.setAccountId(request.getAccountId());
+        markLastTransaction(accountId, transactionDate);
+        txn.setAccountId(accountId);
         txn.setType(tranType);
         txn.setParentTransaction(parent);
         transactionRepository.save(txn);
@@ -419,6 +432,7 @@ public class TransactionService {
                     return statementObj;
                 }).collect(Collectors.toList());
     }
+
 
     public static class AccountWrapper {
         @NotNull

@@ -22,5 +22,5 @@ public enum TransactionActionType {
 
     WITHDRAWAL,
     DEPOSIT,
-    ;
+    TRANSFER;
 }

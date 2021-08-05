@@ -63,6 +63,9 @@ public class TransactionCommandHandler {
                 //command = dataValidator.validateCommitTransfer(command);
                 return transactionService.deposit(command);
             }
+            case TRANSFER: {
+                return transactionService.transfer(command);
+            }
             default:
                 return null;
         }
