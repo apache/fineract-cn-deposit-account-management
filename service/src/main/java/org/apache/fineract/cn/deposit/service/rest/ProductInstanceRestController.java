@@ -46,6 +46,7 @@ import org.apache.fineract.cn.lang.ServiceException;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -68,6 +69,10 @@ public class ProductInstanceRestController {
   private final ProductInstanceService productInstanceService;
   private final TransactionService transactionService;
 
+
+  @Value("${config.txnMaxRetry}")
+  private Integer txnMaxRetry;
+
   @Autowired
   public ProductInstanceRestController(@Qualifier(ServiceConstants.LOGGER_NAME) final Logger logger,
                                        final CommandGateway commandGateway,
@@ -88,9 +93,28 @@ public class ProductInstanceRestController {
       produces = MediaType.APPLICATION_JSON_VALUE
   )
   @ResponseBody
-  public ResponseEntity<Void> create(@RequestBody @Valid final ProductInstance productInstance) {
-    this.commandGateway.process(new CreateProductInstanceCommand(productInstance));
-    return ResponseEntity.accepted().build();
+  public ResponseEntity<Void> create(@RequestBody @Valid final ProductInstance productInstance)  throws Throwable{
+    int retryCount = 0;
+    Exception e = null;
+    do {
+      retryCount++;
+      logger.info("Try transaction :  " + retryCount + " of " + txnMaxRetry);
+      System.out.println("*******Try transaction :  " + retryCount + " of " + txnMaxRetry);
+      try {
+        this.commandGateway.process(new CreateProductInstanceCommand(productInstance));
+        return ResponseEntity.accepted().build();
+      } catch (Exception ex) {
+        logger.info(ex.getClass().getCanonicalName());
+        System.out.println(ex.getClass().getCanonicalName());
+        logger.info(ex.getClass().getName());
+        System.out.println(ex.getClass().getName());
+        logger.info(ex.getMessage());
+        System.out.println(ex.getMessage());
+        e=ex;
+      }
+    } while (retryCount < txnMaxRetry);
+    //throw the last exception
+    throw e;
   }
 
   @Permittable(value = AcceptedTokenType.TENANT, groupId = PermittableGroupIds.INSTANCE_MANAGEMENT)

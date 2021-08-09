@@ -57,7 +57,7 @@ public class SubTxnTypeRestController {
         this.service = service;
     }
 
-    @Permittable(value = AcceptedTokenType.TENANT, groupId = PermittableGroupIds.DEFINITION_MANAGEMENT)
+    @Permittable(value = AcceptedTokenType.TENANT, groupId = PermittableGroupIds.DEF_SUB_TXN_MANAGEMENT)
     @RequestMapping(
             value = "",
             method = RequestMethod.POST,
@@ -78,7 +78,7 @@ public class SubTxnTypeRestController {
         return ResponseEntity.accepted().build();
     }
 
-    @Permittable(value = AcceptedTokenType.TENANT, groupId = PermittableGroupIds.DEFINITION_MANAGEMENT)
+    @Permittable(value = AcceptedTokenType.TENANT, groupId = PermittableGroupIds.DEF_SUB_TXN_MANAGEMENT)
     @RequestMapping(
             value = "",
             method = RequestMethod.GET,
@@ -92,7 +92,7 @@ public class SubTxnTypeRestController {
     }
 
 
-    @Permittable(value = AcceptedTokenType.TENANT, groupId = PermittableGroupIds.DEFINITION_MANAGEMENT)
+    @Permittable(value = AcceptedTokenType.TENANT, groupId = PermittableGroupIds.DEF_SUB_TXN_MANAGEMENT)
     @RequestMapping(
             value = "/{identifier}",
             method = RequestMethod.GET,
@@ -110,7 +110,7 @@ public class SubTxnTypeRestController {
     }
 
 
-    @Permittable(value = AcceptedTokenType.TENANT, groupId = PermittableGroupIds.DEFINITION_MANAGEMENT)
+    @Permittable(value = AcceptedTokenType.TENANT, groupId = PermittableGroupIds.DEF_SUB_TXN_MANAGEMENT)
     @RequestMapping(
             value = "/{identifier}",
             method = RequestMethod.PUT,

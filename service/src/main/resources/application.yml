@@ -78,5 +78,6 @@ config:
   fixedAccountId: true
   otpTokenLength: 6
   tokenExpiryInSeconds: 172800
+  txnMaxRetry : 5
 
 
