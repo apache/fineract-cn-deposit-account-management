@@ -63,4 +63,5 @@ public interface EventConstants {
   String SELECTOR_INTEREST_ACCRUED = SELECTOR_NAME + " = '" + INTEREST_ACCRUED + "'";
   String INTEREST_PAYED = "interest-payed";
   String SELECTOR_INTEREST_PAYED = SELECTOR_NAME + " = '" + INTEREST_PAYED + "'";
+  String CALCULATE_IBB = "calculate-ibb";
 }
