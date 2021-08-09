@@ -23,6 +23,9 @@ spring:
       enabled: false
     config:
       enabled: false
+  jackson:
+    serialization:
+      write_dates_as_timestamps: false
 
 eureka:
   client:
@@ -30,6 +33,7 @@ eureka:
       defaultZone: http://localhost:8761/eureka/
   instance:
     homePageUrl: "http://${eureka.hostname}:2027/deposit/v1/"
+
 
 server:
   port: 2027
@@ -72,3 +76,7 @@ flyway:
 
 config:
   fixedAccountId: true
+  otpTokenLength: 6
+  tokenExpiryInSeconds: 172800
+
+
