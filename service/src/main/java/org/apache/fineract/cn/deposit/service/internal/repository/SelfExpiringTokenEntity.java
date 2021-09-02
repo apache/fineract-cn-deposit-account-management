@@ -41,6 +41,7 @@ public class SelfExpiringTokenEntity {
     @Convert(converter = LocalDateTimeConverter.class)
     private LocalDateTime tokenExpiresBy;
 
+    /*TokenStatus*/
     @Column(name = "status", length = 10)
     private String status;
 

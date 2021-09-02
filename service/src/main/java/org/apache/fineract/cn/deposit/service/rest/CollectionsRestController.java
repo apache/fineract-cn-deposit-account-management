@@ -24,8 +24,10 @@ import org.apache.fineract.cn.command.gateway.CommandGateway;
 import org.apache.fineract.cn.deposit.api.v1.PermittableGroupIds;
 import org.apache.fineract.cn.deposit.api.v1.collection.domain.data.CollectionsRequest;
 import org.apache.fineract.cn.deposit.api.v1.collection.domain.data.CollectionsResponse;
+import org.apache.fineract.cn.deposit.api.v1.collection.domain.data.SettleCollectionsRequest;
 import org.apache.fineract.cn.deposit.service.ServiceConstants;
 import org.apache.fineract.cn.deposit.service.internal.command.CreateCollectionsCommand;
+import org.apache.fineract.cn.deposit.service.internal.command.SettleCollectionsCommand;
 import org.apache.fineract.cn.deposit.service.internal.command.UpdateCollectionsCommand;
 import org.apache.fineract.cn.deposit.service.internal.service.CollectionsService;
 import org.slf4j.Logger;
@@ -98,5 +100,21 @@ public class CollectionsRestController {
             throws Throwable {
         CollectionsResponse result = collectionsService.fetchCollection(collectionsReference);
         return ResponseEntity.ok(result);
+    }
+
+    @Permittable(value = AcceptedTokenType.TENANT, groupId = PermittableGroupIds.COLLECTION_MANAGEMENT)
+    @RequestMapping(
+            value = "/settlement",
+            method = RequestMethod.POST,
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public
+    @ResponseBody
+    ResponseEntity<CollectionsResponse> settleCollection( @RequestBody SettleCollectionsRequest settleCollectionsRequest)
+            throws Throwable {
+        CommandCallback<CollectionsResponse> result = commandGateway.process(new SettleCollectionsCommand(settleCollectionsRequest),
+                CollectionsResponse.class);
+        return ResponseEntity.ok(result.get());
     }
 }

@@ -93,12 +93,18 @@ public class TransactionService {
         TransactionRequestData request = command.getTransactionRequest();
         accountAccessValidator.validate(request.getAccountId(), ACCT_WITHDRAWAL_OPERATION);
         AccountWrapper accountWrapper = validateAndGetAccount(request, request.getAccountId(), TransactionTypeEnum.WITHDRAWAL);
-        LocalDateTime transactionDate = getNow();
+        LocalDateTime transactionDate;
+        if(StringUtils.isNotBlank(request.getTransactionDate())){
+            transactionDate = DateConverter.fromIsoString(request.getTransactionDate());
+        } else {
+            transactionDate = getNow();
+        }
+
         //get txntype charges
         List<Charge> charges = getCharges(accountWrapper.productDefinition, TransactionTypeEnum.WITHDRAWAL);
         //todo: get subTxnType charges
 
-        TransactionEntity txn = doWithdraw(request, accountWrapper, charges, getNow(), request.getAccountId());
+        TransactionEntity txn = doWithdraw(request, accountWrapper, charges, transactionDate, request.getAccountId());
 
 
         return TransactionResponseData.build(request.getRoutingCode(), request.getExternalId(),
@@ -112,11 +118,16 @@ public class TransactionService {
         accountAccessValidator.validate(request.getAccountId(), ACCT_DEPOSIT_OPERATION);
         AccountWrapper accountWrapper = validateAndGetAccount(request, request.getAccountId(), TransactionTypeEnum.DEPOSIT);
 
-        LocalDateTime transactionDate = getNow();
+        LocalDateTime transactionDate;
+        if(StringUtils.isNotBlank(request.getTransactionDate())){
+            transactionDate = DateConverter.fromIsoString(request.getTransactionDate());
+        } else {
+            transactionDate = getNow();
+        }
         //get txntype charges
         List<Charge> charges = getCharges(accountWrapper.productDefinition, TransactionTypeEnum.DEPOSIT);
         //todo: get subTxnType charges
-        TransactionEntity txn = doDeposit(request, accountWrapper, charges, getNow(), request.getAccountId());
+        TransactionEntity txn = doDeposit(request, accountWrapper, charges, transactionDate, request.getAccountId());
 
         return TransactionResponseData.build(request.getRoutingCode(), request.getExternalId(),
                 request.getRequestCode(), ActionState.ACCEPTED,
@@ -127,13 +138,18 @@ public class TransactionService {
         TransactionRequestData request = command.getTransactionRequest();
         AccountWrapper fromAccountWrapper = validateAndGetAccount(request, request.getFromAccountId(), TransactionTypeEnum.WITHDRAWAL);
         AccountWrapper toAccountWrapper = validateAndGetAccount(request, request.getToAccountId(), TransactionTypeEnum.DEPOSIT);
-        LocalDateTime transactionDate = getNow();
+        LocalDateTime transactionDate;
+        if(StringUtils.isNotBlank(request.getTransactionDate())){
+            transactionDate = DateConverter.fromIsoString(request.getTransactionDate());
+        } else {
+            transactionDate = getNow();
+        }
         //get txntype charges
         List<Charge> charges = getCharges(fromAccountWrapper.productDefinition, TransactionTypeEnum.ACCOUNT_TRANSFER);
         //todo: get subTxnType charges
 
-        TransactionEntity txn = doWithdraw(request, fromAccountWrapper, charges, getNow(), request.getFromAccountId());
-        TransactionEntity txn2 = doDeposit(request, toAccountWrapper, new ArrayList<>(), getNow(), request.getToAccountId());
+        TransactionEntity txn = doWithdraw(request, fromAccountWrapper, charges, transactionDate, request.getFromAccountId());
+        TransactionEntity txn2 = doDeposit(request, toAccountWrapper, new ArrayList<>(), transactionDate, request.getToAccountId());
 
         return TransactionResponseData.build(request.getRoutingCode(), request.getExternalId(),
                 request.getRequestCode(), ActionState.ACCEPTED,
@@ -460,8 +476,6 @@ public class TransactionService {
         balance.setInterest(BigDecimal.ZERO);
         return balance;
     }
-
-
 
     public static class AccountWrapper {
         @NotNull

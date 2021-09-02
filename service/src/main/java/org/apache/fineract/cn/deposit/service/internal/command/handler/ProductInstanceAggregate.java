@@ -108,7 +108,8 @@ public class ProductInstanceAggregate {
 
     productInstanceEntity.setCreatedBy(UserContextHolder.checkedGetUser());
     productInstanceEntity.setCreatedOn(LocalDateTime.now(Clock.systemUTC()));
-    productInstanceEntity.setState("PENDING");
+    if(StringUtils.isBlank(productInstanceEntity.getState()))
+      productInstanceEntity.setState("PENDING");
 
     this.productInstanceRepository.save(productInstanceEntity);
     return productInstance.getCustomerIdentifier();

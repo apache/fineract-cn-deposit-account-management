@@ -21,11 +21,14 @@ import org.apache.fineract.cn.deposit.api.v1.collection.domain.data.TokenStatus;
 import org.apache.fineract.cn.deposit.service.ServiceConstants;
 import org.apache.fineract.cn.deposit.service.internal.repository.SelfExpiringTokenEntity;
 import org.apache.fineract.cn.deposit.service.internal.repository.SelfExpiringTokenRepository;
+import org.apache.fineract.cn.lang.ServiceException;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
@@ -61,6 +64,18 @@ public class SelfExpiringTokenService {
         entity.setEntityReference(entityReference);
         this.selfExpiringTokenRepository.save(entity);
         return entity;
+    }
+
+    public SelfExpiringTokenEntity fetchActiveToken(String token){
+        return this.selfExpiringTokenRepository.findByTokenAndStatus(token, TokenStatus.ACTIVE.name()).orElseThrow(
+                ()-> ServiceException.notFound("Active token not found")
+        );
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void markTokenAsUsed(SelfExpiringTokenEntity selfExpiringTokenEntity){
+        selfExpiringTokenEntity.setStatus(TokenStatus.USED.name());
+        this.selfExpiringTokenRepository.save(selfExpiringTokenEntity);
     }
 
     private String generateUniqueToken(){
