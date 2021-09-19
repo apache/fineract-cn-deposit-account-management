@@ -50,6 +50,14 @@ public interface EventConstants {
   String PUT_PRODUCT_INSTANCE = "put-product-instance";
   String SELECTOR_PUT_PRODUCT_INSTANCE = SELECTOR_NAME + " = '" + PUT_PRODUCT_INSTANCE + "'";
 
+  String POST_SUB_TXN_TYPE = "post-sub-txn-type";
+  String SELECTOR_POST_SUB_TXN_TYPE = SELECTOR_NAME + " = '" + POST_SUB_TXN_TYPE + "'";
+  String PUT_SUB_TXN_TYPE = "put-sub-txn-type";
+  String SELECTOR_PUT_SUB_TXN_TYPE = SELECTOR_NAME + " = '" + PUT_SUB_TXN_TYPE + "'";
+
+  String POST_TXN = "post-txn";
+  String SELECTOR_POST_TXN = SELECTOR_NAME + " = '" + POST_TXN + "'";
+
   String ACTIVATE_PRODUCT_INSTANCE_COMMAND = "ACTIVATE";
   String CLOSE_PRODUCT_INSTANCE_COMMAND = "CLOSE";
   String PRODUCT_INSTANCE_TRANSACTION = "TRANSACTION";
@@ -60,4 +68,5 @@ public interface EventConstants {
   String SELECTOR_INTEREST_ACCRUED = SELECTOR_NAME + " = '" + INTEREST_ACCRUED + "'";
   String INTEREST_PAYED = "interest-payed";
   String SELECTOR_INTEREST_PAYED = SELECTOR_NAME + " = '" + INTEREST_PAYED + "'";
+  String CALCULATE_IBB = "calculate-ibb";
 }

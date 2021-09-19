@@ -18,17 +18,22 @@
  */
 package org.apache.fineract.cn.deposit.service.rest;
 
+import org.apache.fineract.cn.anubis.annotation.AcceptedTokenType;
+import org.apache.fineract.cn.anubis.annotation.Permittable;
+import org.apache.fineract.cn.command.gateway.CommandGateway;
 import org.apache.fineract.cn.deposit.api.v1.EventConstants;
 import org.apache.fineract.cn.deposit.api.v1.PermittableGroupIds;
 import org.apache.fineract.cn.deposit.api.v1.instance.domain.AvailableTransactionType;
 import org.apache.fineract.cn.deposit.api.v1.instance.domain.ProductInstance;
+import org.apache.fineract.cn.deposit.api.v1.transaction.domain.data.BalanceResponse;
+import org.apache.fineract.cn.deposit.api.v1.transaction.domain.data.StatementResponse;
 import org.apache.fineract.cn.deposit.service.ServiceConstants;
-import org.apache.fineract.cn.deposit.service.internal.command.ActivateProductInstanceCommand;
-import org.apache.fineract.cn.deposit.service.internal.command.CloseProductInstanceCommand;
-import org.apache.fineract.cn.deposit.service.internal.command.CreateProductInstanceCommand;
-import org.apache.fineract.cn.deposit.service.internal.command.TransactionProcessedCommand;
-import org.apache.fineract.cn.deposit.service.internal.command.UpdateProductInstanceCommand;
+import org.apache.fineract.cn.deposit.service.internal.command.*;
 import org.apache.fineract.cn.deposit.service.internal.service.ProductInstanceService;
+
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -36,19 +41,24 @@ import javax.validation.Valid;
 import org.apache.fineract.cn.anubis.annotation.AcceptedTokenType;
 import org.apache.fineract.cn.anubis.annotation.Permittable;
 import org.apache.fineract.cn.command.gateway.CommandGateway;
+import org.apache.fineract.cn.deposit.service.internal.service.TransactionService;
 import org.apache.fineract.cn.lang.ServiceException;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/instances")
@@ -57,15 +67,22 @@ public class ProductInstanceRestController {
   private final Logger logger;
   private final CommandGateway commandGateway;
   private final ProductInstanceService productInstanceService;
+  private final TransactionService transactionService;
+
+
+  @Value("${config.txnMaxRetry}")
+  private Integer txnMaxRetry;
 
   @Autowired
   public ProductInstanceRestController(@Qualifier(ServiceConstants.LOGGER_NAME) final Logger logger,
                                        final CommandGateway commandGateway,
-                                       final ProductInstanceService productInstanceService) {
+                                       final ProductInstanceService productInstanceService,
+                                       TransactionService transactionService) {
     super();
     this.logger = logger;
     this.commandGateway = commandGateway;
     this.productInstanceService = productInstanceService;
+    this.transactionService = transactionService;
   }
 
   @Permittable(value = AcceptedTokenType.TENANT, groupId = PermittableGroupIds.INSTANCE_MANAGEMENT)
@@ -76,9 +93,28 @@ public class ProductInstanceRestController {
       produces = MediaType.APPLICATION_JSON_VALUE
   )
   @ResponseBody
-  public ResponseEntity<Void> create(@RequestBody @Valid final ProductInstance productInstance) {
-    this.commandGateway.process(new CreateProductInstanceCommand(productInstance));
-    return ResponseEntity.accepted().build();
+  public ResponseEntity<Void> create(@RequestBody @Valid final ProductInstance productInstance)  throws Throwable{
+    int retryCount = 0;
+    Exception e = null;
+    do {
+      retryCount++;
+      logger.info("Try transaction :  " + retryCount + " of " + txnMaxRetry);
+      System.out.println("*******Try transaction :  " + retryCount + " of " + txnMaxRetry);
+      try {
+        this.commandGateway.process(new CreateProductInstanceCommand(productInstance));
+        return ResponseEntity.accepted().build();
+      } catch (Exception ex) {
+        logger.info(ex.getClass().getCanonicalName());
+        System.out.println(ex.getClass().getCanonicalName());
+        logger.info(ex.getClass().getName());
+        System.out.println(ex.getClass().getName());
+        logger.info(ex.getMessage());
+        System.out.println(ex.getMessage());
+        e=ex;
+      }
+    } while (retryCount < txnMaxRetry);
+    //throw the last exception
+    throw e;
   }
 
   @Permittable(value = AcceptedTokenType.TENANT, groupId = PermittableGroupIds.INSTANCE_MANAGEMENT)
@@ -198,5 +234,45 @@ public class ProductInstanceRestController {
     return ResponseEntity.ok(this.productInstanceService.findByAccountIdentifier(identifier)
         .orElseThrow(() -> ServiceException.notFound("Product instance {0} not found.", identifier))
     );
+  }
+
+  @Permittable(value = AcceptedTokenType.TENANT, groupId = PermittableGroupIds.INSTANCE_MANAGEMENT)
+  @RequestMapping(
+          value = "/{identifier}/statement",
+          method = RequestMethod.GET,
+          consumes = MediaType.ALL_VALUE,
+          produces = MediaType.APPLICATION_JSON_VALUE
+  )
+  @ResponseBody
+  ResponseEntity<List<StatementResponse>> statement(@PathVariable("identifier") final String identifier,
+                                                    @RequestParam("fromDate")
+                                            @DateTimeFormat(pattern = "dd.MM.yyyy") Date fromDate,
+                                                    @RequestParam("toDate")
+                                            @DateTimeFormat(pattern = "dd.MM.yyyy") Date toDate
+                                            ) {
+    LocalDateTime fromDateTime = convertToLocalDateTime(fromDate);
+    LocalDateTime toDateTime = convertToLocalDateTime(toDate);
+
+    List<StatementResponse> statement= transactionService.fetchStatement(identifier, fromDateTime, toDateTime);
+
+    return ResponseEntity.ok(statement);
+  }
+
+  @Permittable(value = AcceptedTokenType.TENANT, groupId = PermittableGroupIds.INSTANCE_MANAGEMENT)
+  @RequestMapping(
+          value = "/{identifier}/balance",
+          method = RequestMethod.GET,
+          consumes = MediaType.ALL_VALUE,
+          produces = MediaType.APPLICATION_JSON_VALUE
+  )
+  @ResponseBody
+  ResponseEntity<BalanceResponse> balance(@PathVariable("identifier") final String identifier) {
+    return ResponseEntity.ok(transactionService.fetchBalance(identifier));
+  }
+
+  private  LocalDateTime convertToLocalDateTime(Date dateToConvert) {
+    return dateToConvert.toInstant()
+            .atZone(ZoneId.systemDefault())
+            .toLocalDateTime();
   }
 }

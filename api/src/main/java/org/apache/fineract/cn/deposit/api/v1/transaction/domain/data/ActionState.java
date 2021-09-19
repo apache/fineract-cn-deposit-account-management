@@ -16,13 +16,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.fineract.cn.deposit.api.v1;
+package org.apache.fineract.cn.deposit.api.v1.transaction.domain.data;
 
-@SuppressWarnings("unused")
-public interface PermittableGroupIds {
-  String DEFINITION_MANAGEMENT = "deposit__v1__definition";
-  String DEF_SUB_TXN_MANAGEMENT = "deposit__v1__subtxn";
-  String INSTANCE_MANAGEMENT = "deposit__v1__instance";
-  String TXN_MANAGEMENT = "deposit__v1__transaction";
-  String COLLECTION_MANAGEMENT = "deposit__v1__collection";
+public enum ActionState {
+        ACCEPTED,
+        REJECTED
 }

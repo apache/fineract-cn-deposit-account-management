@@ -65,5 +65,6 @@ public class BeatListenerRestController {
   {
     this.commandGateway.process(new BeatListenerCommand(beatPublish));
     return ResponseEntity.accepted().build();
+
   }
 }
