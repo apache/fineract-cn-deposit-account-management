@@ -104,6 +104,7 @@ public class ProductInstanceAggregate {
           productDefinitionEntity.getName(), productInstanceEntity.getCustomerIdentifier(),
           accountNumber, productInstance.getAlternativeAccountNumber(),
           productInstance.getBalance());
+      this.logger.info("Account Created Successfully for the Product !!!!!!!!!!!");
     });
 
     productInstanceEntity.setCreatedBy(UserContextHolder.checkedGetUser());
