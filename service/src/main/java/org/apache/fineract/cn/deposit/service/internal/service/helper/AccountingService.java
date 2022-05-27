@@ -58,6 +58,7 @@ public class AccountingService {
                             final Double balance) {
     try {
       final Ledger ledger = this.ledgerManager.findLedger(equityLedger);
+      this.logger.info("Account Found Successfully !!!!!!!!!!!!!!");
       final Account account = new Account();
       account.setIdentifier(accountNumber);
       account.setType(ledger.getType());
@@ -68,6 +69,7 @@ public class AccountingService {
       account.setAlternativeAccountNumber(alternativeAccountNumber);
 
       this.ledgerManager.createAccount(account);
+      this.logger.info("Account Created Successfully !!!!!!!!!!!!!!");
     } catch (final LedgerNotFoundException lnfex) {
       throw ServiceException.notFound("Ledger {0} not found.", equityLedger);
     }
