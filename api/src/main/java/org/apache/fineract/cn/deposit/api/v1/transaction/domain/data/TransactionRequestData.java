@@ -62,13 +62,16 @@ public class TransactionRequestData {
     @Length(max = 32)
     private String toAccountId;
 
+    private String transactionDate;
+
     public TransactionRequestData() {
     }
 
     public TransactionRequestData(String transactionCode, String requestCode, String routingCode, String externalId, String accountId,
                                   String note, LocalDateTime expiration,
                                   MoneyData amount, String subTxnId,
-                                  String fromAccountId, String toAccountId) {
+                                  String fromAccountId, String toAccountId,
+                                  String transactionDate) {
         this.transactionCode = transactionCode;
         this.requestCode = requestCode;
         this.routingCode = routingCode;
@@ -81,6 +84,7 @@ public class TransactionRequestData {
         this.subTxnId = subTxnId;
         this.fromAccountId = fromAccountId;
         this.toAccountId = toAccountId;
+        this.transactionDate = transactionDate;
     }
 
     @NotNull
@@ -174,5 +178,13 @@ public class TransactionRequestData {
 
     public void setToAccountId(String toAccountId) {
         this.toAccountId = toAccountId;
+    }
+
+    public String getTransactionDate() {
+        return transactionDate;
+    }
+
+    public void setTransactionDate(String transactionDate) {
+        this.transactionDate = transactionDate;
     }
 }

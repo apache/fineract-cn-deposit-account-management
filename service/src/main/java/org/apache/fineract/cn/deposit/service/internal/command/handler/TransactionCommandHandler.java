@@ -55,11 +55,9 @@ public class TransactionCommandHandler {
 
         switch (command.getAction()) {
             case WITHDRAWAL: {
-                //command = dataValidator.validatePrepareTransfer(command);
                 return transactionService.withdraw(command);
             }
             case DEPOSIT: {
-                //command = dataValidator.validateCommitTransfer(command);
                 return transactionService.deposit(command);
             }
             case TRANSFER: {
