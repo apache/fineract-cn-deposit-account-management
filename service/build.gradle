@@ -33,6 +33,7 @@ plugins {
     id 'maven-publish'
     id 'java'
     id 'idea'
+    id 'application'
 }
 
 apply from: '../shared.gradle'
@@ -87,4 +88,8 @@ publishing {
             version project.findProperty('externalVersion') ?: project.version
         }
     }
+}
+
+application {
+    mainClassName = 'org.apache.fineract.cn.deposit.service.DepositAccountManagementApplication'
 }
